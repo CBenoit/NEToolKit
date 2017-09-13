@@ -19,6 +19,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\netkit\neat\gene.h" />
+    <ClInclude Include="include\netkit\neat\genome.h" />
+    <ClInclude Include="include\netkit\neat\neat_primitive_types.h" />
+    <ClInclude Include="include\netkit\neat\parameters.h" />
     <ClInclude Include="include\netkit\network\activation_functions.h" />
     <ClInclude Include="include\netkit\network\link.h" />
     <ClInclude Include="include\netkit\network\network.h" />
@@ -26,6 +30,7 @@
     <ClInclude Include="include\netkit\network\neuron.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\netkit\neat\genome.cpp" />
     <ClCompile Include="src\netkit\network\activation_functions.cpp" />
     <ClCompile Include="src\netkit\network\network.cpp" />
     <ClCompile Include="src\netkit\network\neuron.cpp" />
@@ -102,7 +107,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>include\netkit;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -133,7 +138,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>include\netkit;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

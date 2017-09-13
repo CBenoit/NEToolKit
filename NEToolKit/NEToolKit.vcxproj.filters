@@ -25,6 +25,12 @@
     <Filter Include="Header Files\neat">
       <UniqueIdentifier>{6d3311d5-617b-4cd9-b9de-56fea41b5500}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\neat">
+      <UniqueIdentifier>{11193b6e-462b-4eb3-9127-574a28ec6673}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\rtneat">
+      <UniqueIdentifier>{5cbe71cd-8468-49ac-9a55-2ed64717f52e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\netkit\network\activation_functions.h">
@@ -42,6 +48,18 @@
     <ClInclude Include="include\netkit\network\neuron.h">
       <Filter>Header Files\network</Filter>
     </ClInclude>
+    <ClInclude Include="include\netkit\neat\genome.h">
+      <Filter>Header Files\neat</Filter>
+    </ClInclude>
+    <ClInclude Include="include\netkit\neat\neat_primitive_types.h">
+      <Filter>Header Files\neat</Filter>
+    </ClInclude>
+    <ClInclude Include="include\netkit\neat\gene.h">
+      <Filter>Header Files\neat</Filter>
+    </ClInclude>
+    <ClInclude Include="include\netkit\neat\parameters.h">
+      <Filter>Header Files\neat</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\netkit\network\activation_functions.cpp">
@@ -52,6 +70,9 @@
     </ClCompile>
     <ClCompile Include="src\netkit\network\neuron.cpp">
       <Filter>Source Files\network</Filter>
+    </ClCompile>
+    <ClCompile Include="src\netkit\neat\genome.cpp">
+      <Filter>Source Files\neat</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

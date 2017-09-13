@@ -1,6 +1,6 @@
-#include "network/network.h"
+#include "netkit/network/network.h"
 
-#include "network/activation_functions.h"
+#include "netkit/network/activation_functions.h"
 
 netkit::network::network()
 	: m_links()
@@ -29,7 +29,6 @@ void netkit::network::activate(std::vector<neuron_value_t> inputs) {
 		for (auto ilid_it = n.incoming_iterator(); ilid_it != n.incoming_iterator_end(); ++ilid_it) {
 			has_incoming = true;
 			link& incoming = m_links[*ilid_it];
-			// FIXME : check if disabled?
 			sum += m_all_neurons[incoming.from].get_value() * incoming.weight;
 		}
 

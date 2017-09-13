@@ -3,6 +3,8 @@
 #include <netkit/network/network.h>
 #include <netkit/network/network_primitive_types.h>
 #include <netkit/network/activation_functions.h>
+#include <netkit/neat/genome.h>
+#include <netkit/neat/gene.h>
 
 #include "xor_experiment.h"
 
@@ -39,6 +41,28 @@ void xor_network_test() {
 		net.activate(inputs);
 		std::cout << "Result: " << net.get_outputs()[0] << std::endl;
 	}
+
+	std::cout << std::endl << "...Performing the same with a network generated from a genome..." << std::endl;
+
+	netkit::genome genome(2, 1);
+	genome.add_gene(netkit::gene(netkit::genome::BIAS_ID, 4, -15));
+	genome.add_gene(netkit::gene(netkit::genome::BIAS_ID, 3, -5));
+	genome.add_gene(netkit::gene(1, 4, 10));
+	genome.add_gene(netkit::gene(2, 4, 10));
+	genome.add_gene(netkit::gene(1, 3, 10));
+	genome.add_gene(netkit::gene(2, 3, 10));
+	genome.add_gene(netkit::gene(4, 3, -20));
+
+	netkit::network gennet = genome.generate_network();
+
+	for (auto& inputs : inputs_per_run) {
+		std::cout << "==================" << std::endl;
+		std::cout << inputs[0] << " xor " << inputs[1] << std::endl;
+		gennet.activate(inputs);
+		std::cout << "Result: " << gennet.get_outputs()[0] << std::endl;
+	}
+
+	// TODO: add a way to print the genom (see the genes)
 }
 
 void run_xor_experiment() {

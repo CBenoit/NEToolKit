@@ -1,6 +1,6 @@
 #include <algorithm>
 
-#include "network/neuron.h"
+#include "netkit/network/neuron.h"
 
 netkit::neuron::neuron(neuron_value_t value, activation_func_t func)
 	: m_activation_func(func)
