@@ -19,33 +19,39 @@
     <Filter Include="Source Files\network">
       <UniqueIdentifier>{530f2a9a-1687-4a3e-9f01-2cb63cd5caab}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\rtneat">
+      <UniqueIdentifier>{1272a5cb-fe5b-48e7-b979-25a5c14f842e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\neat">
+      <UniqueIdentifier>{6d3311d5-617b-4cd9-b9de-56fea41b5500}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\NEAT\network\activation_functions.cpp">
-      <Filter>Source Files\network</Filter>
-    </ClCompile>
-    <ClCompile Include="src\NEAT\network\network.cpp">
-      <Filter>Source Files\network</Filter>
-    </ClCompile>
-    <ClCompile Include="src\NEAT\network\neuron.cpp">
-      <Filter>Source Files\network</Filter>
-    </ClCompile>
+    <ClInclude Include="include\netkit\network\activation_functions.h">
+      <Filter>Header Files\network</Filter>
+    </ClInclude>
+    <ClInclude Include="include\netkit\network\link.h">
+      <Filter>Header Files\network</Filter>
+    </ClInclude>
+    <ClInclude Include="include\netkit\network\network.h">
+      <Filter>Header Files\network</Filter>
+    </ClInclude>
+    <ClInclude Include="include\netkit\network\network_primitive_types.h">
+      <Filter>Header Files\network</Filter>
+    </ClInclude>
+    <ClInclude Include="include\netkit\network\neuron.h">
+      <Filter>Header Files\network</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\NEAT\network\neuron.h">
-      <Filter>Header Files\network</Filter>
-    </ClInclude>
-    <ClInclude Include="include\NEAT\network\activation_functions.h">
-      <Filter>Header Files\network</Filter>
-    </ClInclude>
-    <ClInclude Include="include\NEAT\network\link.h">
-      <Filter>Header Files\network</Filter>
-    </ClInclude>
-    <ClInclude Include="include\NEAT\network\network.h">
-      <Filter>Header Files\network</Filter>
-    </ClInclude>
-    <ClInclude Include="include\NEAT\network\network_primitive_types.h">
-      <Filter>Header Files\network</Filter>
-    </ClInclude>
+    <ClCompile Include="src\netkit\network\activation_functions.cpp">
+      <Filter>Source Files\network</Filter>
+    </ClCompile>
+    <ClCompile Include="src\netkit\network\network.cpp">
+      <Filter>Source Files\network</Filter>
+    </ClCompile>
+    <ClCompile Include="src\netkit\network\neuron.cpp">
+      <Filter>Source Files\network</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

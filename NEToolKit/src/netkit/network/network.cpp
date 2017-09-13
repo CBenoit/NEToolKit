@@ -1,19 +1,19 @@
-#include "network.h"
+#include "network/network.h"
 
-#include "activation_functions.h"
+#include "network/activation_functions.h"
 
-NEAT::network::network()
+netkit::network::network()
 	: m_links()
 	, m_all_neurons()
 	, m_input_neuron_ids()
 	, m_ouput_neuron_ids() {
-	m_all_neurons.emplace_back(1, &NEAT::sigmoid); // the bias neuron
+	m_all_neurons.emplace_back(1, &sigmoid); // the bias neuron
 	// in fact, the bias (as well as inputs functions) will never use the activation function.
 }
 
-NEAT::network::~network() {}
+netkit::network::~network() {}
 
-void NEAT::network::activate(std::vector<neuron_value_t> inputs) {
+void netkit::network::activate(std::vector<neuron_value_t> inputs) {
 	if (inputs.size() != m_input_neuron_ids.size()) {
 		throw std::invalid_argument("Incorrect number of neural network inputs.");
 	}
@@ -40,7 +40,7 @@ void NEAT::network::activate(std::vector<neuron_value_t> inputs) {
 	}
 }
 
-std::vector<NEAT::neuron_value_t> NEAT::network::get_outputs() {
+std::vector<netkit::neuron_value_t> netkit::network::get_outputs() {
 	std::vector<neuron_value_t> output_values;
 	output_values.reserve(m_ouput_neuron_ids.size());
 
@@ -51,16 +51,16 @@ std::vector<NEAT::neuron_value_t> NEAT::network::get_outputs() {
 	return std::move(output_values);
 }
 
-NEAT::neuron_id_t NEAT::network::add_neuron(neuron_type_t type, neuron n) {
+netkit::neuron_id_t netkit::network::add_neuron(neuron_type_t type, neuron n) {
 	neuron_id_t nid = m_all_neurons.size();
 
 	m_all_neurons.push_back(std::move(n));
 
 	switch (type) {
-	case NEAT::INPUT:
+	case INPUT:
 		m_input_neuron_ids.push_back(nid);
 		break;
-	case NEAT::OUTPUT:
+	case OUTPUT:
 		m_ouput_neuron_ids.push_back(nid);
 		break;
 	}
@@ -68,7 +68,7 @@ NEAT::neuron_id_t NEAT::network::add_neuron(neuron_type_t type, neuron n) {
 	return nid;
 }
 
-NEAT::link_id_t NEAT::network::add_link(neuron_id_t from_id, neuron_id_t to_id, neuron_value_t weight) {
+netkit::link_id_t netkit::network::add_link(neuron_id_t from_id, neuron_id_t to_id, neuron_value_t weight) {
 	link_id_t lid = m_links.size();
 	m_links.emplace_back(from_id, to_id, weight);
 	m_all_neurons[from_id].add_outgoing_link(lid);

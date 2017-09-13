@@ -4,7 +4,7 @@
 
 #include "network_primitive_types.h"
 
-namespace NEAT {
+namespace netkit {
 class neuron {
 public:
 	neuron(neuron_value_t value, activation_func_t func);

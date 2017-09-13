@@ -2,7 +2,7 @@
 
 #include "network_primitive_types.h"
 
-namespace NEAT {
+namespace netkit {
 struct link {
 	link(neuron_id_t from_id, neuron_id_t to_id, neuron_value_t weight)
 		: from(from_id)

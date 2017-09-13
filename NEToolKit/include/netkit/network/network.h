@@ -5,7 +5,7 @@
 #include "neuron.h"
 #include "link.h"
 
-namespace NEAT {
+namespace netkit {
 class network {
 public:
 	network();

@@ -19,16 +19,16 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\NEAT\network\activation_functions.cpp" />
-    <ClCompile Include="src\NEAT\network\network.cpp" />
-    <ClCompile Include="src\NEAT\network\neuron.cpp" />
+    <ClInclude Include="include\netkit\network\activation_functions.h" />
+    <ClInclude Include="include\netkit\network\link.h" />
+    <ClInclude Include="include\netkit\network\network.h" />
+    <ClInclude Include="include\netkit\network\network_primitive_types.h" />
+    <ClInclude Include="include\netkit\network\neuron.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\NEAT\network\activation_functions.h" />
-    <ClInclude Include="include\NEAT\network\link.h" />
-    <ClInclude Include="include\NEAT\network\network.h" />
-    <ClInclude Include="include\NEAT\network\network_primitive_types.h" />
-    <ClInclude Include="include\NEAT\network\neuron.h" />
+    <ClCompile Include="src\netkit\network\activation_functions.cpp" />
+    <ClCompile Include="src\netkit\network\network.cpp" />
+    <ClCompile Include="src\netkit\network\neuron.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
@@ -102,7 +102,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>include\NEAT\network;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>include\netkit;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -133,7 +133,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>include\NEAT\network;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>include\netkit;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

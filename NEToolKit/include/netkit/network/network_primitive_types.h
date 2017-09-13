@@ -2,7 +2,7 @@
 
 #include <functional>
 
-namespace NEAT {
+namespace netkit {
 using neuron_value_t = double;
 
 using neuron_id_t = unsigned int;
