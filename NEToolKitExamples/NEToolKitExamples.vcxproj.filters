@@ -21,9 +21,15 @@
     <ClCompile Include="src\xor_experiment.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\genome_mutations_crossovers.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\xor_experiment.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\genome_mutations_crossovers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -31,6 +31,7 @@ struct gene {
 	const innov_num_t innovation;
 	neuron_value_t weight;
 	bool enabled;
+	// TODO: ability to be frozen?
 
 	friend std::ostream& operator<<(std::ostream& os, const gene& g);
 };
