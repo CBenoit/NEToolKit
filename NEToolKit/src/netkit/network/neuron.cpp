@@ -55,3 +55,16 @@ std::vector<netkit::link_id_t>::const_iterator netkit::neuron::outgoing_iterator
 std::vector<netkit::link_id_t>::const_iterator netkit::neuron::outgoing_iterator_end() const {
 	return m_outgoing.cend();
 }
+
+std::ostream& netkit::operator<<(std::ostream& os, const neuron& n) {
+	os << "<neuron: val = " << n.m_value << " incoming = {";
+	for (link_id_t id : n.m_incoming) {
+		os << id << " ";
+	}
+	os << "} outgoing = {";
+	for (link_id_t id : n.m_outgoing) {
+		os << id << " ";
+	}
+	os << "}>";
+	return os;
+}

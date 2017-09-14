@@ -6,7 +6,8 @@ netkit::network::network()
 	: m_links()
 	, m_all_neurons()
 	, m_input_neuron_ids()
-	, m_ouput_neuron_ids() {
+	, m_ouput_neuron_ids()
+	, m_max_depth(-1) {
 	m_all_neurons.emplace_back(1, &sigmoid); // the bias neuron
 	// in fact, the bias (as well as inputs functions) will never use the activation function.
 }
@@ -64,7 +65,13 @@ netkit::neuron_id_t netkit::network::add_neuron(neuron_type_t type, neuron n) {
 		break;
 	}
 
+	m_max_depth = -1; // invalidate the max depth cache
+
 	return nid;
+}
+
+const std::vector<netkit::neuron>& netkit::network::get_neurons() const {
+	return m_all_neurons;
 }
 
 netkit::link_id_t netkit::network::add_link(neuron_id_t from_id, neuron_id_t to_id, neuron_value_t weight) {
@@ -73,4 +80,30 @@ netkit::link_id_t netkit::network::add_link(neuron_id_t from_id, neuron_id_t to_
 	m_all_neurons[from_id].add_outgoing_link(lid);
 	m_all_neurons[to_id].add_incoming_link(lid);
 	return lid;
+}
+
+const std::vector<netkit::link>& netkit::network::get_links() const {
+	return m_links;
+}
+
+std::ostream & netkit::operator<<(std::ostream & os, const network & net) {
+	os << "<network:" << std::endl;
+
+	os << "\tneurons are:" << std::endl;
+	unsigned int i = 0;
+	for (const neuron& n : net.m_all_neurons) {
+		os << "\t" << i++ << ": " << n << std::endl;
+	}
+	os << "\ttotal: " << net.m_all_neurons.size() << " neurons" << std::endl;
+
+	os << "\tlinks are:" << std::endl;
+	i = 0;
+	for (const link& l : net.m_links) {
+		os << "\t" << i++ << ": " << l << std::endl;
+	}
+	os << "\ttotal: " << net.m_links.size() << " links" << std::endl;
+
+	os << "\tmax depth = N/A>" << std::endl;
+
+	return os;
 }

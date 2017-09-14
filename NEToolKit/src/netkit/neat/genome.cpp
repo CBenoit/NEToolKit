@@ -21,17 +21,21 @@ netkit::neuron_id_t helper_find_neuron_id(netkit::network& net, std::map<netkit:
 netkit::network netkit::genome::generate_network() const {
 	network net;
 
+	// we need to map the genome neuron ids to
+	// the network neuron ids.
+	std::map<neuron_id_t, neuron_id_t> ids_map;
+
+	ids_map.emplace(BIAS_ID, network::BIAS_ID);
+
 	for (size_t i = 0; i < m_number_of_inputs; i++) {
-		net.add_neuron(INPUT, neuron(&sigmoid));
+		neuron_id_t net_neuron_id = net.add_neuron(INPUT, neuron(&sigmoid));
+		ids_map.emplace(i + 1, net_neuron_id);
 	}
 
 	for (size_t i = 0; i < m_number_of_outputs; i++) {
-		net.add_neuron(OUTPUT, neuron(&sigmoid));
+		neuron_id_t net_neuron_id = net.add_neuron(OUTPUT, neuron(&sigmoid));
+		ids_map.emplace(i + m_number_of_inputs + 1, net_neuron_id);
 	}
-
-	// we need to map the neuron ids from the genes to
-	// the network neuron ids.
-	std::map<neuron_id_t, neuron_id_t> ids_map;
 
 	for (const gene& g : m_genes) {
 		if (g.enabled) {
@@ -42,4 +46,17 @@ netkit::network netkit::genome::generate_network() const {
 	}
 
 	return std::move(net);
+}
+
+std::ostream & netkit::operator<<(std::ostream & os, const genome & genome) {
+	os << "<genome: " << genome.m_number_of_inputs << " input(s) "
+		<< genome.m_number_of_outputs << " output(s)" << std::endl;
+
+	os << "\tgenes are:" << std::endl;
+	for (const gene& g : genome.m_genes) {
+		os << "\t" << g << std::endl;
+	}
+	os << "\ttotal: " << genome.m_genes.size() << " genes>";
+
+	return os;
 }

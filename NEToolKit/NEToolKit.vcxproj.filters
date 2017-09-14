@@ -74,5 +74,11 @@
     <ClCompile Include="src\netkit\neat\genome.cpp">
       <Filter>Source Files\neat</Filter>
     </ClCompile>
+    <ClCompile Include="src\netkit\network\link.cpp">
+      <Filter>Source Files\network</Filter>
+    </ClCompile>
+    <ClCompile Include="src\netkit\neat\gene.cpp">
+      <Filter>Source Files\neat</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

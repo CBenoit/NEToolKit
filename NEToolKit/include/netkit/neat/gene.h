@@ -1,5 +1,7 @@
 #pragma once
 
+#include <iostream>
+
 #include "netkit/network/network_primitive_types.h"
 #include "neat_primitive_types.h"
 
@@ -29,5 +31,7 @@ struct gene {
 	const innov_num_t innovation;
 	neuron_value_t weight;
 	bool enabled;
+
+	friend std::ostream& operator<<(std::ostream& os, const gene& g);
 };
 }

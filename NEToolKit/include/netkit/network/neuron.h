@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <iostream>
 
 #include "network_primitive_types.h"
 
@@ -32,5 +33,7 @@ private:
 	activation_func_t m_activation_func;
 	std::vector<link_id_t> m_incoming;
 	std::vector<link_id_t> m_outgoing;
+
+	friend std::ostream& operator<<(std::ostream& os, const neuron& n);
 };
 }

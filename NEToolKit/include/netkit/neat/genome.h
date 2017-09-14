@@ -47,5 +47,7 @@ private:
 	unsigned int m_number_of_outputs; // [m_number+1:m_number+m_number_of_outputs] are the outputs.
 
 	std::vector<gene> m_genes;
+
+	friend std::ostream& operator<<(std::ostream& os, const genome& genome);
 };
 }
