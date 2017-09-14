@@ -23,10 +23,8 @@ public:
 	void add_outgoing_link(link_id_t id);
 	void remove_outgoing_link(link_id_t id);
 
-	std::vector<link_id_t>::const_iterator incoming_iterator() const;
-	std::vector<link_id_t>::const_iterator incoming_iterator_end() const;
-	std::vector<link_id_t>::const_iterator outgoing_iterator() const;
-	std::vector<link_id_t>::const_iterator outgoing_iterator_end() const;
+	const std::vector<link_id_t>& incoming_link_ids() const;
+	const std::vector<link_id_t>& outgoing_link_ids() const;
 
 private:
 	neuron_value_t m_value;

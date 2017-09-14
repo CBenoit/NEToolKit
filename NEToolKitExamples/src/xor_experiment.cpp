@@ -39,8 +39,8 @@ void xor_network_test() {
 	for (auto& inputs : inputs_per_run) {
 		std::cout << "==================" << std::endl;
 		std::cout << inputs[0] << " xor " << inputs[1] << std::endl;
-		net.activate(inputs);
-		net.activate(inputs); // twice to ensure relaxation (here max depth = 2)
+		net.load_inputs(inputs);
+		net.activate_until_relaxation();
 		std::cout << "Result: " << net.get_outputs()[0] << std::endl;
 	}
 
@@ -63,8 +63,8 @@ void xor_network_test() {
 	for (auto& inputs : inputs_per_run) {
 		std::cout << "==================" << std::endl;
 		std::cout << inputs[0] << " xor " << inputs[1] << std::endl;
-		gennet.activate(inputs);
-		gennet.activate(inputs);
+		gennet.load_inputs(inputs);
+		gennet.activate_until_relaxation();
 		std::cout << "Result: " << gennet.get_outputs()[0] << std::endl;
 	}
 }

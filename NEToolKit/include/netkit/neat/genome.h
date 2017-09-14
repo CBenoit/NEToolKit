@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <iostream>
 
 #include "gene.h"
 #include "parameters.h"

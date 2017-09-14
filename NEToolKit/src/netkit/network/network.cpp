@@ -1,5 +1,6 @@
-#include "netkit/network/network.h"
+#include <algorithm>
 
+#include "netkit/network/network.h"
 #include "netkit/network/activation_functions.h"
 
 netkit::network::network()
@@ -14,7 +15,14 @@ netkit::network::network()
 
 netkit::network::~network() {}
 
-void netkit::network::activate(std::vector<neuron_value_t> inputs) {
+void netkit::network::flush() {
+	for (neuron& n : m_all_neurons) {
+		n.force_value(0);
+	}
+	m_all_neurons[BIAS_ID].force_value(1);
+}
+
+void netkit::network::load_inputs(std::vector<neuron_value_t> inputs) {
 	if (inputs.size() != m_input_neuron_ids.size()) {
 		throw std::invalid_argument("Incorrect number of neural network inputs.");
 	}
@@ -22,14 +30,16 @@ void netkit::network::activate(std::vector<neuron_value_t> inputs) {
 	for (size_t i = 0; i < inputs.size(); ++i) {
 		m_all_neurons[m_input_neuron_ids[i]].force_value(inputs[i]);
 	}
+}
 
+void netkit::network::activate() {
 	int i = 0;
 	for (neuron& n : m_all_neurons) {
 		neuron_value_t sum = 0;
 		bool has_incoming = false;
-		for (auto ilid_it = n.incoming_iterator(); ilid_it != n.incoming_iterator_end(); ++ilid_it) {
+		for (link_id_t lid : n.incoming_link_ids()) {
 			has_incoming = true;
-			link& incoming = m_links[*ilid_it];
+			link& incoming = m_links[lid];
 			sum += m_all_neurons[incoming.from].get_value() * incoming.weight;
 		}
 
@@ -37,6 +47,12 @@ void netkit::network::activate(std::vector<neuron_value_t> inputs) {
 			// feed the neuron with the sum.
 			n.feed(sum);
 		}
+	}
+}
+
+void netkit::network::activate_until_relaxation() {
+	for (int i = max_depth(); i--;) {
+		activate();
 	}
 }
 
@@ -86,6 +102,57 @@ const std::vector<netkit::link>& netkit::network::get_links() const {
 	return m_links;
 }
 
+// used to compute the max depth
+struct path_node {
+	path_node(netkit::neuron_id_t nid, unsigned int dist)
+		: nid(nid), dist(dist) {}
+
+	netkit::neuron_id_t nid;
+	int dist;
+};
+
+int netkit::network::max_depth_for(neuron_id_t input_nid) const {
+	std::vector<path_node> open_list;
+	std::vector<neuron_id_t> closed_list;
+
+	open_list.emplace_back(input_nid, 0);
+	int worst_dist = 0;
+
+	while (!open_list.empty()) {
+		path_node current = open_list.back();
+		open_list.pop_back();
+
+		if (std::find(m_input_neuron_ids.begin(), m_input_neuron_ids.end(), current.nid) != m_input_neuron_ids.end()) {
+			if (current.dist > worst_dist) {
+				worst_dist = current.dist;
+			}
+		}
+
+		closed_list.emplace_back(current.nid);
+
+		for (auto lid : m_all_neurons[current.nid].incoming_link_ids()) {
+			if (std::find(closed_list.begin(), closed_list.end(), m_links[lid].from) == closed_list.end()) {
+				open_list.emplace_back(m_links[lid].from, current.dist + 1);
+			}
+		}
+	}
+
+	return worst_dist;
+}
+
+int netkit::network::max_depth() const {
+	if (m_max_depth == -1) {
+		m_max_depth = 0;
+		for (neuron_id_t nid : m_ouput_neuron_ids) {
+			int depth = max_depth_for(nid);
+			if (depth > m_max_depth) {
+				m_max_depth = depth;
+			}
+		}
+	}
+	return m_max_depth;
+}
+
 std::ostream & netkit::operator<<(std::ostream & os, const network & net) {
 	os << "<network:" << std::endl;
 
@@ -103,7 +170,7 @@ std::ostream & netkit::operator<<(std::ostream & os, const network & net) {
 	}
 	os << "\ttotal: " << net.m_links.size() << " links" << std::endl;
 
-	os << "\tmax depth = N/A>" << std::endl;
+	os << "\tmax depth = " << net.max_depth() << ">" << std::endl;
 
 	return os;
 }

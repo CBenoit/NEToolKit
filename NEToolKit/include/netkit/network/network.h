@@ -12,8 +12,11 @@ public:
 	network();
 	~network();
 
-	void flush(); // TODO
-	void activate(std::vector<neuron_value_t> inputs);
+	// completly discharge the network (initial state).
+	void flush();
+	void load_inputs(std::vector<neuron_value_t> inputs);
+	void activate();
+	void activate_until_relaxation();
 	std::vector<neuron_value_t> get_outputs();
 
 	neuron_id_t add_neuron(neuron_type_t type, neuron n);
@@ -21,7 +24,16 @@ public:
 	link_id_t add_link(neuron_id_t from_id, neuron_id_t to_id, neuron_value_t weight);
 	const std::vector<link>& get_links() const;
 
-	int max_depth();
+	// find the maximum depth for the given neuron that is the size longest path to an input.
+	// It uses a modified Dijkstra's algorithm to perform a full search following incoming links.
+	// Works (hopefully) even for recurrent networks.
+	// /!\ can be a bit costly on large networks.
+	// /?\ Maybe buggy on large networks because it handles recurrent networks...
+	int max_depth_for(neuron_id_t nid) const;
+
+	// /!\ based on max_depth_for so it can be costly too.
+	// that being said, it uses a cache system to avoid unnecessary recomputation.
+	int max_depth() const;
 
 public:
 	static const neuron_id_t BIAS_ID = 0;
@@ -33,7 +45,7 @@ private:
 	std::vector<neuron_id_t> m_input_neuron_ids;
 	std::vector<neuron_id_t> m_ouput_neuron_ids;
 
-	int m_max_depth; // cache the max depth of the network (-1 = invalid)
+	mutable int m_max_depth; // cache the max depth of the network (-1 = invalid)
 
 	friend std::ostream& operator<<(std::ostream& os, const network& n);
 };
