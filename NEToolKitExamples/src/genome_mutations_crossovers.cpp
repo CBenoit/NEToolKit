@@ -12,7 +12,6 @@ void run_genome_mutations_crossovers() {
 	netkit::neat neat(std::move(params));
 
 	netkit::genome geno(&neat);
-	netkit::genome geno2(&neat);
 	std::cout << "\nInitial genome: " << geno << std::endl;
 
 	geno.mutate_add_link();
@@ -35,4 +34,10 @@ void run_genome_mutations_crossovers() {
 
 	geno.mutate_add_neuron();
 	std::cout << "\nMutate add neuron:" << std::endl << geno << std::endl;
+
+	netkit::genome geno2(&neat);
+	for (size_t i = 0; i < 10; i++) {
+		geno2.random_mutate();
+	}
+	std::cout << "\nHere is another fully randomly mutated genome:" << std::endl << geno2 << std::endl;
 }

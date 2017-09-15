@@ -30,8 +30,53 @@ bool netkit::genome::link_exists(neuron_id_t from, neuron_id_t to) {
 	return false;
 }
 
+void netkit::genome::set_fitness(double fitness) {
+	m_fitness = fitness;
+}
+
+double netkit::genome::get_fitness() {
+	return m_fitness;
+}
+
 netkit::neuron_value_t generate_weight_perturbations() {
 	return static_cast<netkit::neuron_value_t>(rand()) * 6 / static_cast<netkit::neuron_value_t>(RAND_MAX) - 3;
+}
+
+netkit::genome netkit::genome::get_random_mutation() const {
+	genome offspring(*this);
+	offspring.random_mutate();
+	return std::move(offspring);
+}
+
+bool netkit::genome::random_mutate() {
+	int rnd_val = rand() % m_neat->params.sum_all_mutation_weights();
+
+	if (rnd_val < m_neat->params.mutation_add_link_weight) {
+		return mutate_add_link();
+	}
+	rnd_val -= m_neat->params.mutation_add_link_weight;
+
+	if (rnd_val < m_neat->params.mutation_add_neuron_weight) {
+		return mutate_add_neuron();
+	}
+	rnd_val -= m_neat->params.mutation_add_neuron_weight;
+
+	if (rnd_val < m_neat->params.mutation_all_weights_weight) {
+		return mutate_all_weights();
+	}
+	rnd_val -= m_neat->params.mutation_all_weights_weight;
+
+	if (rnd_val < m_neat->params.mutation_one_weight_weight) {
+		return mutate_one_weight();
+	}
+	rnd_val -= m_neat->params.mutation_one_weight_weight;
+
+	if (rnd_val < m_neat->params.mutation_reenable_gene_weight) {
+		return mutate_reenable_gene();
+	}
+
+	// the last option is...
+	return mutate_toggle_enable();
 }
 
 bool netkit::genome::mutate_add_link() {
