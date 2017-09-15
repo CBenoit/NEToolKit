@@ -4,30 +4,27 @@
 #include <iostream>
 
 #include "gene.h"
-#include "parameters.h"
+#include "neat.h"
 #include "netkit/network/network_primitive_types.h"
 #include "netkit/network/network.h"
 
 namespace netkit {
 class genome {
 public:
-	genome(unsigned int number_of_inputs, unsigned int number_of_outputs)
-		: m_number_of_inputs(number_of_inputs)
-		, m_number_of_outputs(number_of_outputs)
+	genome(neat* neat_instance)
+		: m_number_of_inputs(neat_instance->params.number_of_inputs)
+		, m_number_of_outputs(neat_instance->params.number_of_outputs)
 		, m_genes()
-		, m_known_neuron_ids() {
-		if (number_of_outputs == 0 || number_of_inputs == 0) {
-			throw std::invalid_argument("a genome needs at least one input and one output.");
-		}
-
+		, m_known_neuron_ids()
+		, m_neat(neat_instance) {
 		m_known_neuron_ids.push_back(BIAS_ID);
 
-		for (neuron_id_t i = 0; i < number_of_inputs; i++) {
+		for (neuron_id_t i = 0; i < m_number_of_inputs; i++) {
 			m_known_neuron_ids.push_back(i + 1);
 		}
 
-		for (neuron_id_t i = 0; i < number_of_outputs; i++) {
-			m_known_neuron_ids.push_back(i + 1 + number_of_inputs);
+		for (neuron_id_t i = 0; i < m_number_of_outputs; i++) {
+			m_known_neuron_ids.push_back(i + 1 + m_number_of_inputs);
 		}
 	}
 
@@ -64,11 +61,13 @@ public:
 	static const neuron_id_t BIAS_ID = 0; // the first neuron is always the bias.
 
 private:
-	unsigned int m_number_of_inputs; // [1:m_number_of_inputs] are the inputs.
-	unsigned int m_number_of_outputs; // [m_number+1:m_number+m_number_of_outputs] are the outputs.
+	const unsigned int m_number_of_inputs; // [1:m_number_of_inputs] are the inputs.
+	const unsigned int m_number_of_outputs; // [m_number+1:m_number+m_number_of_outputs] are the outputs.
 
 	std::vector<neuron_id_t> m_known_neuron_ids;
 	std::vector<gene> m_genes;
+
+	neat* m_neat;
 
 	friend std::ostream& operator<<(std::ostream& os, const genome& genome);
 };

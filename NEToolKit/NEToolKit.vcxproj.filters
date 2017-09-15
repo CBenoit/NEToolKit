@@ -63,6 +63,12 @@
     <ClInclude Include="include\netkit\neat\neat.h">
       <Filter>Header Files\neat</Filter>
     </ClInclude>
+    <ClInclude Include="include\netkit\neat\innovation_pool.h">
+      <Filter>Header Files\neat</Filter>
+    </ClInclude>
+    <ClInclude Include="include\netkit\neat\innovation.h">
+      <Filter>Header Files\neat</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\netkit\network\activation_functions.cpp">
@@ -84,6 +90,9 @@
       <Filter>Source Files\neat</Filter>
     </ClCompile>
     <ClCompile Include="src\netkit\neat\neat.cpp">
+      <Filter>Source Files\neat</Filter>
+    </ClCompile>
+    <ClCompile Include="src\netkit\neat\innovation_pool.cpp">
       <Filter>Source Files\neat</Filter>
     </ClCompile>
   </ItemGroup>

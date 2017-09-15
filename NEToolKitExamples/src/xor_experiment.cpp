@@ -46,14 +46,21 @@ void xor_network_test() {
 
 	std::cout << std::endl << "...Performing the same with a network generated from a genome..." << std::endl;
 
-	netkit::genome genome(2, 1);
-	genome.add_gene(netkit::gene(netkit::genome::BIAS_ID, 4, -15));
-	genome.add_gene(netkit::gene(netkit::genome::BIAS_ID, 3, -5));
-	genome.add_gene(netkit::gene(1, 4, 10));
-	genome.add_gene(netkit::gene(2, 4, 10));
-	genome.add_gene(netkit::gene(1, 3, 10));
-	genome.add_gene(netkit::gene(2, 3, 10));
-	genome.add_gene(netkit::gene(4, 3, -20));
+	netkit::parameters params;
+	params.number_of_inputs = 2;
+	params.number_of_outputs = 1;
+	netkit::neat neat(std::move(params));
+
+	netkit::genome genome(&neat);
+	genome.add_gene(netkit::gene(neat.innov_pool().next_innovation(),
+								 netkit::genome::BIAS_ID, 4, -15));
+	genome.add_gene(netkit::gene(neat.innov_pool().next_innovation(),
+								 netkit::genome::BIAS_ID, 3, -5));
+	genome.add_gene(netkit::gene(neat.innov_pool().next_innovation(), 1, 4, 10));
+	genome.add_gene(netkit::gene(neat.innov_pool().next_innovation(), 2, 4, 10));
+	genome.add_gene(netkit::gene(neat.innov_pool().next_innovation(), 1, 3, 10));
+	genome.add_gene(netkit::gene(neat.innov_pool().next_innovation(), 2, 3, 10));
+	genome.add_gene(netkit::gene(neat.innov_pool().next_innovation(), 4, 3, -20));
 
 	std::cout << genome << std::endl;
 

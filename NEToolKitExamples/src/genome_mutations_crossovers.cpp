@@ -6,9 +6,12 @@
 void run_genome_mutations_crossovers() {
 	std::cout << "Starting various mutations and crossover on simple genomes..." << std::endl;
 
-	netkit::init_neat();
+	netkit::parameters params;
+	params.number_of_inputs = 2;
+	params.number_of_outputs = 2;
+	netkit::neat neat(std::move(params));
 
-	netkit::genome geno(2, 2);
+	netkit::genome geno(&neat);
 	std::cout << "\nInitial genome: " << geno << std::endl;
 
 	geno.mutate_add_link();
@@ -28,4 +31,7 @@ void run_genome_mutations_crossovers() {
 
 	geno.mutate_all_weights();
 	std::cout << "\nMutate all weights:" << std::endl << geno << std::endl;
+
+	geno.mutate_add_neuron();
+	std::cout << "\nMutate add neuron:" << std::endl << geno << std::endl;
 }

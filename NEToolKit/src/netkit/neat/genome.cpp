@@ -3,8 +3,9 @@
 #include <algorithm> // find
 #include <numeric> // iota
 
-#include "netkit/neat/genome.h"
 #include "netkit/network/activation_functions.h"
+#include "netkit/neat/genome.h"
+#include "netkit/neat/innovation.h"
 
 void netkit::genome::add_gene(gene new_gene) {
 	m_genes.push_back(std::move(new_gene));
@@ -43,7 +44,21 @@ bool netkit::genome::mutate_add_link() {
 		return false;
 	}
 
-	add_gene({m_known_neuron_ids[from], m_known_neuron_ids[to], generate_weight_perturbations()});
+	const gene* existing_gene = nullptr;
+	if (m_neat->innov_pool().find_gene(m_known_neuron_ids[from], m_known_neuron_ids[to], existing_gene)) {
+		gene copied_gene(*existing_gene);
+		copied_gene.weight = generate_weight_perturbations();
+		add_gene(std::move(copied_gene));
+	} else {
+		gene new_gene(m_neat->innov_pool().next_innovation(), m_known_neuron_ids[from], m_known_neuron_ids[to], generate_weight_perturbations());
+		m_neat->innov_pool().register_gene(new_gene);
+		m_neat->innov_pool().register_innovation(innovation::new_link_innovation(
+			new_gene.innov_num,
+			new_gene.from,
+			new_gene.to
+		));
+		add_gene(std::move(new_gene));
+	}
 
 	return true;
 }
@@ -54,23 +69,42 @@ bool netkit::genome::mutate_add_neuron() {
 	std::iota(candidates_idx.begin(), candidates_idx.end(), 0);
 	std::random_shuffle(candidates_idx.begin(), candidates_idx.end());
 
-	gene* selected_gene = nullptr;
+	int sel_idx = -1; // selected gene index
 	for (size_t idx : candidates_idx) {
 		if (m_genes[idx].enabled) {
-			selected_gene = &m_genes[idx];
+			sel_idx = idx;
 			break;
 		}
 	}
 
-	if (selected_gene == nullptr) {
+	if (sel_idx == -1) {
 		return false; // no enabled gene available
 	}
 
-	selected_gene->enabled = false;
+	m_genes[sel_idx].enabled = false;
 
-	// TODO: add two new genes.
-	// need to know the next unkown neuron id.
-	// the two new genes should have the same weight as the old one.
+	const innovation* existing_innovation = nullptr;
+	if (m_neat->innov_pool().find_innovation(NEW_NEURON, m_genes[sel_idx].from, m_genes[sel_idx].to, existing_innovation) && existing_innovation->type == NEW_NEURON) {
+		add_gene({existing_innovation->innov_num, existing_innovation->from, existing_innovation->new_neuron_id, m_genes[sel_idx].weight});
+		add_gene({existing_innovation->innov_num, existing_innovation->new_neuron_id, existing_innovation->to, m_genes[sel_idx].weight});
+	} else {
+		neuron_id_t new_neuron_id = m_neat->innov_pool().next_hidden_neuron_id();
+
+		gene new_gene_1(m_neat->innov_pool().next_innovation(), m_genes[sel_idx].from, new_neuron_id, m_genes[sel_idx].weight);
+		m_neat->innov_pool().register_gene(new_gene_1);
+		add_gene(std::move(new_gene_1));
+
+		gene new_gene_2(m_neat->innov_pool().next_innovation(), new_neuron_id, m_genes[sel_idx].to, m_genes[sel_idx].weight);
+		m_neat->innov_pool().register_gene(new_gene_2);
+		add_gene(std::move(new_gene_2));
+
+		m_neat->innov_pool().register_innovation(innovation::new_neuron_innovation(
+			m_neat->innov_pool().next_innovation(),
+			m_genes[sel_idx].from,
+			m_genes[sel_idx].to,
+			new_neuron_id
+		));
+	}
 
 	return true;
 }
