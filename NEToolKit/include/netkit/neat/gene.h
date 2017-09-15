@@ -28,4 +28,6 @@ struct gene {
 
 	friend std::ostream& operator<<(std::ostream& os, const gene& g);
 };
+
+std::ostream& operator<<(std::ostream& os, const gene& g);
 }

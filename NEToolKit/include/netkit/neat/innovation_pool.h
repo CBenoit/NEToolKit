@@ -47,16 +47,38 @@ public:
 	// please register an innovation only if it isn't already registerd!
 	void register_innovation(innovation new_innov);
 
-	// NOTE: the find methods would be far better with std::optional.
-
 private:
 	neuron_id_t m_next_hidden_neuron_id;
 	innov_num_t m_next_innovation;
 	std::vector<gene> m_all_genes;
 	std::vector<innovation> m_all_innovations;
 
-	inline std::optional<gene> helper_find_gene(std::function<bool(gene)> predicate);
+    template<typename func_t>
+	inline std::optional<gene> helper_find_gene(func_t predicate) {
+        auto it = std::find_if(
+            m_all_genes.begin(), m_all_genes.end(),
+            predicate
+        );
 
-	inline std::optional<innovation> helper_find_innovation(std::function<bool(innovation)> predicate);
+        if (it == m_all_genes.end()) {
+            return {};
+        }
+
+        return *it;
+    }
+    
+    template<typename func_t>
+	inline std::optional<innovation> helper_find_innovation(func_t predicate) {
+        auto it = std::find_if(
+            m_all_innovations.begin(), m_all_innovations.end(),
+            predicate
+        );
+
+        if (it == m_all_innovations.end()) {
+            return {};
+        }
+
+        return *it;
+    }
 };
 }

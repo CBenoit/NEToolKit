@@ -34,4 +34,6 @@ private:
 
 	friend std::ostream& operator<<(std::ostream& os, const neuron& n);
 };
+
+std::ostream& operator<<(std::ostream& os, const neuron& n);
 }

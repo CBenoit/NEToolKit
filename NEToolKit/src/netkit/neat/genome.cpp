@@ -1,12 +1,14 @@
 #include <map>
 #include <cstdlib>
-#include <algorithm> // findn random_shuffle
+#include <algorithm> // find, random_shuffle
 #include <numeric> // iota
 #include <random> // random_device, mt19937
 
 #include "netkit/network/activation_functions.h"
 #include "netkit/neat/genome.h"
 #include "netkit/neat/innovation.h"
+
+const netkit::neuron_id_t netkit::genome::BIAS_ID = 0;
 
 void netkit::genome::add_gene(gene new_gene) {
 	m_genes.push_back(std::move(new_gene));

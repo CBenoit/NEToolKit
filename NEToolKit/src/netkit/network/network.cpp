@@ -3,6 +3,8 @@
 #include "netkit/network/network.h"
 #include "netkit/network/activation_functions.h"
 
+const netkit::neuron_id_t netkit::network::BIAS_ID = 0;
+
 netkit::network::network()
 	: m_links()
 	, m_all_neurons()

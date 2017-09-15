@@ -20,4 +20,6 @@ struct link {
 
 	friend std::ostream& operator<<(std::ostream& os, const link& l);
 };
+
+std::ostream& operator<<(std::ostream& os, const link& l);
 }

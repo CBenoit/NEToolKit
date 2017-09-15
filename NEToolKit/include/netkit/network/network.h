@@ -36,7 +36,7 @@ public:
 	int max_depth() const;
 
 public:
-	static const neuron_id_t BIAS_ID = 0;
+	static const neuron_id_t BIAS_ID;
 
 private:
 	std::vector<link> m_links;
@@ -49,4 +49,6 @@ private:
 
 	friend std::ostream& operator<<(std::ostream& os, const network& n);
 };
+
+std::ostream& operator<<(std::ostream& os, const network& n);
 }

@@ -62,7 +62,7 @@ public:
 	network generate_network() const;
 
 public:
-	static const neuron_id_t BIAS_ID = 0; // the first neuron is always the bias.
+	static const neuron_id_t BIAS_ID; // the first neuron is always the bias (see definition).
 
 private:
 	const unsigned int m_number_of_inputs; // [1:m_number_of_inputs] are the inputs.
@@ -77,4 +77,6 @@ private:
 
 	friend std::ostream& operator<<(std::ostream& os, const genome& genome);
 };
+
+std::ostream& operator<<(std::ostream& os, const genome& genome);
 }
