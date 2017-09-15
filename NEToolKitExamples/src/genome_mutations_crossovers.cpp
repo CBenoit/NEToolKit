@@ -12,6 +12,7 @@ void run_genome_mutations_crossovers() {
 	netkit::neat neat(std::move(params));
 
 	netkit::genome geno(&neat);
+	netkit::genome geno2(&neat);
 	std::cout << "\nInitial genome: " << geno << std::endl;
 
 	geno.mutate_add_link();

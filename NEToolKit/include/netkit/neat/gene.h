@@ -17,12 +17,7 @@ struct gene {
 	gene(innov_num_t innov_num, neuron_id_t from_id, neuron_id_t to_id)
 		: gene(innov_num, from_id, to_id, 0) {}
 
-	gene(const gene& other)
-		: innov_num(other.innov_num)
-		, from(other.from)
-		, to(other.to)
-		, weight(other.weight)
-		, enabled(other.enabled) {}
+	gene(const gene& other) = default;
 
 	const innov_num_t innov_num;
 	const neuron_id_t from;

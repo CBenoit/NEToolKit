@@ -32,7 +32,8 @@ public:
 		: m_number_of_inputs(other.m_number_of_inputs)
 		, m_number_of_outputs(other.m_number_of_outputs)
 		, m_genes(other.m_genes)
-		, m_known_neuron_ids(other.m_known_neuron_ids) {}
+		, m_known_neuron_ids(other.m_known_neuron_ids)
+		, m_neat(other.m_neat) {}
 
 	void add_gene(gene new_gene);
 
