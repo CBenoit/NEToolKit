@@ -5,7 +5,7 @@
 netkit::neuron::neuron(neuron_value_t value, activation_func_t func)
 	: m_incoming()
 	, m_outgoing()
-    , m_activation_func(func)
+	, m_activation_func(func)
 	, m_value(value) {}
 
 netkit::neuron::neuron(activation_func_t func) : neuron(0, func) {}

@@ -53,32 +53,32 @@ private:
 	std::vector<gene> m_all_genes;
 	std::vector<innovation> m_all_innovations;
 
-    template<typename func_t>
+	template<typename func_t>
 	inline std::optional<gene> helper_find_gene(func_t predicate) {
-        auto it = std::find_if(
-            m_all_genes.begin(), m_all_genes.end(),
-            predicate
-        );
+		auto it = std::find_if(
+			m_all_genes.begin(), m_all_genes.end(),
+			predicate
+		);
 
-        if (it == m_all_genes.end()) {
-            return {};
-        }
+		if (it == m_all_genes.end()) {
+			return {};
+		}
 
-        return *it;
-    }
-    
-    template<typename func_t>
+		return *it;
+	}
+
+	template<typename func_t>
 	inline std::optional<innovation> helper_find_innovation(func_t predicate) {
-        auto it = std::find_if(
-            m_all_innovations.begin(), m_all_innovations.end(),
-            predicate
-        );
+		auto it = std::find_if(
+			m_all_innovations.begin(), m_all_innovations.end(),
+			predicate
+		);
 
-        if (it == m_all_innovations.end()) {
-            return {};
-        }
+		if (it == m_all_innovations.end()) {
+			return {};
+		}
 
-        return *it;
-    }
+		return *it;
+	}
 };
 }

@@ -80,9 +80,9 @@ netkit::neuron_id_t netkit::network::add_neuron(neuron_type_t type, neuron n) {
 	case OUTPUT:
 		m_ouput_neuron_ids.push_back(nid);
 		break;
-    default:
-        // nothing to do
-        break;
+	default:
+		// nothing to do
+		break;
 	}
 
 	m_max_depth = -1; // invalidate the max depth cache

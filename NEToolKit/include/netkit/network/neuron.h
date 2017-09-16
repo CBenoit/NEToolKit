@@ -29,8 +29,8 @@ public:
 private:
 	std::vector<link_id_t> m_incoming;
 	std::vector<link_id_t> m_outgoing;
-	
-    activation_func_t m_activation_func;
+
+	activation_func_t m_activation_func;
 
 	neuron_value_t m_value;
 
