@@ -1,0 +1,13 @@
+if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+    set(OS_WINDOWS 1)
+elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    set(OS_LINUX 1)
+elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    set(OS_MACOSX 1)
+else()
+    message(FATAL_ERROR "Unsupported operating system")
+endif()
+
+if(NETKIT_SHARED)
+    set(BUILD_SHARED_LIBS 1)
+endif()

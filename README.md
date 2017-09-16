@@ -14,11 +14,15 @@ $ cd build
 $ cmake ..
 $ make
 ```
-
 And you're good to go.
+
+By default, the examples project is not build. If you want to build it, run cmake like so:
+```
+$ cmake .. -D"NETKIT_EXAMPLES=1"
+```
 
 ## Building on Windows
 
-You can probably use the `CMakeLists.txt` file too, but I'm not yet sure it works perfectly on windows (more specifically for building the example project).
-
+You can probably use the `CMakeLists.txt` file too, but I didn't tested it.
 However, you can use the Visual Studio C++ 2017 project files.
+
