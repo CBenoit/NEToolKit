@@ -33,14 +33,15 @@
     <ClInclude Include="include\netkit\network\neuron.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\netkit\neat\gene.cpp" />
-    <ClCompile Include="src\netkit\neat\genome.cpp" />
-    <ClCompile Include="src\netkit\neat\innovation_pool.cpp" />
-    <ClCompile Include="src\netkit\neat\neat.cpp" />
-    <ClCompile Include="src\netkit\network\activation_functions.cpp" />
-    <ClCompile Include="src\netkit\network\link.cpp" />
-    <ClCompile Include="src\netkit\network\network.cpp" />
-    <ClCompile Include="src\netkit\network\neuron.cpp" />
+    <ClCompile Include="src\neat\gene.cpp" />
+    <ClCompile Include="src\neat\genome.cpp" />
+    <ClCompile Include="src\neat\innovation.cpp" />
+    <ClCompile Include="src\neat\innovation_pool.cpp" />
+    <ClCompile Include="src\neat\neat.cpp" />
+    <ClCompile Include="src\network\activation_functions.cpp" />
+    <ClCompile Include="src\network\link.cpp" />
+    <ClCompile Include="src\network\network.cpp" />
+    <ClCompile Include="src\network\neuron.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

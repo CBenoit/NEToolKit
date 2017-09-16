@@ -7,16 +7,8 @@
 
 namespace netkit {
 struct gene {
-	gene(innov_num_t innov_num, neuron_id_t from_id, neuron_id_t to_id, neuron_value_t weight)
-		: innov_num(innov_num)
-		, from(from_id)
-		, to(to_id)
-		, weight(weight)
-		, enabled(true) {}
-
-	gene(innov_num_t innov_num, neuron_id_t from_id, neuron_id_t to_id)
-		: gene(innov_num, from_id, to_id, 0) {}
-
+	gene(innov_num_t innov_num, neuron_id_t from_id, neuron_id_t to_id, neuron_value_t weight);
+	gene(innov_num_t innov_num, neuron_id_t from_id, neuron_id_t to_id);
 	gene(const gene& other) = default;
 
 	const innov_num_t innov_num;

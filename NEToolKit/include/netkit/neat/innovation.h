@@ -32,12 +32,6 @@ public:
 
 private:
 	innovation(innov_type type, innov_num_t innov_num, innov_num_t innov_num_2,
-			   neuron_id_t from, neuron_id_t to, neuron_id_t new_neuron_id)
-		: type(type)
-		, innov_num(innov_num)
-		, innov_num_2(innov_num_2)
-		, from(from)
-		, to(to)
-		, new_neuron_id(new_neuron_id) {}
+			   neuron_id_t from, neuron_id_t to, neuron_id_t new_neuron_id);
 };
 }
