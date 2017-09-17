@@ -20,21 +20,19 @@ elseif(${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
     include(cmake/macros/clang-settings.cmake)
 endif()
 
-message("* ${PROJECT_NAME} build type   : ${CMAKE_BUILD_TYPE}")
+message(STATUS "${PROJECT_NAME} build type   : ${CMAKE_BUILD_TYPE}")
 
 if(NETKIT_SHARED)
-    message("* Build as shared library: Yes (default)")
+    message(STATUS "Build as shared library: Yes (default)")
 else()
-    message("* Build as shared library: No (as static)")
+    message(STATUS "Build as shared library: No (as static)")
 endif()
 
 if(NETKIT_EXAMPLES)
-    message("* Build examples         : Yes")
+    message(STATUS "Build examples         : Yes")
 else()
-    message("* Build examples         : No  (default)")
+    message(STATUS "Build examples         : No  (default)")
 endif()
-
-message("")
 
 # library
 set(NETOOLKIT_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/NEToolKit/include)

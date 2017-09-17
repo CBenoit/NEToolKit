@@ -108,8 +108,8 @@ const std::vector<netkit::link>& netkit::network::get_links() const {
 
 // used to compute the max depth
 struct path_node {
-	path_node(netkit::neuron_id_t nid, unsigned int dist)
-		: nid(nid), dist(dist) {}
+	path_node(netkit::neuron_id_t nid_, unsigned int dist_)
+		: nid(nid_), dist(dist_) {}
 
 	netkit::neuron_id_t nid;
 	int dist;
