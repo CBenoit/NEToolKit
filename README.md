@@ -22,6 +22,7 @@ to the cmake command.
 For development, you may at least enable the warnings by adding `-D"NETKIT_WITH_WARNINGS=1"` and even
 enable suggestions by adding `-D"NETKIT_WITH_SUGGESTIONS=1"` (only *suggestions* and they don't apply
 every times).
+Additionally for debugging purposes, you may add `-DCMAKE_BUILD_TYPE="Debug"` too.
 
 Furthermore, the library can either be built to be *dynamic / shared* (default behavior) or *static*.
 To get the static version, just add `-D"NETKIT_SHARED=0"`.
