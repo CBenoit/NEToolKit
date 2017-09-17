@@ -23,6 +23,9 @@ void run_genome_mutations_crossovers() {
 	geno.mutate_toggle_enable();
 	std::cout << "\nMutate toggle enable:" << std::endl << geno << std::endl;
 
+	// make a new genome based on geno
+	netkit::genome geno2(geno);
+
 	geno.mutate_reenable_gene();
 	std::cout << "\nMutate reenable gene:" << std::endl << geno << std::endl;
 
@@ -35,9 +38,15 @@ void run_genome_mutations_crossovers() {
 	geno.mutate_add_neuron();
 	std::cout << "\nMutate add neuron:" << std::endl << geno << std::endl;
 
-	netkit::genome geno2(&neat);
-	for (size_t i = 0; i < 10; i++) {
+
+	for (size_t i = 0; i < 5; i++) {
 		geno2.random_mutate();
 	}
-	std::cout << "\nHere is another fully randomly mutated genome:" << std::endl << geno2 << std::endl;
+	std::cout << "\nHere is another genome based on an older version of the previous one that has been randomly mutated:" << std::endl << geno2 << std::endl;
+
+	std::cout << "\nMultipoint crossover best:" << std::endl << geno.crossover_multipoint_best(geno2) << std::endl;
+
+	std::cout << "\nMultipoint crossover random:" << std::endl << geno.crossover_multipoint_rnd(geno2) << std::endl;
+
+	std::cout << "\nMultipoint crossover average (allow weights convergence):" << std::endl << geno.crossover_multipoint_avg(geno2) << std::endl;
 }

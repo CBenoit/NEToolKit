@@ -212,6 +212,38 @@ bool netkit::genome::mutate_all_weights() {
 	return true;
 }
 
+netkit::genome netkit::genome::random_crossover(const genome& other) const {
+
+}
+
+netkit::genome netkit::genome::crossover_multipoint_best(const genome& other) const {
+	return helper_crossover_multipoint(other, [&](const genome& p1, const gene& g1, const genome& p2, const gene& g2) -> gene {
+		if (p1.m_fitness > p2.m_fitness) {
+			return g1;
+		} else {
+			return g2;
+		}
+	});
+}
+
+netkit::genome netkit::genome::crossover_multipoint_rnd(const genome& other) const {
+	return helper_crossover_multipoint(other, [&](const genome& /*p1*/, const gene& g1, const genome& /*p2*/, const gene& g2) -> gene {
+		if (rand() % 2 == 0) {
+			return g1;
+		} else {
+			return g2;
+		}
+	});
+}
+
+netkit::genome netkit::genome::crossover_multipoint_avg(const genome& other) const {
+	return helper_crossover_multipoint(other, [&](const genome& /*p1*/, const gene& g1, const genome& /*p2*/, const gene& g2) -> gene {
+		gene new_gene(g1);
+		new_gene.weight = (g1.weight + g2.weight) / 2;
+		return std::move(new_gene);
+	});
+}
+
 netkit::network netkit::genome::generate_network() const {
 	network net;
 
