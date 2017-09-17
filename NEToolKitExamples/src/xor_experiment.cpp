@@ -1,4 +1,5 @@
 #include <iostream>
+#include <ctime>
 
 #include <netkit/network/network.h>
 #include <netkit/network/network_primitive_types.h>
@@ -44,7 +45,7 @@ void xor_network_test() {
 		std::cout << "Result: " << net.get_outputs()[0] << std::endl;
 	}
 
-	std::cout << std::endl << "...Performing the same with a network generated from a genome..." << std::endl;
+	std::cout << "\nPerforming the same with a network generated from a genome..." << std::endl;
 
 	netkit::parameters params;
 	params.number_of_inputs = 2;
@@ -74,6 +75,19 @@ void xor_network_test() {
 		gennet.activate_until_relaxation();
 		std::cout << "Result: " << gennet.get_outputs()[0] << std::endl;
 	}
+
+	std::cout << "\nBenchmark: how much does it takes to activate the xor network 100 000 times?" << std::endl;
+	std::cout << "Running the benchmark..." << std::endl;
+	clock_t begin = std::clock();
+
+	for (unsigned int i = 100000; i--; ) {
+		net.activate();
+	}
+
+	clock_t end = std::clock();
+	double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+	std::cout << "Done!" << std::endl;
+	std::cout << "It took " << elapsed_secs << " seconds of processor time to do so." << std::endl;
 }
 
 void run_xor_experiment() {
