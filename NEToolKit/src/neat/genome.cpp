@@ -8,7 +8,7 @@
 #include "netkit/neat/genome.h"
 #include "netkit/neat/innovation.h"
 
-netkit::neuron_value_t generate_weight_perturbations();
+netkit::neuron_value_t generate_weight_perturbations(double power);
 
 const netkit::neuron_id_t netkit::genome::BIAS_ID = 0;
 
@@ -94,10 +94,10 @@ bool netkit::genome::mutate_add_link() {
 		m_neat->innov_pool().find_gene(m_known_neuron_ids[from], m_known_neuron_ids[to]);
 	if (existing_gene.has_value()) {
 		gene copied_gene(*existing_gene);
-		copied_gene.weight = generate_weight_perturbations();
+		copied_gene.weight = generate_weight_perturbations(m_neat->params.initial_weight_perturbation);
 		add_gene(std::move(copied_gene));
 	} else {
-		gene new_gene(m_neat->innov_pool().next_innovation(), m_known_neuron_ids[from], m_known_neuron_ids[to], generate_weight_perturbations());
+		gene new_gene(m_neat->innov_pool().next_innovation(), m_known_neuron_ids[from], m_known_neuron_ids[to], generate_weight_perturbations(m_neat->params.initial_weight_perturbation));
 		m_neat->innov_pool().register_gene(new_gene);
 		m_neat->innov_pool().register_innovation(innovation::new_link_innovation(
 			new_gene.innov_num,
@@ -199,25 +199,37 @@ bool netkit::genome::mutate_one_weight() {
 	}
 
 	unsigned int rnd_val = rand() % static_cast<unsigned int>(m_genes.size());
-	m_genes[rnd_val].weight += generate_weight_perturbations();
+	m_genes[rnd_val].weight += generate_weight_perturbations(m_neat->params.weight_mutation_power);
 
 	return true;
 }
 
 bool netkit::genome::mutate_all_weights() {
 	for (gene& g : m_genes) {
-		g.weight += generate_weight_perturbations();
+		g.weight += generate_weight_perturbations(m_neat->params.weight_mutation_power);
 	}
 
 	return true;
 }
 
 netkit::genome netkit::genome::random_crossover(const genome& other) const {
+	unsigned int rnd_val = rand() % m_neat->params.sum_all_crossover_weights();
 
+	if (rnd_val < m_neat->params.crossover_multipoint_avg_weight) {
+		return crossover_multipoint_avg(other);
+	}
+	rnd_val -= m_neat->params.crossover_multipoint_avg_weight;
+
+	if (rnd_val < m_neat->params.crossover_multipoint_best_weight) {
+		return crossover_multipoint_best(other);
+	}
+
+	// the last option is...
+	return crossover_multipoint_rnd(other);
 }
 
 netkit::genome netkit::genome::crossover_multipoint_best(const genome& other) const {
-	return helper_crossover_multipoint(other, [&](const genome& p1, const gene& g1, const genome& p2, const gene& g2) -> gene {
+	return helper_crossover_multipoint(other, [&] (const genome& p1, const gene& g1, const genome& p2, const gene& g2) -> gene {
 		if (p1.m_fitness > p2.m_fitness) {
 			return g1;
 		} else {
@@ -227,7 +239,7 @@ netkit::genome netkit::genome::crossover_multipoint_best(const genome& other) co
 }
 
 netkit::genome netkit::genome::crossover_multipoint_rnd(const genome& other) const {
-	return helper_crossover_multipoint(other, [&](const genome& /*p1*/, const gene& g1, const genome& /*p2*/, const gene& g2) -> gene {
+	return helper_crossover_multipoint(other, [&] (const genome& /*p1*/, const gene& g1, const genome& /*p2*/, const gene& g2) -> gene {
 		if (rand() % 2 == 0) {
 			return g1;
 		} else {
@@ -237,7 +249,7 @@ netkit::genome netkit::genome::crossover_multipoint_rnd(const genome& other) con
 }
 
 netkit::genome netkit::genome::crossover_multipoint_avg(const genome& other) const {
-	return helper_crossover_multipoint(other, [&](const genome& /*p1*/, const gene& g1, const genome& /*p2*/, const gene& g2) -> gene {
+	return helper_crossover_multipoint(other, [&] (const genome& /*p1*/, const gene& g1, const genome& /*p2*/, const gene& g2) -> gene {
 		gene new_gene(g1);
 		new_gene.weight = (g1.weight + g2.weight) / 2;
 		return std::move(new_gene);
@@ -280,7 +292,8 @@ netkit::network netkit::genome::generate_network() const {
 }
 
 std::ostream & netkit::operator<<(std::ostream & os, const genome & genome) {
-	os << "<genome: " << genome.m_number_of_inputs << " input(s) "
+	os << "<genome: (fitness = " << genome.m_fitness << ") "
+		<< genome.m_number_of_inputs << " input(s) "
 		<< genome.m_number_of_outputs << " output(s)" << std::endl;
 
 	os << "\tgenes are:" << std::endl;
@@ -294,6 +307,6 @@ std::ostream & netkit::operator<<(std::ostream & os, const genome & genome) {
 
 // local function
 
-netkit::neuron_value_t generate_weight_perturbations() {
-	return static_cast<netkit::neuron_value_t>(rand()) * 6 / static_cast<netkit::neuron_value_t>(RAND_MAX) - 3;
+netkit::neuron_value_t generate_weight_perturbations(double power) {
+	return static_cast<netkit::neuron_value_t>(rand()) * power * 2 / static_cast<netkit::neuron_value_t>(RAND_MAX) - power;
 }

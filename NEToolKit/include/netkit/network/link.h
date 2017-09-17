@@ -6,8 +6,7 @@
 
 namespace netkit {
 struct link {
-	link(neuron_id_t from_id, neuron_id_t to_id, neuron_value_t weight);
-	link(neuron_id_t from_id, neuron_id_t to_id);
+	link(neuron_id_t from_id, neuron_id_t to_id, neuron_value_t weight = 0);
 
 	neuron_id_t from;
 	neuron_id_t to;
