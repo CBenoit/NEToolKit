@@ -3,10 +3,10 @@
 #include "netkit/network/neuron.h"
 
 netkit::neuron::neuron(neuron_value_t value, activation_func_t func)
-	: m_activation_func(func)
-	, m_value(value)
-	, m_incoming()
-	, m_outgoing() {}
+	: m_incoming()
+	, m_outgoing()
+    , m_activation_func(func)
+	, m_value(value) {}
 
 netkit::neuron::neuron(activation_func_t func) : neuron(0, func) {}
 
@@ -29,7 +29,7 @@ void netkit::neuron::add_incoming_link(link_id_t id) {
 }
 
 void netkit::neuron::remove_incoming_link(link_id_t id) {
-	m_incoming.erase(std::remove_if(m_incoming.begin(), m_incoming.end(), [id] (const int& i) -> bool { return i == id; }), m_incoming.end());
+	m_incoming.erase(std::remove_if(m_incoming.begin(), m_incoming.end(), [id] (const link_id_t& i) -> bool { return i == id; }), m_incoming.end());
 }
 
 void netkit::neuron::add_outgoing_link(link_id_t id) {

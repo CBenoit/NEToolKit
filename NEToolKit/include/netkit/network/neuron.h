@@ -27,10 +27,12 @@ public:
 	const std::vector<link_id_t>& outgoing_link_ids() const;
 
 private:
-	neuron_value_t m_value;
-	activation_func_t m_activation_func;
 	std::vector<link_id_t> m_incoming;
 	std::vector<link_id_t> m_outgoing;
+	
+    activation_func_t m_activation_func;
+
+	neuron_value_t m_value;
 
 	friend std::ostream& operator<<(std::ostream& os, const neuron& n);
 };

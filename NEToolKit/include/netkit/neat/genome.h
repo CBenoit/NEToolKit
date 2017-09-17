@@ -68,8 +68,8 @@ private:
 	const unsigned int m_number_of_inputs; // [1:m_number_of_inputs] are the inputs.
 	const unsigned int m_number_of_outputs; // [m_number+1:m_number+m_number_of_outputs] are the outputs.
 
-	std::vector<neuron_id_t> m_known_neuron_ids;
 	std::vector<gene> m_genes;
+	std::vector<neuron_id_t> m_known_neuron_ids;
 
 	neat* m_neat;
 

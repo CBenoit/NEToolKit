@@ -35,7 +35,6 @@ void netkit::network::load_inputs(std::vector<neuron_value_t> inputs) {
 }
 
 void netkit::network::activate() {
-	int i = 0;
 	for (neuron& n : m_all_neurons) {
 		neuron_value_t sum = 0;
 		bool has_incoming = false;
@@ -70,7 +69,7 @@ std::vector<netkit::neuron_value_t> netkit::network::get_outputs() {
 }
 
 netkit::neuron_id_t netkit::network::add_neuron(neuron_type_t type, neuron n) {
-	neuron_id_t nid = m_all_neurons.size();
+	neuron_id_t nid = static_cast<neuron_id_t>(m_all_neurons.size());
 
 	m_all_neurons.push_back(std::move(n));
 
@@ -81,6 +80,9 @@ netkit::neuron_id_t netkit::network::add_neuron(neuron_type_t type, neuron n) {
 	case OUTPUT:
 		m_ouput_neuron_ids.push_back(nid);
 		break;
+    default:
+        // nothing to do
+        break;
 	}
 
 	m_max_depth = -1; // invalidate the max depth cache
@@ -93,7 +95,7 @@ const std::vector<netkit::neuron>& netkit::network::get_neurons() const {
 }
 
 netkit::link_id_t netkit::network::add_link(neuron_id_t from_id, neuron_id_t to_id, neuron_value_t weight) {
-	link_id_t lid = m_links.size();
+	link_id_t lid = static_cast<link_id_t>(m_links.size());
 	m_links.emplace_back(from_id, to_id, weight);
 	m_all_neurons[from_id].add_outgoing_link(lid);
 	m_all_neurons[to_id].add_incoming_link(lid);

@@ -8,6 +8,8 @@
 #include "netkit/neat/genome.h"
 #include "netkit/neat/innovation.h"
 
+netkit::neuron_value_t generate_weight_perturbations();
+
 const netkit::neuron_id_t netkit::genome::BIAS_ID = 0;
 
 void netkit::genome::add_gene(gene new_gene) {
@@ -40,10 +42,6 @@ double netkit::genome::get_fitness() {
 	return m_fitness;
 }
 
-netkit::neuron_value_t generate_weight_perturbations() {
-	return static_cast<netkit::neuron_value_t>(rand()) * 6 / static_cast<netkit::neuron_value_t>(RAND_MAX) - 3;
-}
-
 netkit::genome netkit::genome::get_random_mutation() const {
 	genome offspring(*this);
 	offspring.random_mutate();
@@ -51,7 +49,7 @@ netkit::genome netkit::genome::get_random_mutation() const {
 }
 
 bool netkit::genome::random_mutate() {
-	int rnd_val = rand() % m_neat->params.sum_all_mutation_weights();
+	unsigned int rnd_val = rand() % m_neat->params.sum_all_mutation_weights();
 
 	if (rnd_val < m_neat->params.mutation_add_link_weight) {
 		return mutate_add_link();
@@ -82,10 +80,10 @@ bool netkit::genome::random_mutate() {
 }
 
 bool netkit::genome::mutate_add_link() {
-	neuron_id_t from = rand() % m_known_neuron_ids.size();
+	neuron_id_t from = static_cast<neuron_id_t>(rand() % m_known_neuron_ids.size());
 
 	// select a destination that is not an input nor the bias...
-	neuron_id_t to = rand() % (m_known_neuron_ids.size() - m_number_of_inputs - 1) + m_number_of_inputs + 1;
+	neuron_id_t to = static_cast<neuron_id_t>(rand() % (m_known_neuron_ids.size() - m_number_of_inputs - 1) + m_number_of_inputs + 1);
 
 	if (link_exists(m_known_neuron_ids[from], m_known_neuron_ids[to])) {
 		// already exist in this genome...
@@ -114,7 +112,7 @@ bool netkit::genome::mutate_add_link() {
 
 bool netkit::genome::mutate_add_neuron() {
 	// iterate in genes in a random order...
-	std::vector<size_t> candidates_idx(m_genes.size());
+	std::vector<int> candidates_idx(m_genes.size());
 	std::iota(candidates_idx.begin(), candidates_idx.end(), 0);
 
 	static std::random_device rd;
@@ -122,7 +120,7 @@ bool netkit::genome::mutate_add_neuron() {
 	std::shuffle(candidates_idx.begin(), candidates_idx.end(), g);
 
 	int sel_idx = -1; // selected gene index
-	for (size_t idx : candidates_idx) {
+	for (int idx : candidates_idx) {
 		if (m_genes[idx].enabled) {
 			sel_idx = idx;
 			break;
@@ -189,7 +187,7 @@ bool netkit::genome::mutate_toggle_enable() {
 		return false;
 	}
 
-	int rnd_val = rand() % m_genes.size();
+	unsigned int rnd_val = rand() % static_cast<unsigned int>(m_genes.size());
 	m_genes[rnd_val].enabled = !m_genes[rnd_val].enabled;
 
 	return true;
@@ -200,7 +198,7 @@ bool netkit::genome::mutate_one_weight() {
 		return false;
 	}
 
-	int rnd_val = rand() % m_genes.size();
+	unsigned int rnd_val = rand() % static_cast<unsigned int>(m_genes.size());
 	m_genes[rnd_val].weight += generate_weight_perturbations();
 
 	return true;
@@ -260,4 +258,10 @@ std::ostream & netkit::operator<<(std::ostream & os, const genome & genome) {
 	os << "\ttotal: " << genome.m_genes.size() << " genes and " << genome.m_known_neuron_ids.size() << " neurons>";
 
 	return os;
+}
+
+// local function
+
+netkit::neuron_value_t generate_weight_perturbations() {
+	return static_cast<netkit::neuron_value_t>(rand()) * 6 / static_cast<netkit::neuron_value_t>(RAND_MAX) - 3;
 }
