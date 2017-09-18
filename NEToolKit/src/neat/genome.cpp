@@ -4,6 +4,7 @@
 #include <numeric> // iota
 #include <random> // random_device, mt19937
 
+#include "netkit/neat/neat.h"
 #include "netkit/network/activation_functions.h"
 #include "netkit/neat/genome.h"
 #include "netkit/neat/innovation.h"
@@ -11,6 +12,32 @@
 netkit::neuron_value_t generate_weight_perturbations(double power);
 
 const netkit::neuron_id_t netkit::genome::BIAS_ID = 0;
+
+netkit::genome::genome(neat* neat_instance)
+	: m_number_of_inputs(neat_instance->params.number_of_inputs)
+	, m_number_of_outputs(neat_instance->params.number_of_outputs)
+	, m_genes()
+	, m_known_neuron_ids()
+	, m_neat(neat_instance)
+	, m_fitness(0) {
+	m_known_neuron_ids.push_back(BIAS_ID);
+
+	for (neuron_id_t i = 0; i < m_number_of_inputs; i++) {
+		m_known_neuron_ids.push_back(i + 1);
+	}
+
+	for (neuron_id_t i = 0; i < m_number_of_outputs; i++) {
+		m_known_neuron_ids.push_back(i + 1 + m_number_of_inputs);
+	}
+}
+
+netkit::genome::genome(const genome& other)
+	: m_number_of_inputs(other.m_number_of_inputs)
+	, m_number_of_outputs(other.m_number_of_outputs)
+	, m_genes(other.m_genes)
+	, m_known_neuron_ids(other.m_known_neuron_ids)
+	, m_neat(other.m_neat)
+	, m_fitness(0) {}
 
 void netkit::genome::add_gene(gene new_gene) {
 	m_genes.push_back(std::move(new_gene));
@@ -25,7 +52,7 @@ void netkit::genome::add_gene(gene new_gene) {
 	}
 }
 
-bool netkit::genome::link_exists(neuron_id_t from, neuron_id_t to) {
+bool netkit::genome::link_exists(neuron_id_t from, neuron_id_t to) const {
 	for (const gene& g : m_genes) {
 		if (g.from == from && g.to == to) {
 			return true;
@@ -38,12 +65,60 @@ void netkit::genome::set_fitness(double fitness) {
 	m_fitness = fitness;
 }
 
-double netkit::genome::get_fitness() {
+double netkit::genome::get_fitness() const {
 	return m_fitness;
+}
+
+double netkit::genome::distance_to(const genome& other) const {
+	unsigned int nb_disjoint_genes = 0;
+	unsigned int nb_excess_genes = 0;
+	unsigned int nb_matching_genes = 0;
+	neuron_value_t sum_weight_difference = 0;
+
+	auto oya1_gene_it = this->m_genes.cbegin();
+	auto oya2_gene_it = other.m_genes.cbegin();
+
+	while (oya1_gene_it != this->m_genes.cend() && oya2_gene_it != other.m_genes.cend()) {
+		if (oya1_gene_it->innov_num == oya2_gene_it->innov_num) {
+			++nb_matching_genes;
+			sum_weight_difference += std::abs(oya1_gene_it->weight - oya2_gene_it->weight);
+			++oya1_gene_it;
+			++oya2_gene_it;
+		} else if (oya1_gene_it->innov_num < oya2_gene_it->innov_num) {
+			++nb_disjoint_genes;
+			++oya1_gene_it;
+		} else {
+			++nb_disjoint_genes;
+			++oya2_gene_it;
+		}
+	}
+
+	neuron_value_t average_weight_difference = sum_weight_difference / nb_matching_genes;
+
+	while (oya1_gene_it != this->m_genes.cend()) {
+		++nb_excess_genes;
+		++oya1_gene_it;
+	}
+
+	while (oya2_gene_it != other.m_genes.cend()) {
+		++nb_excess_genes;
+		++oya2_gene_it;
+	}
+
+	unsigned int larger_size = std::max(this->m_genes.size(), other.m_genes.size());
+
+	return m_neat->params.distance_coef_c1 * nb_excess_genes / larger_size
+		+ m_neat->params.distance_coef_c2 * nb_disjoint_genes / larger_size
+		+ m_neat->params.distance_coef_c3 * average_weight_difference;
+}
+
+bool netkit::genome::is_compatible_with(const genome & other) const {
+	return distance_to(other) < m_neat->params.compatibility_threshold;
 }
 
 netkit::genome netkit::genome::get_random_mutation() const {
 	genome offspring(*this);
+	// maybe check if the mutation was succesful and try again otherwise?
 	offspring.random_mutate();
 	return std::move(offspring);
 }

@@ -2,6 +2,7 @@
 
 #include "parameters.h"
 #include "innovation_pool.h"
+#include "population.h"
 
 namespace netkit {
 class neat {
@@ -33,6 +34,8 @@ public:
 	const parameters params;
 
 private:
+	population m_population;
+
 	innovation_pool m_innov_pool;
 };
 }

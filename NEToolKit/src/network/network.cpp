@@ -55,6 +55,9 @@ void netkit::network::activate_until_relaxation() {
 	for (int i = max_depth(); i--;) {
 		activate();
 	}
+	// another method could be to simply wait until none of the neurons
+	// changed its value but I'm not sure it wouldn't lead to
+	// an infinite loop for recurrent networks.
 }
 
 std::vector<netkit::neuron_value_t> netkit::network::get_outputs() {

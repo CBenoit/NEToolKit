@@ -4,45 +4,27 @@
 #include <iostream>
 
 #include "gene.h"
-#include "neat.h"
 #include "netkit/network/network_primitive_types.h"
 #include "netkit/network/network.h"
 
 namespace netkit {
+class neat;
+
 class genome {
 public:
-	genome(neat* neat_instance)
-		: m_number_of_inputs(neat_instance->params.number_of_inputs)
-		, m_number_of_outputs(neat_instance->params.number_of_outputs)
-		, m_genes()
-		, m_known_neuron_ids()
-		, m_neat(neat_instance)
-		, m_fitness(0) {
-		m_known_neuron_ids.push_back(BIAS_ID);
-
-		for (neuron_id_t i = 0; i < m_number_of_inputs; i++) {
-			m_known_neuron_ids.push_back(i + 1);
-		}
-
-		for (neuron_id_t i = 0; i < m_number_of_outputs; i++) {
-			m_known_neuron_ids.push_back(i + 1 + m_number_of_inputs);
-		}
-	}
-
-	genome(const genome& other)
-		: m_number_of_inputs(other.m_number_of_inputs)
-		, m_number_of_outputs(other.m_number_of_outputs)
-		, m_genes(other.m_genes)
-		, m_known_neuron_ids(other.m_known_neuron_ids)
-		, m_neat(other.m_neat)
-		, m_fitness(0) {}
+	genome(neat* neat_instance);
+	genome(const genome& other);
 
 	void add_gene(gene new_gene);
 
-	bool link_exists(neuron_id_t from, neuron_id_t to);
+	bool link_exists(neuron_id_t from, neuron_id_t to) const;
 
 	void set_fitness(double fitness);
-	double get_fitness();
+	double get_fitness() const;
+
+	// specie distance to another genome.
+	double distance_to(const genome& other) const;
+	bool is_compatible_with(const genome& other) const;
 
 	// mutations
 	genome get_random_mutation() const; // produce an offspring

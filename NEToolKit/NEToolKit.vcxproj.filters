@@ -69,6 +69,12 @@
     <ClInclude Include="include\netkit\neat\innovation.h">
       <Filter>Header Files\neat</Filter>
     </ClInclude>
+    <ClInclude Include="include\netkit\neat\specie.h">
+      <Filter>Header Files\neat</Filter>
+    </ClInclude>
+    <ClInclude Include="include\netkit\neat\population.h">
+      <Filter>Header Files\neat</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\neat\gene.cpp">
@@ -97,6 +103,12 @@
     </ClCompile>
     <ClCompile Include="src\network\neuron.cpp">
       <Filter>Source Files\network</Filter>
+    </ClCompile>
+    <ClCompile Include="src\neat\specie.cpp">
+      <Filter>Source Files\neat</Filter>
+    </ClCompile>
+    <ClCompile Include="src\neat\population.cpp">
+      <Filter>Source Files\neat</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

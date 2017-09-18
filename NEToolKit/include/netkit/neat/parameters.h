@@ -19,9 +19,9 @@ struct parameters {
 	 *		D the number of disjoint genes,
 	 *		W the average weight differences of matching genes.
 	 */
-	double compatibility_c1 = 1.0;
-	double compatibility_c2 = 1.0;
-	double compatibility_c3 = 0.4;
+	double distance_coef_c1 = 1.0;
+	double distance_coef_c2 = 1.0;
+	double distance_coef_c3 = 0.4;
 
 	// If the compatibility distance between two genomes is lesser or equal than the threshold,
 	// they are considered to be in the same specie.
@@ -52,7 +52,7 @@ struct parameters {
 	double interspecies_crossover_prob = 0.05;
 
 	unsigned int crossover_multipoint_rnd_weight = 2;
-	unsigned int crossover_multipoint_best_weight = 2;
+	unsigned int crossover_multipoint_best_weight = 1;
 	unsigned int crossover_multipoint_avg_weight = 1;
 
 	unsigned int sum_all_crossover_weights() const {
