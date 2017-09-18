@@ -40,11 +40,11 @@ void netkit::neuron::remove_outgoing_link(link_id_t id) {
 	m_outgoing.erase(std::remove(m_outgoing.begin(), m_outgoing.end(), id), m_outgoing.end());
 }
 
-const std::vector<netkit::link_id_t>& netkit::neuron::incoming_link_ids() const {
+const std::vector<netkit::link_id_t>& netkit::neuron::incoming_links_ids() const {
 	return m_incoming;
 }
 
-const std::vector<netkit::link_id_t>& netkit::neuron::outgoing_link_ids() const {
+const std::vector<netkit::link_id_t>& netkit::neuron::outgoing_links_ids() const {
 	return m_outgoing;
 }
 

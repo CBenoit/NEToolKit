@@ -1,29 +1,26 @@
 #pragma once
 
 #include <vector>
-#include <optional>
 
-#include "specie.h"
 #include "genome.h"
+#include "neat_primitive_types.h"
 
 namespace netkit {
 class neat; // forward declaration
 
 class population {
 public:
-	population(neat* neat)
-		: m_all_species()
-		, m_neat(neat) {}
+	population();
+	population(const population& other);
 
-	population(const population& other)
-		: m_all_species(other.m_all_species)
-		, m_neat(other.m_neat) {}
+	inline genome_id_t add_genome(genome geno);
+	inline genome& get_genome(genome_id_t geno_id);
+	inline genome& operator[](genome_id_t geno_id);
+	inline void clear();
 
-	std::optional<const specie&> find_appropriate_specie_for(const genome& geno) const;
+	inline size_t size() const;
 
 private:
-	std::vector<specie> m_all_species;
-
-	neat* m_neat;
+	std::vector<genome> m_all_genomes;
 };
 }

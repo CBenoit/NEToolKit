@@ -6,6 +6,8 @@
 #include <netkit/network/activation_functions.h>
 #include <netkit/neat/genome.h>
 #include <netkit/neat/gene.h>
+#include <netkit/neat/parameters.h>
+#include <netkit/neat/neat.h>
 
 #include "xor_experiment.h"
 

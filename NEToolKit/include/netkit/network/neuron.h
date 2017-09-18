@@ -23,8 +23,8 @@ public:
 	void add_outgoing_link(link_id_t id);
 	void remove_outgoing_link(link_id_t id);
 
-	const std::vector<link_id_t>& incoming_link_ids() const;
-	const std::vector<link_id_t>& outgoing_link_ids() const;
+	const std::vector<link_id_t>& incoming_links_ids() const;
+	const std::vector<link_id_t>& outgoing_links_ids() const;
 
 private:
 	std::vector<link_id_t> m_incoming;

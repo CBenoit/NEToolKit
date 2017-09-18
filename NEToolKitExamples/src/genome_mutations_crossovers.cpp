@@ -9,6 +9,7 @@ void run_genome_mutations_crossovers() {
 	netkit::parameters params;
 	params.number_of_inputs = 2;
 	params.number_of_outputs = 2;
+	params.compatibility_threshold = 2;
 	netkit::neat neat(std::move(params));
 
 	netkit::genome geno(&neat);
@@ -45,6 +46,14 @@ void run_genome_mutations_crossovers() {
 		geno2.random_mutate();
 	}
 	std::cout << "\nHere is another genome based on an older version of the previous one that has been randomly mutated:" << std::endl << geno2 << std::endl;
+
+	std::cout << "\nDistance between the two genomes: " << geno.distance_to(geno2) << std::endl;
+	std::cout << "Compatibility threshold is " << neat.params.compatibility_threshold << " so ";
+	if (geno.is_compatible_with(geno2)) {
+		std::cout << "they're considered compatibles." << std::endl;
+	} else {
+		std::cout << "they're NOT considered compatibles." << std::endl;
+	}
 
 	std::cout << "\nMultipoint crossover best:" << std::endl << geno.crossover_multipoint_best(geno2) << std::endl;
 

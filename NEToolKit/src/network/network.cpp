@@ -38,7 +38,7 @@ void netkit::network::activate() {
 	for (neuron& n : m_all_neurons) {
 		neuron_value_t sum = 0;
 		bool has_incoming = false;
-		for (link_id_t lid : n.incoming_link_ids()) {
+		for (link_id_t lid : n.incoming_links_ids()) {
 			has_incoming = true;
 			link& incoming = m_links[lid];
 			sum += m_all_neurons[incoming.from].get_value() * incoming.weight;
@@ -137,7 +137,7 @@ int netkit::network::max_depth_for(neuron_id_t input_nid) const {
 
 		closed_list.emplace_back(current.nid);
 
-		for (auto lid : m_all_neurons[current.nid].incoming_link_ids()) {
+		for (auto lid : m_all_neurons[current.nid].incoming_links_ids()) {
 			if (std::find(closed_list.begin(), closed_list.end(), m_links[lid].from) == closed_list.end()) {
 				open_list.emplace_back(m_links[lid].from, current.dist + 1);
 			}

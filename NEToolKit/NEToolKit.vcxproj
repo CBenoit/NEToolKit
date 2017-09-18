@@ -25,9 +25,10 @@
     <ClInclude Include="include\netkit\neat\innovation_pool.h" />
     <ClInclude Include="include\netkit\neat\neat.h" />
     <ClInclude Include="include\netkit\neat\neat_primitive_types.h" />
+    <ClInclude Include="include\netkit\neat\organism.h" />
     <ClInclude Include="include\netkit\neat\parameters.h" />
     <ClInclude Include="include\netkit\neat\population.h" />
-    <ClInclude Include="include\netkit\neat\specie.h" />
+    <ClInclude Include="include\netkit\neat\species.h" />
     <ClInclude Include="include\netkit\network\activation_functions.h" />
     <ClInclude Include="include\netkit\network\link.h" />
     <ClInclude Include="include\netkit\network\network.h" />
@@ -40,8 +41,9 @@
     <ClCompile Include="src\neat\innovation.cpp" />
     <ClCompile Include="src\neat\innovation_pool.cpp" />
     <ClCompile Include="src\neat\neat.cpp" />
+    <ClCompile Include="src\neat\organism.cpp" />
     <ClCompile Include="src\neat\population.cpp" />
-    <ClCompile Include="src\neat\specie.cpp" />
+    <ClCompile Include="src\neat\species.cpp" />
     <ClCompile Include="src\network\activation_functions.cpp" />
     <ClCompile Include="src\network\link.cpp" />
     <ClCompile Include="src\network\network.cpp" />
