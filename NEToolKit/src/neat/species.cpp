@@ -16,46 +16,6 @@ netkit::species::species(population* population, species_id_t id, genome represe
 	, m_representant(new genome(std::move(representant)))
 	, m_population(population) {}
 
-netkit::species::~species() {
-	delete m_representant;
-}
-
-const std::vector<netkit::genome_id_t>& netkit::species::get_members_ids() const {
-	return m_members;
-}
-
-double netkit::species::get_avg_fitness() const {
-	return m_current_avg_fitness;
-}
-
-double netkit::species::get_best_fitness() const {
-	return m_current_best_fitness;
-}
-
-double netkit::species::get_best_fitness_ever() const {
-	return m_best_fitness_ever;
-}
-
-netkit::species_id_t netkit::species::get_id() const {
-	return m_id;
-}
-
-netkit::species_age_t netkit::species::get_age() const {
-	return m_age;
-}
-
-netkit::species_age_t netkit::species::get_age_of_last_improvement() const {
-	return m_age_of_last_improvement;
-}
-
-bool netkit::species::are_members_sorted_by_fitness() const {
-	return m_sorted;
-}
-
-const netkit::genome& netkit::species::get_representant() const {
-	return *m_representant;
-}
-
 netkit::genome_id_t netkit::species::get_champion() const {
 	if (m_sorted) {
 		return m_members.front();

@@ -19,8 +19,11 @@ public:
 
 	bool link_exists(neuron_id_t from, neuron_id_t to) const;
 
-	void set_fitness(double fitness);
-	double get_fitness() const;
+	void set_fitness(double fitness) { m_fitness = fitness; }
+	double get_fitness() const { return m_fitness; }
+
+	unsigned int number_of_inputs() const { return m_number_of_inputs; }
+	unsigned int number_of_outputs() const { return m_number_of_outputs; }
 
 	// specie distance to another genome.
 	double distance_to(const genome& other) const;

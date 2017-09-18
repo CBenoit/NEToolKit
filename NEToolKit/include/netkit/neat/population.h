@@ -13,12 +13,11 @@ public:
 	population();
 	population(const population& other);
 
-	inline genome_id_t add_genome(genome geno);
-	inline genome& get_genome(genome_id_t geno_id);
-	inline genome& operator[](genome_id_t geno_id);
-	inline void clear();
-
-	inline size_t size() const;
+	genome_id_t add_genome(genome geno);
+	genome& get_genome(genome_id_t geno_id) { return m_all_genomes[geno_id]; }
+	genome& operator[](genome_id_t geno_id) { return m_all_genomes[geno_id]; }
+	void clear() { m_all_genomes.clear(); }
+	size_t size() const { return m_all_genomes.size(); }
 
 private:
 	std::vector<genome> m_all_genomes;

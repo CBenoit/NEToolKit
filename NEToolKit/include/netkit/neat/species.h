@@ -9,17 +9,17 @@ class population; // forward declaration
 class species {
 public:
 	species(population* population, species_id_t id, genome representant);
-	~species();
+	~species() { delete m_representant; }
 
-	const std::vector<genome_id_t>& get_members_ids() const;
-	double get_avg_fitness() const;
-	double get_best_fitness() const;
-	double get_best_fitness_ever() const;
-	species_id_t get_id() const;
-	species_age_t get_age() const;
-	species_age_t get_age_of_last_improvement() const;
-	bool are_members_sorted_by_fitness() const;
-	const genome& get_representant() const;
+	const std::vector<genome_id_t>& get_members_ids() const { return m_members; }
+	double get_avg_fitness() const { return m_current_avg_fitness; }
+	double get_best_fitness() const { return m_current_best_fitness; }
+	double get_best_fitness_ever() const { return m_best_fitness_ever; }
+	species_id_t get_id() const { return m_id; }
+	species_age_t get_age() const { return m_age; }
+	species_age_t get_age_of_last_improvement() const { return m_age_of_last_improvement; }
+	bool are_members_sorted_by_fitness() const { return m_sorted; }
+	const genome& get_representant() const { return *m_representant; }
 	genome_id_t get_champion() const;
 
 	void sort_by_fitness();

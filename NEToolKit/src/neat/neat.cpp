@@ -49,7 +49,7 @@ netkit::organism netkit::neat::generate_and_get_next_organism() {
 		geno_species = &m_all_species.back();
 	}
 
-	return organism(geno_species, m_next_genome_id++, geno.generate_network());
+	return {&m_population, geno_species, m_next_genome_id++, geno.generate_network()};
 }
 
 bool netkit::neat::has_more_organisms_to_process() {

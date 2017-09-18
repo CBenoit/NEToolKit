@@ -15,9 +15,7 @@ public:
 	// TODO: another constructor with the initial genome
 	neat(const neat& other);
 
-	innovation_pool& innov_pool() {
-		return m_innov_pool;
-	}
+	innovation_pool& innov_pool() { return m_innov_pool; }
 
 	// Useful if you want to run and rate all the organisms at once.
 	// Require more memory.

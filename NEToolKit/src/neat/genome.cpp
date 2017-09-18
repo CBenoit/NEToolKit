@@ -61,14 +61,6 @@ bool netkit::genome::link_exists(neuron_id_t from, neuron_id_t to) const {
 	return false;
 }
 
-void netkit::genome::set_fitness(double fitness) {
-	m_fitness = fitness;
-}
-
-double netkit::genome::get_fitness() const {
-	return m_fitness;
-}
-
 double netkit::genome::distance_to(const genome& other) const {
 	unsigned int nb_disjoint_genes = 0;
 	unsigned int nb_excess_genes = 0;
