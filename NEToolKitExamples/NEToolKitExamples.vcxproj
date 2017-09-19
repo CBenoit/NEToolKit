@@ -21,10 +21,12 @@
   <ItemGroup>
     <ClCompile Include="src\genome_mutations_crossovers.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\random_evolution.cpp" />
     <ClCompile Include="src\xor_experiment.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\genome_mutations_crossovers.h" />
+    <ClInclude Include="src\random_evolution.h" />
     <ClInclude Include="src\xor_experiment.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

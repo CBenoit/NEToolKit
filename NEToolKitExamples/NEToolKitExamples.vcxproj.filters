@@ -24,12 +24,18 @@
     <ClCompile Include="src\genome_mutations_crossovers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\random_evolution.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\xor_experiment.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\genome_mutations_crossovers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\random_evolution.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

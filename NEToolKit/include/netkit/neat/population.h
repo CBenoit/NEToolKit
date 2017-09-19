@@ -18,6 +18,8 @@ public:
 	genome& operator[](genome_id_t geno_id) { return m_all_genomes[geno_id]; }
 	void clear() { m_all_genomes.clear(); }
 	size_t size() const { return m_all_genomes.size(); }
+	const std::vector<genome>& get_all_genomes() const { return m_all_genomes; }
+	void set_genomes(std::vector<genome>& genomes);
 
 private:
 	std::vector<genome> m_all_genomes;

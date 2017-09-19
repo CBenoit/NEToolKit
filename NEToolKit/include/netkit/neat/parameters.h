@@ -5,11 +5,14 @@ struct parameters {
 	// === general ===
 	unsigned int number_of_inputs = 2;
 	unsigned int number_of_outputs = 1;
-	unsigned int population = 150;
+	size_t initial_population_size = 150;
 
 	// If the entire population doesn't improve for more that "refocusing_threshold" generations,
 	// only the top two species are allowed to reproduce, to refocus of the most promising species.
 	unsigned int refocusing_threshold = 20;
+
+	// If a species doesn't improve for "extinction_threshold" generations, it goes extinct.
+	unsigned int extinction_threshold = 20;
 
 	// === compatibility measurement coefficients ===
 	/* Those are the coefficients for the compatibility distance formula which is
@@ -28,8 +31,6 @@ struct parameters {
 	double compatibility_threshold = 3.0;
 
 	// === mutations ===
-	double mutation_prob = 0.4;
-
 	unsigned int mutation_add_link_weight = 2;
 	unsigned int mutation_add_neuron_weight = 1;
 	unsigned int mutation_reenable_gene_weight = 1;
@@ -61,6 +62,6 @@ struct parameters {
 	}
 
 	// === other ===
-	unsigned int babies_stolen = 0; // not yet implemented
+	unsigned int babies_stolen = 0; // TODO: not yet implemented
 };
 }
