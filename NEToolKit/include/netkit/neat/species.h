@@ -31,6 +31,7 @@ public:
 	unsigned int get_expected_offsprings() const { return m_expected_offsprings; }
 	genome_id_t select_one_genitor() const;
 	bool empty() const { return m_members.empty(); }
+	size_t number_of_members() const { return m_members.size(); }
 
 	void sort_by_fitness();
 	void update_stats();

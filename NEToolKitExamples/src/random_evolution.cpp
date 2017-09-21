@@ -10,7 +10,7 @@ void run_random_evolution() {
 	netkit::parameters params;
 	params.initial_population_size = 10;
 	params.compatibility_threshold = 1;
-	netkit::neat neat(std::move(params));
+	netkit::neat neat(params);
 	neat.init();
 
 	for (unsigned int gen = 0; gen < 10; ++gen) {

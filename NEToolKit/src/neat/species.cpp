@@ -168,7 +168,6 @@ void netkit::species::init_for_next_gen(genome new_representant) {
 	m_summed_fitnesses = 0;
 	++m_age;
 
-	std::cout << "Init specie " << m_id << std::endl;
 	delete m_representant;
 	m_representant = new genome(std::move(new_representant));
 

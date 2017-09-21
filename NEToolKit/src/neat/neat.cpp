@@ -114,7 +114,6 @@ void netkit::neat::epoch() {
 	}
 
 	auto next_generation_pop_size = static_cast<unsigned int>(m_population.size()); // TODO: dynamic population?
-	std::cout << next_generation_pop_size << " " << total_expected_offsprings << " " << next_generation_pop_size - total_expected_offsprings << std::endl;
 
 	// Need to make up for lost floating point precision in offsprings assignation
 	// by giving the missing offsprings to the current best species.
@@ -178,6 +177,19 @@ std::optional<netkit::species*> netkit::neat::find_appropriate_species_for(const
 		}
 	}
 	return {};
+}
+
+const netkit::genome& netkit::neat::get_best_genome() const {
+	double best_fitness_so_far = std::numeric_limits<double>::min();
+	const genome* champion = nullptr;
+	for (const genome& geno : m_population.get_all_genomes()) {
+		if (geno.get_fitness() > best_fitness_so_far) {
+			best_fitness_so_far = geno.get_fitness();
+			champion = &geno;
+		}
+	}
+
+	return *champion;
 }
 
 void netkit::neat::helper_speciate() {

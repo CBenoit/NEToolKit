@@ -77,7 +77,7 @@ private:
 				gene new_gene = get_gene_from_parents(*this, *oya1_gene_it, other, *oya2_gene_it);
 
 				// randomly disable the gene if a parent has it disabled
-				new_gene.enabled = (oya1_gene_it->enabled && oya2_gene_it->enabled) || rand() % 2 == 0;
+				new_gene.enabled = (oya1_gene_it->enabled && oya2_gene_it->enabled) || rand() % 10 == 0;
 
 				offspring.add_gene(std::move(new_gene));
 
@@ -87,14 +87,14 @@ private:
 			} else if (oya1_gene_it->innov_num < oya2_gene_it->innov_num) { // keep genes sorted by innovation number
 				if (this->m_fitness >= other.m_fitness) {
 					gene new_gene(*oya1_gene_it);
-					new_gene.enabled = oya1_gene_it->enabled || rand() % 2 == 0;
+					new_gene.enabled = oya1_gene_it->enabled || rand() % 10 == 0;
 					offspring.add_gene(std::move(new_gene));
 				}
 				++oya1_gene_it;
 			} else {
 				if (other.m_fitness >= this->m_fitness) {
 					gene new_gene(*oya2_gene_it);
-					new_gene.enabled = oya2_gene_it->enabled || rand() % 2 == 0;
+					new_gene.enabled = oya2_gene_it->enabled || rand() % 10 == 0;
 					offspring.add_gene(std::move(new_gene));
 				}
 				++oya2_gene_it;
@@ -106,7 +106,7 @@ private:
 		if (this->m_fitness >= other.m_fitness) {
 			while (oya1_gene_it != this->m_genes.cend()) {
 				gene new_gene(*oya1_gene_it);
-				new_gene.enabled = oya1_gene_it->enabled || rand() % 2 == 0;
+				new_gene.enabled = oya1_gene_it->enabled || rand() % 10 == 0;
 				offspring.add_gene(std::move(new_gene));
 				++oya1_gene_it;
 			}
@@ -115,7 +115,7 @@ private:
 		if (other.m_fitness >= this->m_fitness) {
 			while (oya2_gene_it != other.m_genes.cend()) {
 				gene new_gene(*oya2_gene_it);
-				new_gene.enabled = oya2_gene_it->enabled || rand() % 2 == 0;
+				new_gene.enabled = oya2_gene_it->enabled || rand() % 10 == 0;
 				offspring.add_gene(std::move(new_gene));
 				++oya2_gene_it;
 			}

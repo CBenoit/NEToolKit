@@ -39,6 +39,8 @@ public:
 
 	std::optional<species*> find_appropriate_species_for(const genome& geno);
 
+	const genome& get_best_genome() const;
+
 private:
 	void helper_speciate();
 
