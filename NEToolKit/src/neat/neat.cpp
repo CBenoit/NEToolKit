@@ -6,11 +6,11 @@
 
 #include "netkit/neat/neat.h"
 
-netkit::neat::neat(parameters params_)
-	: params(std::move(params_))
+netkit::neat::neat(const parameters& params_)
+	: params(params_)
+    , innov_pool(this->params)
 	, m_all_species()
 	, m_population()
-	, m_innov_pool(this->params)
 	, m_next_genome_id(0)
 	, m_next_species_id(0) {
 	if (this->params.number_of_outputs == 0 || this->params.number_of_inputs == 0) {
@@ -18,13 +18,14 @@ netkit::neat::neat(parameters params_)
 	}
 
 	std::srand(static_cast<unsigned int>(std::time(nullptr)));
+	m_all_species.reserve(15); // reserve some memory to store the species.
 }
 
-netkit::neat::neat(const neat& other)
+netkit::neat::neat(neat&& other) noexcept
 	: params(other.params)
-	, m_all_species(other.m_all_species)
-	, m_population(other.m_population)
-	, m_innov_pool(this->params) // the innovation pool has to differ from the other simulation
+	, innov_pool(std::move(other.innov_pool))
+	, m_all_species(std::move(other.m_all_species))
+	, m_population(std::move(other.m_population))
 	, m_next_genome_id(other.m_next_genome_id)
 	, m_next_species_id(other.m_next_species_id) {} // no need to use srand again.
 
@@ -36,20 +37,20 @@ void netkit::neat::init() {
 
 	// links from the bias
 	for (neuron_id_t i = 0; i < initial_genome.number_of_outputs(); i++) {
-		initial_genome.add_gene({m_innov_pool.next_innovation(), genome::BIAS_ID, starting_idx_outputs + i});
+		initial_genome.add_gene({innov_pool.next_innovation(), genome::BIAS_ID, starting_idx_outputs + i});
 	}
 
 	// links from the inputs
 	for (neuron_id_t j = 0; j < initial_genome.number_of_inputs(); j++) {
 		for (neuron_id_t i = 0; i < initial_genome.number_of_outputs(); i++) {
-			initial_genome.add_gene({m_innov_pool.next_innovation(), j + 1, starting_idx_outputs + i});
+			initial_genome.add_gene({innov_pool.next_innovation(), j + 1, starting_idx_outputs + i});
 		}
 	}
 
-	init(std::move(initial_genome));
+	init(initial_genome);
 }
 
-void netkit::neat::init(genome initial_genome) {
+void netkit::neat::init(const genome& initial_genome) {
 	// populate with random mutations from the initial genome.
 	for (size_t i = 0; i < params.initial_population_size; i++) {
 		m_population.add_genome(initial_genome.get_random_mutation());
@@ -89,7 +90,7 @@ void netkit::neat::epoch() {
 	m_next_genome_id = 0;
 
 	// Compute the overall average fitness.
-	species* best_species = 0;
+	species* best_species = nullptr;
 	double best_fitnesses_so_far = 0;
 	double overall_average = 0;
 	for (species& spec : m_all_species) {
@@ -102,17 +103,32 @@ void netkit::neat::epoch() {
 			best_species = &spec;
 		}
 	}
-	overall_average /= m_population.size();
+	overall_average /= static_cast<double>(m_population.size());
 
 	// Compute the the expected number of offsprings for each species.
 	unsigned int total_expected_offsprings = 0;
+	std::vector<species_id_t> species_to_del_ids; // species to remove
 	for (species& spec : m_all_species) {
-		unsigned int this_species_expected_offsprings = static_cast<unsigned int>(spec.get_summed_fitnesses() / overall_average);
+		auto this_species_expected_offsprings = static_cast<unsigned int>(spec.get_summed_fitnesses() / overall_average);
 		spec.set_expected_offsprings(this_species_expected_offsprings);
 		total_expected_offsprings += this_species_expected_offsprings;
+
+		if (this_species_expected_offsprings == 0) {
+			species_to_del_ids.emplace_back(spec.get_id());
+		}
 	}
 
-	size_t next_generation_pop_size = m_population.size();
+	// remove species marked for removal
+	for (auto it = m_all_species.begin(); it != m_all_species.end(); /* no need to increment here */) {
+		if (std::find(species_to_del_ids.begin(), species_to_del_ids.end(), it->get_id()) != species_to_del_ids.end()) {
+			m_all_species.erase(it);
+		} else {
+			++it;
+		}
+	}
+
+	auto next_generation_pop_size = static_cast<unsigned int>(m_population.size()); // TODO: dynamic population?
+	std::cout << next_generation_pop_size << " " << total_expected_offsprings << " " << next_generation_pop_size - total_expected_offsprings << std::endl;
 
 	// Need to make up for lost floating point precision in offsprings assignation
 	// by giving the missing offsprings to the current best species.
@@ -135,7 +151,7 @@ void netkit::neat::epoch() {
 				// interspecies crossover prob
 				double rnd_val2 = static_cast<double>(rand()) / static_cast<double>(RAND_MAX);
 				if (rnd_val2 < params.interspecies_crossover_prob) {
-					unsigned int rnd_spec_val = rand() % m_all_species.size();
+					unsigned long rnd_spec_val = rand() % m_all_species.size();
 					genitor2 = &m_population.get_genome(m_all_species[rnd_spec_val].select_one_genitor());
 				} else {
 					genitor2 = &m_population.get_genome(spec.select_one_genitor());
@@ -150,8 +166,6 @@ void netkit::neat::epoch() {
 
 		// prepare the species for the next generation
 		spec.init_for_next_gen(m_population.get_genome(spec.get_champion()));
-
-		// TODO: mark for removal empty species? Where would it be appropriate?
 	}
 
 	// update the population with the new offsprings.
@@ -165,20 +179,22 @@ void netkit::neat::epoch() {
 std::optional<netkit::species*> netkit::neat::find_appropriate_species_for(const genome& geno) {
 	for (species& spec : m_all_species) {
 		if (geno.is_compatible_with(spec.get_representant())) {
-			return &spec;
+			return {&spec};
 		}
 	}
-
 	return {};
 }
 
 void netkit::neat::helper_speciate() {
+	genome_id_t geno_id = 0;
 	for (const genome& geno : m_population.get_all_genomes()) {
 		std::optional<species*> opt_species = find_appropriate_species_for(geno);
 		if (opt_species.has_value()) {
-			opt_species.value()->add_member(m_next_genome_id);
+			opt_species.value()->add_member(geno_id);
 		} else {
-			m_all_species.push_back({&m_population, m_next_species_id++, geno});
+			m_all_species.emplace_back(&m_population, m_next_species_id++, geno);
+			m_all_species.back().add_member(geno_id);
 		}
+		++geno_id;
 	}
 }

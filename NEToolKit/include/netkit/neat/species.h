@@ -8,7 +8,11 @@ class population; // forward declaration
 
 class species {
 public:
-	species(population* population, species_id_t id, genome representant);
+	species(population* population, species_id_t id, const genome& representant);
+	species(const species& other);
+	species(species&& other) noexcept;
+	species& operator=(const species& other);
+	species& operator=(species&& other) noexcept;
 	~species() { delete m_representant; }
 
 	const std::vector<genome_id_t>& get_members_ids() const { return m_members; }
@@ -51,5 +55,9 @@ private:
 
 	genome* m_representant;
 	population* m_population;
+
+	friend std::ostream& operator<<(std::ostream& os, const species& spec);
 };
+
+std::ostream& operator<<(std::ostream& os, const species& spec);
 }

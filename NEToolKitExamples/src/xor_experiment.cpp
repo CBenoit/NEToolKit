@@ -16,10 +16,10 @@ void xor_network_test() {
 
 	netkit::network net;
 
-	netkit::neuron_id_t i1 = net.add_neuron(netkit::INPUT, {&netkit::sigmoid});
-	netkit::neuron_id_t i2 = net.add_neuron(netkit::INPUT, {&netkit::sigmoid});
-	netkit::neuron_id_t o = net.add_neuron(netkit::OUTPUT, {&netkit::sigmoid});
-	netkit::neuron_id_t h = net.add_neuron(netkit::HIDDEN, {&netkit::sigmoid});
+	netkit::neuron_id_t i1 = net.add_neuron(netkit::INPUT, netkit::neuron{&netkit::sigmoid});
+	netkit::neuron_id_t i2 = net.add_neuron(netkit::INPUT, netkit::neuron{&netkit::sigmoid});
+	netkit::neuron_id_t o = net.add_neuron(netkit::OUTPUT, netkit::neuron{&netkit::sigmoid});
+	netkit::neuron_id_t h = net.add_neuron(netkit::HIDDEN, netkit::neuron{&netkit::sigmoid});
 
 	net.add_link(netkit::network::BIAS_ID, h, -15);
 	net.add_link(netkit::network::BIAS_ID, o, -5);
@@ -52,18 +52,18 @@ void xor_network_test() {
 	netkit::parameters params;
 	params.number_of_inputs = 2;
 	params.number_of_outputs = 1;
-	netkit::neat neat(std::move(params));
+	netkit::neat neat(params);
 
 	netkit::genome genome(&neat);
-	genome.add_gene(netkit::gene(neat.innov_pool().next_innovation(),
+	genome.add_gene(netkit::gene(neat.innov_pool.next_innovation(),
 								 netkit::genome::BIAS_ID, 4, -15));
-	genome.add_gene(netkit::gene(neat.innov_pool().next_innovation(),
+	genome.add_gene(netkit::gene(neat.innov_pool.next_innovation(),
 								 netkit::genome::BIAS_ID, 3, -5));
-	genome.add_gene(netkit::gene(neat.innov_pool().next_innovation(), 1, 4, 10));
-	genome.add_gene(netkit::gene(neat.innov_pool().next_innovation(), 2, 4, 10));
-	genome.add_gene(netkit::gene(neat.innov_pool().next_innovation(), 1, 3, 10));
-	genome.add_gene(netkit::gene(neat.innov_pool().next_innovation(), 2, 3, 10));
-	genome.add_gene(netkit::gene(neat.innov_pool().next_innovation(), 4, 3, -20));
+	genome.add_gene(netkit::gene(neat.innov_pool.next_innovation(), 1, 4, 10));
+	genome.add_gene(netkit::gene(neat.innov_pool.next_innovation(), 2, 4, 10));
+	genome.add_gene(netkit::gene(neat.innov_pool.next_innovation(), 1, 3, 10));
+	genome.add_gene(netkit::gene(neat.innov_pool.next_innovation(), 2, 3, 10));
+	genome.add_gene(netkit::gene(neat.innov_pool.next_innovation(), 4, 3, -20));
 
 	std::cout << genome << std::endl;
 

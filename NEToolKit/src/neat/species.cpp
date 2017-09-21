@@ -4,7 +4,7 @@
 #include "netkit/neat/species.h"
 #include "netkit/neat/population.h"
 
-netkit::species::species(population* population, species_id_t id, genome representant)
+netkit::species::species(population* population, species_id_t id, const genome& representant)
 	: m_members()
 	, m_avg_fitness(0)
 	, m_best_fitness(0)
@@ -15,8 +15,78 @@ netkit::species::species(population* population, species_id_t id, genome represe
 	, m_age_of_last_improvement(0)
 	, m_expected_offsprings(0)
 	, m_sorted(false)
-	, m_representant(new genome(std::move(representant)))
+	, m_representant(new genome(representant))
 	, m_population(population) {}
+
+netkit::species::species(const species& other)
+	: m_members(other.m_members)
+	, m_avg_fitness(other.m_avg_fitness)
+	, m_best_fitness(other.m_best_fitness)
+	, m_summed_fitnesses(other.m_summed_fitnesses)
+	, m_best_fitness_ever(other.m_best_fitness_ever)
+	, m_id(other.m_id)
+	, m_age(other.m_age)
+	, m_age_of_last_improvement(other.m_age_of_last_improvement)
+	, m_expected_offsprings(other.m_expected_offsprings)
+	, m_sorted(other.m_sorted)
+	, m_representant(new genome(*other.m_representant))
+	, m_population(other.m_population) {}
+
+netkit::species::species(species&& other) noexcept
+  : m_members(std::move(other.m_members))
+  , m_avg_fitness(other.m_avg_fitness)
+  , m_best_fitness(other.m_best_fitness)
+  , m_summed_fitnesses(other.m_summed_fitnesses)
+  , m_best_fitness_ever(other.m_best_fitness_ever)
+  , m_id(other.m_id)
+  , m_age(other.m_age)
+  , m_age_of_last_improvement(other.m_age_of_last_improvement)
+  , m_expected_offsprings(other.m_expected_offsprings)
+  , m_sorted(other.m_sorted)
+  , m_representant(other.m_representant) // steal the pointer HA!
+  , m_population(other.m_population) {}
+
+netkit::species& netkit::species::operator=(const species& other) {
+	if (&other == this) { // to avoid problems with dynamic allocation.
+		return *this;
+	}
+
+	m_members = other.m_members;
+	m_avg_fitness = other.m_avg_fitness;
+	m_best_fitness = other.m_best_fitness;
+	m_summed_fitnesses = other.m_summed_fitnesses;
+	m_best_fitness_ever = other.m_best_fitness_ever;
+	m_id = other.m_id;
+	m_age = other.m_age;
+	m_age_of_last_improvement = other.m_age_of_last_improvement;
+	m_expected_offsprings = other.m_expected_offsprings;
+	m_sorted = other.m_sorted;
+	m_representant = new genome(*other.m_representant);
+	m_population = other.m_population;
+
+	return *this;
+}
+
+netkit::species& netkit::species::operator=(species&& other) noexcept {
+	if (&other == this) {
+		return *this;
+	}
+
+	m_members = std::move(other.m_members);
+	m_avg_fitness = other.m_avg_fitness;
+	m_best_fitness = other.m_best_fitness;
+	m_summed_fitnesses = other.m_summed_fitnesses;
+	m_best_fitness_ever = other.m_best_fitness_ever;
+	m_id = other.m_id;
+	m_age = other.m_age;
+	m_age_of_last_improvement = other.m_age_of_last_improvement;
+	m_expected_offsprings = other.m_expected_offsprings;
+	m_sorted = other.m_sorted;
+	m_representant = other.m_representant; // again pointer stealing (because we're in a move assignation)
+	m_population = other.m_population;
+
+	return *this;
+}
 
 netkit::genome_id_t netkit::species::get_champion() const {
 	if (m_sorted) {
@@ -76,7 +146,7 @@ void netkit::species::update_stats() {
 			m_best_fitness = m_population->get_genome(g).get_fitness();
 		}
 	}
-	m_avg_fitness = m_summed_fitnesses / m_members.size();
+	m_avg_fitness = m_summed_fitnesses / static_cast<double>(m_members.size());
 
 	if (m_best_fitness > m_best_fitness_ever) {
 		m_best_fitness_ever = m_best_fitness;
@@ -105,7 +175,23 @@ void netkit::species::add_member(genome_id_t geno_id) {
 void netkit::species::share_fitness() const {
 	for (genome_id_t g : m_members) {
 		m_population->get_genome(g).set_fitness(
-			m_population->get_genome(g).get_fitness() / m_members.size()
+			m_population->get_genome(g).get_fitness() / static_cast<double>(m_members.size())
 		);
 	}
+}
+
+std::ostream & netkit::operator<<(std::ostream & os, const species& spec) {
+	os << "<species: id = " << spec.m_id << ", age = " << spec.m_age
+	   << ", age of last improvement = " << spec.m_age_of_last_improvement
+	   << "\navg fitness = " << spec.m_avg_fitness
+	   << ", best fitness = " << spec.m_best_fitness
+	   << ", best fitness ever = " << spec.m_best_fitness_ever << std::endl;
+
+	os << "members (" << spec.m_members.size() << ") are:" << std::endl;
+	for (genome_id_t g : spec.m_members) {
+		os << "-> " << spec.m_population->get_genome(g) << std::endl;
+	}
+	os << ">";
+
+	return os;
 }

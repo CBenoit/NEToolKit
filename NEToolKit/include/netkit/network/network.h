@@ -10,7 +10,10 @@ namespace netkit {
 class network {
 public:
 	network();
-	~network();
+	network(const network& other) = default;
+	network(network&& other) noexcept;
+	network& operator=(const network& other) = default;
+	network& operator=(network&& other) noexcept;
 
 	// completly discharge the network (initial state).
 	void flush();
@@ -43,7 +46,7 @@ private:
 	std::vector<neuron> m_all_neurons;
 
 	std::vector<neuron_id_t> m_input_neuron_ids;
-	std::vector<neuron_id_t> m_ouput_neuron_ids;
+	std::vector<neuron_id_t> m_output_neuron_ids;
 
 	mutable int m_max_depth; // cache the max depth of the network (-1 = invalid)
 

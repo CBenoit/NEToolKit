@@ -9,13 +9,28 @@ netkit::network::network()
 	: m_links()
 	, m_all_neurons()
 	, m_input_neuron_ids()
-	, m_ouput_neuron_ids()
+	, m_output_neuron_ids()
 	, m_max_depth(-1) {
 	m_all_neurons.emplace_back(1, &sigmoid); // the bias neuron
 	// in fact, the bias (as well as inputs functions) will never use the activation function.
 }
 
-netkit::network::~network() {}
+netkit::network::network(network&& other) noexcept
+	: m_links(std::move(other.m_links))
+	, m_all_neurons(std::move(other.m_all_neurons))
+	, m_input_neuron_ids(std::move(other.m_input_neuron_ids))
+	, m_output_neuron_ids(std::move(other.m_output_neuron_ids))
+	, m_max_depth(other.m_max_depth) {}
+
+netkit::network& netkit::network::operator=(network&& other) noexcept {
+	m_links = std::move(other.m_links);
+	m_all_neurons = std::move(other.m_all_neurons);
+	m_input_neuron_ids = std::move(other.m_input_neuron_ids);
+	m_output_neuron_ids = std::move(other.m_output_neuron_ids);
+	m_max_depth = other.m_max_depth;
+
+	return *this;
+}
 
 void netkit::network::flush() {
 	for (neuron& n : m_all_neurons) {
@@ -62,9 +77,9 @@ void netkit::network::activate_until_relaxation() {
 
 std::vector<netkit::neuron_value_t> netkit::network::get_outputs() {
 	std::vector<neuron_value_t> output_values;
-	output_values.reserve(m_ouput_neuron_ids.size());
+	output_values.reserve(m_output_neuron_ids.size());
 
-	for (neuron_id_t onid : m_ouput_neuron_ids) {
+	for (neuron_id_t onid : m_output_neuron_ids) {
 		output_values.push_back(m_all_neurons[onid].get_value());
 	}
 
@@ -81,7 +96,7 @@ netkit::neuron_id_t netkit::network::add_neuron(neuron_type_t type, neuron n) {
 		m_input_neuron_ids.push_back(nid);
 		break;
 	case OUTPUT:
-		m_ouput_neuron_ids.push_back(nid);
+		m_output_neuron_ids.push_back(nid);
 		break;
 	default:
 		// nothing to do
@@ -150,7 +165,7 @@ int netkit::network::max_depth_for(neuron_id_t input_nid) const {
 int netkit::network::max_depth() const {
 	if (m_max_depth == -1) {
 		m_max_depth = 0;
-		for (neuron_id_t nid : m_ouput_neuron_ids) {
+		for (neuron_id_t nid : m_output_neuron_ids) {
 			int depth = max_depth_for(nid);
 			if (depth > m_max_depth) {
 				m_max_depth = depth;

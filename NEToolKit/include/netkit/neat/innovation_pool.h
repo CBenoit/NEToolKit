@@ -13,11 +13,11 @@
 namespace netkit {
 class innovation_pool {
 public:
-	innovation_pool(const parameters& params)
-		: m_next_innovation(0)
-		, m_next_hidden_neuron_id(1 + params.number_of_inputs + params.number_of_outputs)
-		, m_all_genes()
-		, m_all_innovations() {}
+	explicit innovation_pool(const parameters& params);
+	innovation_pool(const innovation_pool& other) = default;
+	innovation_pool(innovation_pool&& other) noexcept;
+	innovation_pool& operator=(const innovation_pool& other) = default;
+	innovation_pool& operator=(innovation_pool&& other) noexcept;
 
 	innov_num_t next_innovation() {
 		return m_next_innovation++;

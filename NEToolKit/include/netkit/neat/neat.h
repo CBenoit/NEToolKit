@@ -11,16 +11,15 @@
 namespace netkit {
 class neat {
 public:
-	neat(parameters params);
-	neat(const neat& other);
-
-	innovation_pool& innov_pool() { return m_innov_pool; }
+	explicit neat(const parameters& params);
+	neat(const neat& other) = default;
+	neat(neat&& other) noexcept;
 
 	// init population with a default genome (all inputs connected to all outputs)
 	void init();
 
 	// init population with the given genome.
-	void init(genome initial_genome);
+	void init(const genome& initial_genome);
 
 	// Useful if you want to run and rate all the organisms at once.
 	// Require more memory.
@@ -36,7 +35,7 @@ public:
 	// you should have rated every organisms beforme calling this.
 	void epoch();
 
-	const std::vector<species>& get_all_species() const { return m_all_species; }
+	std::vector<species>& get_all_species() { return m_all_species; }
 
 	std::optional<species*> find_appropriate_species_for(const genome& geno);
 
@@ -45,11 +44,11 @@ private:
 
 public:
 	const parameters params;
+	innovation_pool innov_pool;
 
 private:
 	std::vector<species> m_all_species;
 	population m_population;
-	innovation_pool m_innov_pool;
 	genome_id_t m_next_genome_id;
 	species_id_t m_next_species_id;
 };

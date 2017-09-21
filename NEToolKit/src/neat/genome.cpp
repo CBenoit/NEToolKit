@@ -31,17 +31,16 @@ netkit::genome::genome(neat* neat_instance)
 	}
 }
 
-netkit::genome::genome(const genome& other)
-	: m_number_of_inputs(other.m_number_of_inputs)
-	, m_number_of_outputs(other.m_number_of_outputs)
-	, m_genes(other.m_genes)
-	, m_known_neuron_ids(other.m_known_neuron_ids)
-	, m_neat(other.m_neat)
-	, m_fitness(0) {}
+netkit::genome::genome(genome&& other) noexcept
+  : m_number_of_inputs(other.m_number_of_inputs)
+  , m_number_of_outputs(other.m_number_of_outputs)
+  , m_genes(std::move(other.m_genes))
+  , m_known_neuron_ids(std::move(other.m_known_neuron_ids))
+  , m_neat(other.m_neat)
+  , m_fitness(0) {
+}
 
 void netkit::genome::add_gene(gene new_gene) {
-	m_genes.push_back(std::move(new_gene));
-
 	// if this genes refers to an unknown neuron, add it to the known neurons list.
 	if (std::find(m_known_neuron_ids.begin(), m_known_neuron_ids.end(), new_gene.from) == m_known_neuron_ids.end()) {
 		m_known_neuron_ids.push_back(new_gene.from);
@@ -50,6 +49,8 @@ void netkit::genome::add_gene(gene new_gene) {
 	if (std::find(m_known_neuron_ids.begin(), m_known_neuron_ids.end(), new_gene.to) == m_known_neuron_ids.end()) {
 		m_known_neuron_ids.push_back(new_gene.to);
 	}
+
+	m_genes.emplace_back(new_gene);
 }
 
 bool netkit::genome::link_exists(neuron_id_t from, neuron_id_t to) const {
@@ -97,7 +98,7 @@ double netkit::genome::distance_to(const genome& other) const {
 		++oya2_gene_it;
 	}
 
-	unsigned int larger_size = std::max(this->m_genes.size(), other.m_genes.size());
+	unsigned int larger_size = static_cast<unsigned int>(std::max(this->m_genes.size(), other.m_genes.size()));
 
 	return m_neat->params.distance_coef_c1 * nb_excess_genes / larger_size
 		+ m_neat->params.distance_coef_c2 * nb_disjoint_genes / larger_size
@@ -110,8 +111,10 @@ bool netkit::genome::is_compatible_with(const genome & other) const {
 
 netkit::genome netkit::genome::get_random_mutation() const {
 	genome offspring(*this);
-	// maybe check if the mutation was succesful and try again otherwise?
-	offspring.random_mutate();
+
+	unsigned int remaining_tries = 3; // a mutation can fail, so let's give it three tries.
+	while (!offspring.random_mutate() && remaining_tries--) {}
+
 	return std::move(offspring);
 }
 
@@ -147,10 +150,10 @@ bool netkit::genome::random_mutate() {
 }
 
 bool netkit::genome::mutate_add_link() {
-	neuron_id_t from = static_cast<neuron_id_t>(rand() % m_known_neuron_ids.size());
+	auto from = static_cast<neuron_id_t>(rand() % m_known_neuron_ids.size());
 
 	// select a destination that is not an input nor the bias...
-	neuron_id_t to = static_cast<neuron_id_t>(rand() % (m_known_neuron_ids.size() - m_number_of_inputs - 1) + m_number_of_inputs + 1);
+	auto to = static_cast<neuron_id_t>(rand() % (m_known_neuron_ids.size() - m_number_of_inputs - 1) + m_number_of_inputs + 1);
 
 	if (link_exists(m_known_neuron_ids[from], m_known_neuron_ids[to])) {
 		// already exist in this genome...
@@ -158,20 +161,20 @@ bool netkit::genome::mutate_add_link() {
 	}
 
 	std::optional<gene> existing_gene =
-		m_neat->innov_pool().find_gene(m_known_neuron_ids[from], m_known_neuron_ids[to]);
+		m_neat->innov_pool.find_gene(m_known_neuron_ids[from], m_known_neuron_ids[to]);
 	if (existing_gene.has_value()) {
 		gene copied_gene(*existing_gene);
 		copied_gene.weight = generate_weight_perturbations(m_neat->params.initial_weight_perturbation);
-		add_gene(std::move(copied_gene));
+		add_gene(copied_gene);
 	} else {
-		gene new_gene(m_neat->innov_pool().next_innovation(), m_known_neuron_ids[from], m_known_neuron_ids[to], generate_weight_perturbations(m_neat->params.initial_weight_perturbation));
-		m_neat->innov_pool().register_gene(new_gene);
-		m_neat->innov_pool().register_innovation(innovation::new_link_innovation(
+		gene new_gene(m_neat->innov_pool.next_innovation(), m_known_neuron_ids[from], m_known_neuron_ids[to], generate_weight_perturbations(m_neat->params.initial_weight_perturbation));
+		m_neat->innov_pool.register_gene(new_gene);
+		m_neat->innov_pool.register_innovation(innovation::new_link_innovation(
 			new_gene.innov_num,
 			new_gene.from,
 			new_gene.to
 		));
-		add_gene(std::move(new_gene));
+		add_gene(new_gene);
 	}
 
 	return true;
@@ -201,7 +204,7 @@ bool netkit::genome::mutate_add_neuron() {
 	m_genes[sel_idx].enabled = false;
 
 	std::optional<innovation> existing_innovation =
-		m_neat->innov_pool().find_innovation(NEW_NEURON, m_genes[sel_idx].from, m_genes[sel_idx].to);
+		m_neat->innov_pool.find_innovation(NEW_NEURON, m_genes[sel_idx].from, m_genes[sel_idx].to);
 
 	if (existing_innovation.has_value()) {
 		add_gene({existing_innovation->innov_num, existing_innovation->from,
@@ -209,16 +212,16 @@ bool netkit::genome::mutate_add_neuron() {
 		add_gene({existing_innovation->innov_num_2, existing_innovation->new_neuron_id,
 				 existing_innovation->to, m_genes[sel_idx].weight});
 	} else {
-		neuron_id_t new_neuron_id = m_neat->innov_pool().next_hidden_neuron_id();
+		neuron_id_t new_neuron_id = m_neat->innov_pool.next_hidden_neuron_id();
 
-		gene new_gene_1(m_neat->innov_pool().next_innovation(),
+		gene new_gene_1(m_neat->innov_pool.next_innovation(),
 						m_genes[sel_idx].from, new_neuron_id, m_genes[sel_idx].weight);
-		gene new_gene_2(m_neat->innov_pool().next_innovation(), new_neuron_id,
+		gene new_gene_2(m_neat->innov_pool.next_innovation(), new_neuron_id,
 						m_genes[sel_idx].to, m_genes[sel_idx].weight);
 
-		m_neat->innov_pool().register_gene(new_gene_1);
-		m_neat->innov_pool().register_gene(new_gene_2);
-		m_neat->innov_pool().register_innovation(innovation::new_neuron_innovation(
+		m_neat->innov_pool.register_gene(new_gene_1);
+		m_neat->innov_pool.register_gene(new_gene_2);
+		m_neat->innov_pool.register_innovation(innovation::new_neuron_innovation(
 			new_gene_1.innov_num,
 			new_gene_2.innov_num,
 			m_genes[sel_idx].from,
@@ -226,8 +229,8 @@ bool netkit::genome::mutate_add_neuron() {
 			new_neuron_id
 		));
 
-		add_gene(std::move(new_gene_1));
-		add_gene(std::move(new_gene_2));
+		add_gene(new_gene_1);
+		add_gene(new_gene_2);
 	}
 
 	return true;
@@ -319,7 +322,7 @@ netkit::genome netkit::genome::crossover_multipoint_avg(const genome& other) con
 	return helper_crossover_multipoint(other, [&] (const genome& /*p1*/, const gene& g1, const genome& /*p2*/, const gene& g2) -> gene {
 		gene new_gene(g1);
 		new_gene.weight = (g1.weight + g2.weight) / 2;
-		return std::move(new_gene);
+		return new_gene;
 	});
 }
 

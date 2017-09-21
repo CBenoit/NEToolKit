@@ -9,8 +9,9 @@ namespace netkit {
 class neuron {
 public:
 	neuron(neuron_value_t value, activation_func_t func);
-	neuron(activation_func_t func);
-	~neuron();
+	explicit neuron(activation_func_t func);
+	neuron(const neuron& other) = default;
+	neuron(neuron&& other) noexcept;
 
 	// feed the neuron with an input value which gives the neuron's value once processed by the activation function.
 	void feed(neuron_value_t input);

@@ -10,7 +10,11 @@ netkit::neuron::neuron(neuron_value_t value, activation_func_t func)
 
 netkit::neuron::neuron(activation_func_t func) : neuron(0, func) {}
 
-netkit::neuron::~neuron() {}
+netkit::neuron::neuron(neuron&& other) noexcept
+	: m_incoming(std::move(other.m_incoming))
+	, m_outgoing(std::move(other.m_outgoing))
+	, m_activation_func(other.m_activation_func)
+	, m_value(other.m_value) {}
 
 void netkit::neuron::feed(neuron_value_t input) {
 	m_value = m_activation_func(input);

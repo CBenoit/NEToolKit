@@ -10,11 +10,18 @@ class population;
 
 class organism {
 public:
-	organism(population* population, genome_id_t genome_id, network network);
+	organism(population* population, genome_id_t genome_id, const network& network);
+	organism(population* population, genome_id_t genome_id, network&& network);
+	organism(const organism& other) = default;
+	organism(organism&& other) noexcept;
+	organism& operator=(const organism& other) = default;
+	organism& operator=(organism&& other) noexcept;
 
 	genome_id_t get_genome_id() const { return m_genome_id; }
 	network& get_network() { return m_network; }
 	genome& get_genome() const;
+	double get_fitness() const;
+	void set_fitness(double value) const;
 
 private:
 	population* m_population;

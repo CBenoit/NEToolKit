@@ -12,8 +12,9 @@ class neat;
 
 class genome {
 public:
-	genome(neat* neat_instance);
-	genome(const genome& other);
+	explicit genome(neat* neat_instance);
+	genome(const genome& other) = default;
+	genome(genome&& other) noexcept;
 
 	void add_gene(gene new_gene);
 
