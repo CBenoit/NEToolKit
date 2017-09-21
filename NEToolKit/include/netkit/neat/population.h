@@ -22,6 +22,7 @@ public:
 	void clear() { m_all_genomes.clear(); }
 	size_t size() const { return m_all_genomes.size(); }
 	const std::vector<genome>& get_all_genomes() const { return m_all_genomes; }
+	void set_genomes(const std::vector<genome>& genomes);
 	void set_genomes(std::vector<genome>&& genomes);
 
 private:

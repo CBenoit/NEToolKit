@@ -26,9 +26,11 @@ public:
 	bool are_members_sorted_by_fitness() const { return m_sorted; }
 	const genome& get_representant() const { return *m_representant; }
 	genome_id_t get_champion() const;
+	genome_id_t get_random_member() const;
 	bool has(genome_id_t geno_id) const;
 	unsigned int get_expected_offsprings() const { return m_expected_offsprings; }
 	genome_id_t select_one_genitor() const;
+	bool empty() const { return m_members.empty(); }
 
 	void sort_by_fitness();
 	void update_stats();

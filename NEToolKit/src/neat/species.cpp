@@ -33,18 +33,20 @@ netkit::species::species(const species& other)
 	, m_population(other.m_population) {}
 
 netkit::species::species(species&& other) noexcept
-  : m_members(std::move(other.m_members))
-  , m_avg_fitness(other.m_avg_fitness)
-  , m_best_fitness(other.m_best_fitness)
-  , m_summed_fitnesses(other.m_summed_fitnesses)
-  , m_best_fitness_ever(other.m_best_fitness_ever)
-  , m_id(other.m_id)
-  , m_age(other.m_age)
-  , m_age_of_last_improvement(other.m_age_of_last_improvement)
-  , m_expected_offsprings(other.m_expected_offsprings)
-  , m_sorted(other.m_sorted)
-  , m_representant(other.m_representant) // steal the pointer HA!
-  , m_population(other.m_population) {}
+	: m_members(std::move(other.m_members))
+	, m_avg_fitness(other.m_avg_fitness)
+	, m_best_fitness(other.m_best_fitness)
+	, m_summed_fitnesses(other.m_summed_fitnesses)
+	, m_best_fitness_ever(other.m_best_fitness_ever)
+	, m_id(other.m_id)
+	, m_age(other.m_age)
+	, m_age_of_last_improvement(other.m_age_of_last_improvement)
+	, m_expected_offsprings(other.m_expected_offsprings)
+	, m_sorted(other.m_sorted)
+	, m_representant(other.m_representant) // steal the pointer HA!
+	, m_population(other.m_population) {
+	other.m_representant = nullptr; // don't forget to invalidate the other's pointer.
+}
 
 netkit::species& netkit::species::operator=(const species& other) {
 	if (&other == this) { // to avoid problems with dynamic allocation.
@@ -85,6 +87,8 @@ netkit::species& netkit::species::operator=(species&& other) noexcept {
 	m_representant = other.m_representant; // again pointer stealing (because we're in a move assignation)
 	m_population = other.m_population;
 
+	other.m_representant = nullptr; // very important!
+
 	return *this;
 }
 
@@ -102,6 +106,10 @@ netkit::genome_id_t netkit::species::get_champion() const {
 		}
 		return best;
 	}
+}
+
+netkit::genome_id_t netkit::species::get_random_member() const {
+	return m_members[rand() % m_members.size()];
 }
 
 bool netkit::species::has(genome_id_t geno_id) const {
@@ -160,6 +168,7 @@ void netkit::species::init_for_next_gen(genome new_representant) {
 	m_summed_fitnesses = 0;
 	++m_age;
 
+	std::cout << "Init specie " << m_id << std::endl;
 	delete m_representant;
 	m_representant = new genome(std::move(new_representant));
 

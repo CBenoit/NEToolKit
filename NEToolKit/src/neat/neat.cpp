@@ -91,7 +91,7 @@ void netkit::neat::epoch() {
 
 	// Compute the overall average fitness.
 	species* best_species = nullptr;
-	double best_fitnesses_so_far = 0;
+	double best_fitnesses_so_far = std::numeric_limits<double>::min();
 	double overall_average = 0;
 	for (species& spec : m_all_species) {
 		spec.sort_by_fitness();
@@ -107,24 +107,10 @@ void netkit::neat::epoch() {
 
 	// Compute the the expected number of offsprings for each species.
 	unsigned int total_expected_offsprings = 0;
-	std::vector<species_id_t> species_to_del_ids; // species to remove
 	for (species& spec : m_all_species) {
 		auto this_species_expected_offsprings = static_cast<unsigned int>(spec.get_summed_fitnesses() / overall_average);
 		spec.set_expected_offsprings(this_species_expected_offsprings);
 		total_expected_offsprings += this_species_expected_offsprings;
-
-		if (this_species_expected_offsprings == 0) {
-			species_to_del_ids.emplace_back(spec.get_id());
-		}
-	}
-
-	// remove species marked for removal
-	for (auto it = m_all_species.begin(); it != m_all_species.end(); /* no need to increment here */) {
-		if (std::find(species_to_del_ids.begin(), species_to_del_ids.end(), it->get_id()) != species_to_del_ids.end()) {
-			m_all_species.erase(it);
-		} else {
-			++it;
-		}
 	}
 
 	auto next_generation_pop_size = static_cast<unsigned int>(m_population.size()); // TODO: dynamic population?
@@ -133,7 +119,7 @@ void netkit::neat::epoch() {
 	// Need to make up for lost floating point precision in offsprings assignation
 	// by giving the missing offsprings to the current best species.
 	best_species->set_expected_offsprings(
-		best_species->get_expected_offsprings() + next_generation_pop_size - total_expected_offsprings
+	  best_species->get_expected_offsprings() + next_generation_pop_size - total_expected_offsprings
 	);
 
 	// Build the next generation offsprings.
@@ -165,15 +151,24 @@ void netkit::neat::epoch() {
 		}
 
 		// prepare the species for the next generation
-		spec.init_for_next_gen(m_population.get_genome(spec.get_champion()));
+		spec.init_for_next_gen(m_population.get_genome(spec.get_random_member()));
 	}
 
 	// update the population with the new offsprings.
-	m_population.clear();
+	m_population.clear(); // just in case...
 	m_population.set_genomes(std::move(offsprings));
 
 	// finally speciate the population
 	helper_speciate();
+
+	// remove species that has no more member. They go extinct!
+	m_all_species.erase(
+	  std::remove_if(m_all_species.begin(), m_all_species.end(), [](const species& s) {
+		  return s.empty();
+	  }),
+	  m_all_species.end()
+	);
+	// /!\ from now, best_species pointer may be invalid!!!
 }
 
 std::optional<netkit::species*> netkit::neat::find_appropriate_species_for(const genome& geno) {
