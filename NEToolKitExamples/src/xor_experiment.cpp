@@ -1,5 +1,6 @@
 #include <iostream>
 #include <ctime>
+#include <random> // random_device, mt19937
 
 #include <netkit/network/network.h>
 #include <netkit/network/network_primitive_types.h>
@@ -10,6 +11,7 @@
 #include <netkit/neat/neat.h>
 
 #include "xor_experiment.h"
+#include "utils.h"
 
 void print_species_stats(const netkit::species& spec);
 void rate_xor_population(netkit::neat& neat);
@@ -23,6 +25,9 @@ std::vector<std::vector<netkit::neuron_value_t>> inputs_per_run = {
 };
 
 std::vector<netkit::neuron_value_t> expected_output_per_run = {0, 1, 1, 0};
+
+std::random_device rd;
+std::mt19937 g(rd());
 
 void xor_network_test() {
 	std::cout << "Starting the (handmade) example xor network..." << std::endl;
@@ -47,6 +52,7 @@ void xor_network_test() {
 
 	print_xor_network_results(net);
 
+	wait_user();
 	std::cout << "\nPerforming the same with a network generated from a genome..." << std::endl;
 
 	netkit::parameters params;
@@ -72,6 +78,7 @@ void xor_network_test() {
 
 	print_xor_network_results(gennet);
 
+	wait_user();
 	std::cout << "\nBenchmark: how much does it takes to activate the xor network 100 000 times?" << std::endl;
 	std::cout << "Running the benchmark..." << std::endl;
 	clock_t begin = std::clock();
@@ -92,6 +99,7 @@ void run_xor_experiment() {
 	netkit::parameters params;
 	params.number_of_inputs = 2;
 	params.number_of_outputs = 1;
+	//params.initial_population_size = 5;
 	netkit::neat neat(params);
 	neat.init();
 
@@ -101,21 +109,27 @@ void run_xor_experiment() {
 		spec.update_stats();
 		print_species_stats(spec);
 	}
+	wait_user();
 
 	// go for a 100 generations evolution.
 	for (unsigned int gen = 1; gen <= 100; ++gen) {
+//		std::string osef;
+//		std::cin >> osef;
 		neat.epoch(); // go to next generation
 
 		std::cout << "\n\n======== Here's the generation " << gen << "'s population. =========" << std::endl;
 		rate_xor_population(neat);
+		neat.notify_end_of_fitness_rating();
 		for (netkit::species &spec : neat.get_all_species()) {
 			spec.update_stats();
 			print_species_stats(spec);
 		}
+
+		//wait_user();
 	}
 
-	const netkit::genome& best_geno = neat.get_best_genome();
-	std::cout << "\nHere's the best genome produced:" << std::endl;
+	const netkit::genome& best_geno = neat.get_best_genome_ever();
+	std::cout << "\nHere's the best genome ever produced:" << std::endl;
 	std::cout << best_geno << std::endl;
 	netkit::network net = best_geno.generate_network();
 	print_xor_network_results(net);
@@ -137,15 +151,23 @@ void rate_xor_population(netkit::neat& neat) {
 	while (neat.has_more_organisms_to_process()) {
 		netkit::organism org = neat.generate_and_get_next_organism();
 		netkit::network& net = org.get_network();
+		std::cout << "==> ";
 
-		double fitness = 0;
+		double error_sum = 0;
+		std::shuffle(runs.begin(), runs.end(), g); // randomize the order
 		for (auto run : runs) {
+			std::cout << "-- ";
+			std::cout << inputs_per_run[run][0] << " ~& " << inputs_per_run[run][1] << " ";
+			net.flush();
 			net.load_inputs(inputs_per_run[run]);
 			net.activate_until_relaxation();
-			fitness += 1 - std::abs(net.get_outputs()[0] - expected_output_per_run[run]);
+			error_sum += std::abs(net.get_outputs()[0] - expected_output_per_run[run]);
+			std::cout << "res: " << net.get_outputs()[0] << " (" << std::abs(net.get_outputs()[0] - expected_output_per_run[run]) << ") ";
 		}
 
+		double fitness = std::pow(4.0 - error_sum, 2);
 		org.set_fitness(fitness);
+		std::cout << "fitness: " << fitness << std::endl;
 	}
 }
 
@@ -153,6 +175,7 @@ void print_xor_network_results(netkit::network& net) {
 	for (auto& inputs : inputs_per_run) {
 		std::cout << "==================" << std::endl;
 		std::cout << inputs[0] << " xor " << inputs[1] << std::endl;
+		net.flush();
 		net.load_inputs(inputs);
 		net.activate_until_relaxation();
 		std::cout << "Result: " << net.get_outputs()[0] << std::endl;

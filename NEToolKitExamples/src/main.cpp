@@ -1,5 +1,6 @@
 #include <iostream>
 
+#include "utils.h"
 #include "xor_experiment.h"
 #include "genome_mutations_crossovers.h"
 #include "random_evolution.h"
@@ -16,9 +17,12 @@ enum choice_t {
 int main() {
 	std::cout << "    NEToolKit examples" << std::endl;
 	std::cout << "~~------==========------~~" << std::endl;
-	unsigned int choice = -1;
+	int choice = -1;
 
 	while (choice != EXIT) {
+		if (choice != -1)
+			wait_user();
+
 		std::cout << std::endl << "Would you like to:" << std::endl;
 		std::cout << "\t" << EX_XOR_NET << ". run the example xor network?" << std::endl;
 		std::cout << "\t" << XOR_EV_EXP << ". run the xor network evolution experiment?" << std::endl;

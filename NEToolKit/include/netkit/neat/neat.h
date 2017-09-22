@@ -1,6 +1,7 @@
 #pragma once
 
 #include <optional>
+#include <random>
 
 #include "parameters.h"
 #include "innovation_pool.h"
@@ -12,8 +13,9 @@ namespace netkit {
 class neat {
 public:
 	explicit neat(const parameters& params);
-	neat(const neat& other) = default;
+	neat(const neat& other);
 	neat(neat&& other) noexcept;
+	~neat() { delete m_best_genome_ever; }
 
 	// init population with a default genome (all inputs connected to all outputs)
 	void init();
@@ -39,7 +41,11 @@ public:
 
 	std::optional<species*> find_appropriate_species_for(const genome& geno);
 
-	const genome& get_best_genome() const;
+	const genome& get_current_best_genome() const;
+
+	void notify_end_of_fitness_rating();
+
+	const genome& get_best_genome_ever() const { return *m_best_genome_ever; }
 
 private:
 	void helper_speciate();
@@ -47,11 +53,13 @@ private:
 public:
 	const parameters params;
 	innovation_pool innov_pool;
+	std::minstd_rand0 rand_engine;
 
 private:
 	std::vector<species> m_all_species;
 	population m_population;
 	genome_id_t m_next_genome_id;
 	species_id_t m_next_species_id;
+	genome* m_best_genome_ever;
 };
 }

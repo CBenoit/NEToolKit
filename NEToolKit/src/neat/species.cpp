@@ -2,9 +2,10 @@
 #include <limits> // std::numeric_limits
 
 #include "netkit/neat/species.h"
+#include "netkit/neat/neat.h"
 #include "netkit/neat/population.h"
 
-netkit::species::species(population* population, species_id_t id, const genome& representant)
+netkit::species::species(neat* neat_instance, population* population, species_id_t id, const genome& representant)
 	: m_members()
 	, m_avg_fitness(0)
 	, m_best_fitness(0)
@@ -16,6 +17,7 @@ netkit::species::species(population* population, species_id_t id, const genome& 
 	, m_expected_offsprings(0)
 	, m_sorted(false)
 	, m_representant(new genome(representant))
+	, m_neat(neat_instance)
 	, m_population(population) {}
 
 netkit::species::species(const species& other)
@@ -30,6 +32,7 @@ netkit::species::species(const species& other)
 	, m_expected_offsprings(other.m_expected_offsprings)
 	, m_sorted(other.m_sorted)
 	, m_representant(new genome(*other.m_representant))
+    , m_neat(other.m_neat)
 	, m_population(other.m_population) {}
 
 netkit::species::species(species&& other) noexcept
@@ -44,6 +47,7 @@ netkit::species::species(species&& other) noexcept
 	, m_expected_offsprings(other.m_expected_offsprings)
 	, m_sorted(other.m_sorted)
 	, m_representant(other.m_representant) // steal the pointer HA!
+    , m_neat(other.m_neat)
 	, m_population(other.m_population) {
 	other.m_representant = nullptr; // don't forget to invalidate the other's pointer.
 }
@@ -64,6 +68,7 @@ netkit::species& netkit::species::operator=(const species& other) {
 	m_expected_offsprings = other.m_expected_offsprings;
 	m_sorted = other.m_sorted;
 	m_representant = new genome(*other.m_representant);
+	m_neat = other.m_neat;
 	m_population = other.m_population;
 
 	return *this;
@@ -85,6 +90,7 @@ netkit::species& netkit::species::operator=(species&& other) noexcept {
 	m_expected_offsprings = other.m_expected_offsprings;
 	m_sorted = other.m_sorted;
 	m_representant = other.m_representant; // again pointer stealing (because we're in a move assignation)
+	m_neat = other.m_neat;
 	m_population = other.m_population;
 
 	other.m_representant = nullptr; // very important!
@@ -109,7 +115,8 @@ netkit::genome_id_t netkit::species::get_champion() const {
 }
 
 netkit::genome_id_t netkit::species::get_random_member() const {
-	return m_members[rand() % m_members.size()];
+	std::uniform_int_distribution<size_t> member_selector(0, m_members.size() - 1);
+	return m_members[member_selector(m_neat->rand_engine)];
 }
 
 bool netkit::species::has(genome_id_t geno_id) const {
@@ -118,7 +125,8 @@ bool netkit::species::has(genome_id_t geno_id) const {
 
 netkit::genome_id_t netkit::species::select_one_genitor() const {
 	if (m_best_fitness > 0) {
-		double rnd_val = static_cast<double>(rand()) / static_cast<double>(RAND_MAX);
+		std::uniform_real_distribution<double> distribution(0., 1.);
+		double rnd_val = distribution(m_neat->rand_engine);
 		for (genome_id_t g : m_members) {
 			double genome_selection_prop = m_population->get_genome(g).get_fitness() / m_summed_fitnesses;
 			if (rnd_val < genome_selection_prop) {

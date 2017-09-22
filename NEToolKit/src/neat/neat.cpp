@@ -1,8 +1,7 @@
-#include <cstdlib>
-#include <ctime>
 #include <utility> // std::move
 #include <stdexcept> // std::invalid_argument
 #include <algorithm> // std::find
+#include <chrono> //
 
 #include "netkit/neat/neat.h"
 
@@ -12,22 +11,42 @@ netkit::neat::neat(const parameters& params_)
 	, m_all_species()
 	, m_population()
 	, m_next_genome_id(0)
-	, m_next_species_id(0) {
+	, m_next_species_id(0)
+	, m_best_genome_ever(nullptr)  {
 	if (this->params.number_of_outputs == 0 || this->params.number_of_inputs == 0) {
 		throw std::invalid_argument("genomes needs at least one input and one output.");
 	}
 
-	std::srand(static_cast<unsigned int>(std::time(nullptr)));
 	m_all_species.reserve(15); // reserve some memory to store the species.
+
+	long seed = std::chrono::system_clock::now().time_since_epoch().count();
+	rand_engine = std::minstd_rand0(seed);
+}
+
+netkit::neat::neat(const neat& other)
+	: params(other.params)
+	, innov_pool(other.innov_pool)
+	, m_all_species(other.m_all_species)
+	, m_population(other.m_population)
+	, m_next_genome_id(other.m_next_genome_id)
+	, m_next_species_id(other.m_next_species_id)
+	, m_best_genome_ever(new genome{*other.m_best_genome_ever}) {
+
+	long seed = std::chrono::system_clock::now().time_since_epoch().count();
+	rand_engine = std::minstd_rand0(seed);
 }
 
 netkit::neat::neat(neat&& other) noexcept
 	: params(other.params)
 	, innov_pool(std::move(other.innov_pool))
+	, rand_engine(std::move(other.rand_engine))
 	, m_all_species(std::move(other.m_all_species))
 	, m_population(std::move(other.m_population))
 	, m_next_genome_id(other.m_next_genome_id)
-	, m_next_species_id(other.m_next_species_id) {} // no need to use srand again.
+	, m_next_species_id(other.m_next_species_id)
+	, m_best_genome_ever(other.m_best_genome_ever) {
+	other.m_best_genome_ever = nullptr;
+}
 
 void netkit::neat::init() {
 	// produce the default initial genome.
@@ -124,19 +143,21 @@ void netkit::neat::epoch() {
 	// Build the next generation offsprings.
 	std::vector<genome> offsprings;
 	offsprings.reserve(next_generation_pop_size);
+	std::uniform_real_distribution<double> prob(0.0,1.0);
+	std::uniform_int_distribution<size_t> species_selector(0, m_all_species.size() - 1);
 	for (species& spec : m_all_species) {
 		unsigned int offsprings_produced = 0;
 		while (offsprings_produced < spec.get_expected_offsprings()) {
 			++offsprings_produced;
-			double rnd_val = static_cast<double>(rand()) / static_cast<double>(RAND_MAX);
+			double rnd_val = prob(rand_engine);
 			if (rnd_val < params.crossover_prob) { // let's go for a crossover
 				genome* genitor1 = &m_population.get_genome(spec.select_one_genitor());
 				genome* genitor2 = nullptr;
 
 				// interspecies crossover prob
-				double rnd_val2 = static_cast<double>(rand()) / static_cast<double>(RAND_MAX);
+				double rnd_val2 = prob(rand_engine);
 				if (rnd_val2 < params.interspecies_crossover_prob) {
-					unsigned long rnd_spec_val = rand() % m_all_species.size();
+					unsigned long rnd_spec_val = species_selector(rand_engine);
 					genitor2 = &m_population.get_genome(m_all_species[rnd_spec_val].select_one_genitor());
 				} else {
 					genitor2 = &m_population.get_genome(spec.select_one_genitor());
@@ -179,7 +200,7 @@ std::optional<netkit::species*> netkit::neat::find_appropriate_species_for(const
 	return {};
 }
 
-const netkit::genome& netkit::neat::get_best_genome() const {
+const netkit::genome& netkit::neat::get_current_best_genome() const {
 	double best_fitness_so_far = std::numeric_limits<double>::min();
 	const genome* champion = nullptr;
 	for (const genome& geno : m_population.get_all_genomes()) {
@@ -199,9 +220,21 @@ void netkit::neat::helper_speciate() {
 		if (opt_species.has_value()) {
 			opt_species.value()->add_member(geno_id);
 		} else {
-			m_all_species.emplace_back(&m_population, m_next_species_id++, geno);
+			m_all_species.emplace_back(this, &m_population, m_next_species_id++, geno);
 			m_all_species.back().add_member(geno_id);
 		}
 		++geno_id;
+	}
+}
+
+void netkit::neat::notify_end_of_fitness_rating() {
+	if (m_best_genome_ever == nullptr) {
+		m_best_genome_ever = new genome{get_current_best_genome()};
+	} else {
+		const genome &current_best_genome = get_current_best_genome();
+		if (current_best_genome.get_fitness() > m_best_genome_ever->get_fitness()) {
+			delete m_best_genome_ever;
+			m_best_genome_ever = new genome{current_best_genome};
+		}
 	}
 }

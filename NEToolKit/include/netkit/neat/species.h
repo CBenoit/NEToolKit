@@ -4,11 +4,13 @@
 #include "genome.h"
 
 namespace netkit {
-class population; // forward declaration
+// forward declarations
+class neat;
+class population;
 
 class species {
 public:
-	species(population* population, species_id_t id, const genome& representant);
+	species(neat* neat_instance, population* population, species_id_t id, const genome& representant);
 	species(const species& other);
 	species(species&& other) noexcept;
 	species& operator=(const species& other);
@@ -57,6 +59,8 @@ private:
 	bool m_sorted;
 
 	genome* m_representant;
+
+	neat* m_neat;
 	population* m_population;
 
 	friend std::ostream& operator<<(std::ostream& os, const species& spec);
