@@ -8,7 +8,8 @@ struct parameters {
 	size_t initial_population_size = 150;
 
 	// If the entire population doesn't improve for more that "refocusing_threshold" generations,
-	// only the top two species are allowed to reproduce, to refocus of the most promising species.
+	// only the top two species are allowed to reproduce, to refocus on the most promising species.
+	// TODO: not yet implemented.
 	unsigned int refocusing_threshold = 40;
 
 	// If a species doesn't improve for "extinction_threshold" generations, it goes extinct.
@@ -43,7 +44,8 @@ struct parameters {
 	unsigned int sum_all_mutation_weights() const {
 		return mutation_add_link_weight + mutation_add_neuron_weight
 			+ mutation_reenable_gene_weight + mutation_toggle_enable_weight
-			+ mutation_one_weight_weight + mutation_all_weights_weight;
+			+ mutation_one_weight_weight + mutation_all_weights_weight
+		    + mutation_reset_weights_weight + mutation_remove_gene_weight;
 	}
 
 	double initial_weight_perturbation = 10.0;

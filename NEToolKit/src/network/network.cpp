@@ -112,6 +112,10 @@ const std::vector<netkit::neuron>& netkit::network::get_neurons() const {
 	return m_all_neurons;
 }
 
+size_t netkit::network::number_of_neurons() const {
+	return m_all_neurons.size();
+}
+
 netkit::link_id_t netkit::network::add_link(neuron_id_t from_id, neuron_id_t to_id, neuron_value_t weight) {
 	link_id_t lid = static_cast<link_id_t>(m_links.size());
 	m_links.emplace_back(from_id, to_id, weight);
@@ -122,6 +126,10 @@ netkit::link_id_t netkit::network::add_link(neuron_id_t from_id, neuron_id_t to_
 
 const std::vector<netkit::link>& netkit::network::get_links() const {
 	return m_links;
+}
+
+size_t netkit::network::number_of_links() const {
+	return m_links.size();
 }
 
 // used to compute the max depth

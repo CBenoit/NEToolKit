@@ -24,8 +24,10 @@ public:
 
 	neuron_id_t add_neuron(neuron_type_t type, neuron n);
 	const std::vector<neuron>& get_neurons() const;
+	size_t number_of_neurons() const;
 	link_id_t add_link(neuron_id_t from_id, neuron_id_t to_id, neuron_value_t weight);
 	const std::vector<link>& get_links() const;
+	size_t number_of_links() const;
 
 	// find the maximum depth for the given neuron that is the size longest path to an input.
 	// It uses a modified Dijkstra's algorithm to perform a full search following incoming links.

@@ -2,6 +2,10 @@ NEToolKit
 =========
 A toolkit for NeuroEvolution featuring NEAT and rtNEAT **(work in progress)**.
 
+## Requirements
+
+A compiler supporting c++17 standard is a necessary to build.
+
 ## Building on Linux
 
 You can build with the provided `CMakeLists.txt` file.

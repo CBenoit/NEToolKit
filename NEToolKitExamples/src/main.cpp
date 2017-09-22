@@ -9,6 +9,7 @@ enum choice_t {
 	EXIT,
 	EX_XOR_NET,
 	XOR_EV_EXP,
+	XOR_EV_100_EXP,
 	RAND_EVO,
 	GEN_MUT_CROSS,
 	COFFEE
@@ -25,9 +26,10 @@ int main() {
 
 		std::cout << std::endl << "Would you like to:" << std::endl;
 		std::cout << "\t" << EX_XOR_NET << ". run the example xor network?" << std::endl;
-		std::cout << "\t" << XOR_EV_EXP << ". run the xor network evolution experiment?" << std::endl;
-		std::cout << "\t" << RAND_EVO << ". run a random evolution (random fitness at each generation)." << std::endl;
-		std::cout << "\t" << GEN_MUT_CROSS << ". run various mutations and crossover on simple genomes." << std::endl;
+		std::cout << "\t" << XOR_EV_EXP << ". run one detailed xor network evolution experiment?" << std::endl;
+		std::cout << "\t" << XOR_EV_100_EXP << ". run 100 xor network evolution experiments?" << std::endl;
+		std::cout << "\t" << RAND_EVO << ". run a random evolution (random fitness at each generation)?" << std::endl;
+		std::cout << "\t" << GEN_MUT_CROSS << ". run various mutations and crossover on simple genomes?" << std::endl;
 		std::cout << "\t" << COFFEE << ". get a cup of coffee?" << std::endl;
 		std::cout << "\t" << EXIT << ". exit this program?" << std::endl;
 
@@ -48,7 +50,10 @@ int main() {
 			xor_network_test();
 			break;
 		case XOR_EV_EXP:
-			run_xor_experiment();
+			run_one_xor_experiments();
+			break;
+		case XOR_EV_100_EXP:
+			run_100_xor_experiments();
 			break;
 		case RAND_EVO:
 			run_random_evolution();
