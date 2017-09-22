@@ -9,10 +9,10 @@ struct parameters {
 
 	// If the entire population doesn't improve for more that "refocusing_threshold" generations,
 	// only the top two species are allowed to reproduce, to refocus of the most promising species.
-	unsigned int refocusing_threshold = 20;
+	unsigned int refocusing_threshold = 40;
 
 	// If a species doesn't improve for "extinction_threshold" generations, it goes extinct.
-	unsigned int extinction_threshold = 20;
+	unsigned int extinction_threshold = 30;
 
 	// === compatibility measurement coefficients ===
 	/* Those are the coefficients for the compatibility distance formula which is
@@ -31,12 +31,14 @@ struct parameters {
 	double compatibility_threshold = 3.0;
 
 	// === mutations ===
-	unsigned int mutation_add_link_weight = 2;
+	unsigned int mutation_add_link_weight = 3;
 	unsigned int mutation_add_neuron_weight = 1;
 	unsigned int mutation_reenable_gene_weight = 1;
 	unsigned int mutation_toggle_enable_weight = 1;
 	unsigned int mutation_one_weight_weight = 3;
-	unsigned int mutation_all_weights_weight = 3;
+	unsigned int mutation_all_weights_weight = 7;
+	unsigned int mutation_reset_weights_weight = 1;
+	unsigned int mutation_remove_gene_weight = 2;
 
 	unsigned int sum_all_mutation_weights() const {
 		return mutation_add_link_weight + mutation_add_neuron_weight
@@ -53,8 +55,8 @@ struct parameters {
 	double interspecies_crossover_prob = 0.05;
 
 	unsigned int crossover_multipoint_rnd_weight = 2;
-	unsigned int crossover_multipoint_best_weight = 1;
-	unsigned int crossover_multipoint_avg_weight = 1;
+	unsigned int crossover_multipoint_best_weight = 0;
+	unsigned int crossover_multipoint_avg_weight = 0;
 
 	unsigned int sum_all_crossover_weights() const {
 		return crossover_multipoint_avg_weight + crossover_multipoint_best_weight

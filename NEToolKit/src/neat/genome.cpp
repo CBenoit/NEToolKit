@@ -60,6 +60,11 @@ bool netkit::genome::link_exists(neuron_id_t from, neuron_id_t to) const {
 }
 
 double netkit::genome::distance_to(const genome& other) const {
+	unsigned int larger_size = static_cast<unsigned int>(std::max(this->m_genes.size(), other.m_genes.size()));
+	if (larger_size <= 4) {
+		return 0.;
+	}
+
 	unsigned int nb_disjoint_genes = 0;
 	unsigned int nb_excess_genes = 0;
 	unsigned int nb_matching_genes = 0;
@@ -94,8 +99,6 @@ double netkit::genome::distance_to(const genome& other) const {
 		++nb_excess_genes;
 		++oya2_gene_it;
 	}
-
-	unsigned int larger_size = static_cast<unsigned int>(std::max(this->m_genes.size(), other.m_genes.size()));
 
 	return m_neat->params.distance_coef_c1 * nb_excess_genes / larger_size
 		+ m_neat->params.distance_coef_c2 * nb_disjoint_genes / larger_size
@@ -138,6 +141,16 @@ bool netkit::genome::random_mutate() {
 		return mutate_one_weight();
 	}
 	rnd_val -= m_neat->params.mutation_one_weight_weight;
+
+	if (rnd_val < m_neat->params.mutation_reset_weights_weight) {
+		return mutate_reset_weights();
+	}
+	rnd_val -= m_neat->params.mutation_reset_weights_weight;
+
+	if (rnd_val < m_neat->params.mutation_remove_gene_weight) {
+		return mutate_remove_gene();
+	}
+	rnd_val -= m_neat->params.mutation_remove_gene_weight;
 
 	if (rnd_val < m_neat->params.mutation_reenable_gene_weight) {
 		return mutate_reenable_gene();
@@ -291,6 +304,28 @@ bool netkit::genome::mutate_all_weights() {
 	return true;
 }
 
+bool netkit::genome::mutate_reset_weights() {
+	std::uniform_real_distribution<netkit::neuron_value_t> perturbator(-m_neat->params.initial_weight_perturbation,
+	                                                                   m_neat->params.initial_weight_perturbation);
+	for (gene& g : m_genes) {
+		g.weight = perturbator(m_neat->rand_engine);
+	}
+
+	return true;
+}
+
+bool netkit::genome::mutate_remove_gene(){
+	if (m_genes.empty()) {
+		return false;
+	}
+
+	std::uniform_int_distribution<size_t> gene_selector(0, m_genes.size() - 1);
+	m_genes.erase(m_genes.begin() + gene_selector(m_neat->rand_engine));
+	// TODO: check if a neuron goes unknown afterward.
+
+	return true;
+}
+
 netkit::genome netkit::genome::random_crossover(const genome& other) const {
 	std::uniform_int_distribution<unsigned int> crossover_selector(0, m_neat->params.sum_all_crossover_weights() - 1);
 	unsigned int rnd_val = crossover_selector(m_neat->rand_engine);
@@ -347,17 +382,17 @@ netkit::network netkit::genome::generate_network() const {
 	ids_map.emplace(BIAS_ID, network::BIAS_ID);
 
 	for (size_t i = 0; i < m_number_of_inputs; i++) {
-		neuron_id_t net_neuron_id = net.add_neuron(INPUT, neuron(&sigmoid));
+		neuron_id_t net_neuron_id = net.add_neuron(INPUT, neuron(&steepened_sigmoid));
 		ids_map.emplace(i + 1, net_neuron_id);
 	}
 
 	for (size_t i = 0; i < m_number_of_outputs; i++) {
-		neuron_id_t net_neuron_id = net.add_neuron(OUTPUT, neuron(&sigmoid));
+		neuron_id_t net_neuron_id = net.add_neuron(OUTPUT, neuron(&steepened_sigmoid));
 		ids_map.emplace(i + m_number_of_inputs + 1, net_neuron_id);
 	}
 
 	for (size_t i = m_number_of_inputs + m_number_of_outputs + 1; i < m_known_neuron_ids.size(); i++) {
-		neuron_id_t net_neuron_id = net.add_neuron(HIDDEN, neuron(&sigmoid));
+		neuron_id_t net_neuron_id = net.add_neuron(HIDDEN, neuron(&steepened_sigmoid));
 		ids_map.emplace(m_known_neuron_ids[i], net_neuron_id);
 	}
 
@@ -373,7 +408,7 @@ netkit::network netkit::genome::generate_network() const {
 }
 
 bool netkit::genome::reenable_gene_ok() const {
-	std::bernoulli_distribution distrib(0.15);
+	std::bernoulli_distribution distrib(0.25); // TODO: externalize in parameters
 	return distrib(m_neat->rand_engine);
 }
 

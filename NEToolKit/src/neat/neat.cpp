@@ -12,7 +12,8 @@ netkit::neat::neat(const parameters& params_)
 	, m_population()
 	, m_next_genome_id(0)
 	, m_next_species_id(0)
-	, m_best_genome_ever(nullptr)  {
+	, m_best_genome_ever(nullptr)
+	, m_age_of_best_genome_ever() {
 	if (this->params.number_of_outputs == 0 || this->params.number_of_inputs == 0) {
 		throw std::invalid_argument("genomes needs at least one input and one output.");
 	}
@@ -30,8 +31,8 @@ netkit::neat::neat(const neat& other)
 	, m_population(other.m_population)
 	, m_next_genome_id(other.m_next_genome_id)
 	, m_next_species_id(other.m_next_species_id)
-	, m_best_genome_ever(new genome{*other.m_best_genome_ever}) {
-
+	, m_best_genome_ever(new genome{*other.m_best_genome_ever})
+	, m_age_of_best_genome_ever(other.m_age_of_best_genome_ever) {
 	long seed = std::chrono::system_clock::now().time_since_epoch().count();
 	rand_engine = std::minstd_rand0(seed);
 }
@@ -44,7 +45,8 @@ netkit::neat::neat(neat&& other) noexcept
 	, m_population(std::move(other.m_population))
 	, m_next_genome_id(other.m_next_genome_id)
 	, m_next_species_id(other.m_next_species_id)
-	, m_best_genome_ever(other.m_best_genome_ever) {
+	, m_best_genome_ever(other.m_best_genome_ever)
+	, m_age_of_best_genome_ever(other.m_age_of_best_genome_ever) {
 	other.m_best_genome_ever = nullptr;
 }
 
@@ -70,6 +72,9 @@ void netkit::neat::init() {
 }
 
 void netkit::neat::init(const genome& initial_genome) {
+	m_best_genome_ever = nullptr;
+	m_age_of_best_genome_ever = 0;
+
 	// populate with random mutations from the initial genome.
 	for (size_t i = 0; i < params.initial_population_size; i++) {
 		m_population.add_genome(initial_genome.get_random_mutation());
@@ -102,8 +107,8 @@ bool netkit::neat::has_more_organisms_to_process() {
 }
 
 void netkit::neat::epoch() {
-	// TODO: take into account refocusing_threshold
-	// TODO: take into account extinction_threshold.
+	++m_age_of_best_genome_ever;
+	// TODO: take into account "refocusing_threshold" thanks to the m_age_of_best_genome_ever attribute.
 
 	// initialize generation-specific variables
 	m_next_genome_id = 0;
@@ -124,10 +129,17 @@ void netkit::neat::epoch() {
 	}
 	overall_average /= static_cast<double>(m_population.size());
 
-	// Compute the the expected number of offsprings for each species.
+	// Compute the expected number of offsprings for each species.
 	unsigned int total_expected_offsprings = 0;
 	for (species& spec : m_all_species) {
-		auto this_species_expected_offsprings = static_cast<unsigned int>(spec.get_summed_fitnesses() / overall_average);
+		unsigned int this_species_expected_offsprings;
+		if (spec.get_age() - spec.get_age_of_last_improvement() >= params.extinction_threshold) {
+			// if a species doesn't improve for "extinction threshold" generations it goes extinct.
+			this_species_expected_offsprings = 0;
+		} else {
+			this_species_expected_offsprings = static_cast<unsigned int>(spec.get_summed_fitnesses() / overall_average);
+		}
+
 		spec.set_expected_offsprings(this_species_expected_offsprings);
 		total_expected_offsprings += this_species_expected_offsprings;
 	}
@@ -147,6 +159,13 @@ void netkit::neat::epoch() {
 	std::uniform_int_distribution<size_t> species_selector(0, m_all_species.size() - 1);
 	for (species& spec : m_all_species) {
 		unsigned int offsprings_produced = 0;
+
+		// keep the champion of species with 5 or more members
+		if (spec.number_of_members() >= 5) { // TODO: externalize in parameters
+			offsprings.emplace_back(m_population.get_genome(spec.get_champion()));
+			++offsprings_produced;
+		}
+
 		while (offsprings_produced < spec.get_expected_offsprings()) {
 			++offsprings_produced;
 			double rnd_val = prob(rand_engine);
@@ -213,6 +232,19 @@ const netkit::genome& netkit::neat::get_current_best_genome() const {
 	return *champion;
 }
 
+void netkit::neat::notify_end_of_fitness_rating() {
+	if (m_best_genome_ever == nullptr) {
+		m_best_genome_ever = new genome{get_current_best_genome()};
+	} else {
+		const genome &current_best_genome = get_current_best_genome();
+		if (current_best_genome.get_fitness() > m_best_genome_ever->get_fitness()) {
+			delete m_best_genome_ever;
+			m_best_genome_ever = new genome{current_best_genome};
+			m_age_of_best_genome_ever = 0;
+		}
+	}
+}
+
 void netkit::neat::helper_speciate() {
 	genome_id_t geno_id = 0;
 	for (const genome& geno : m_population.get_all_genomes()) {
@@ -227,14 +259,3 @@ void netkit::neat::helper_speciate() {
 	}
 }
 
-void netkit::neat::notify_end_of_fitness_rating() {
-	if (m_best_genome_ever == nullptr) {
-		m_best_genome_ever = new genome{get_current_best_genome()};
-	} else {
-		const genome &current_best_genome = get_current_best_genome();
-		if (current_best_genome.get_fitness() > m_best_genome_ever->get_fitness()) {
-			delete m_best_genome_ever;
-			m_best_genome_ever = new genome{current_best_genome};
-		}
-	}
-}

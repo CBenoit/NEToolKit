@@ -9,10 +9,11 @@ namespace netkit {
 struct gene {
 	gene(innov_num_t innov_num, neuron_id_t from_id, neuron_id_t to_id, neuron_value_t weight = 0);
 	gene(const gene& other) = default;
+	gene& operator=(const gene& other) = default;
 
-	const innov_num_t innov_num;
-	const neuron_id_t from;
-	const neuron_id_t to;
+	innov_num_t innov_num;
+	neuron_id_t from;
+	neuron_id_t to;
 	neuron_value_t weight;
 	bool enabled;
 	// TODO: ability to be frozen?

@@ -61,5 +61,6 @@ private:
 	genome_id_t m_next_genome_id;
 	species_id_t m_next_species_id;
 	genome* m_best_genome_ever;
+	unsigned int m_age_of_best_genome_ever;
 };
 }

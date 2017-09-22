@@ -41,6 +41,8 @@ public:
 	bool mutate_toggle_enable();
 	bool mutate_one_weight();
 	bool mutate_all_weights();
+	bool mutate_reset_weights();
+	bool mutate_remove_gene();
 
 	// crossovers
 	genome random_crossover(const genome& other) const;
