@@ -3,8 +3,9 @@
 #include <numeric> // iota
 #include <random>
 
-#include "netkit/neat/neat.h"
 #include "netkit/network/activation_functions.h"
+#include "netkit/network/network_primitive_types.h"
+#include "netkit/neat/neat.h"
 #include "netkit/neat/genome.h"
 #include "netkit/neat/innovation.h"
 
@@ -47,6 +48,15 @@ void netkit::genome::add_gene(gene new_gene) {
 		m_known_neuron_ids.push_back(new_gene.to);
 	}
 
+	// make sure the genes are sorted by innovation number.
+	size_t current_position = m_genes.size();
+	while (current_position >= 1) {
+		if (m_genes[current_position-1].innov_num < new_gene.innov_num) {
+			m_genes.insert(m_genes.begin() + current_position, new_gene);
+			return;
+		}
+		--current_position;
+	}
 	m_genes.emplace_back(new_gene);
 }
 
@@ -60,8 +70,9 @@ bool netkit::genome::link_exists(neuron_id_t from, neuron_id_t to) const {
 }
 
 double netkit::genome::distance_to(const genome& other) const {
+	// find a better way of calculating the genetic distance.
 	unsigned int larger_size = static_cast<unsigned int>(std::max(this->m_genes.size(), other.m_genes.size()));
-	if (larger_size <= 4) {
+	if (larger_size <= 4) { // TODO: add to parameters?
 		return 0.;
 	}
 
@@ -112,52 +123,60 @@ bool netkit::genome::is_compatible_with(const genome & other) const {
 netkit::genome netkit::genome::get_random_mutation() const {
 	genome offspring(*this);
 
-	unsigned int remaining_tries = 3; // a mutation can fail, so let's give it three tries.
-	while (!offspring.random_mutate() && remaining_tries--) {}
+	unsigned int remaining_tries = 3; // a mutation can fail, so let's give it three tries. TODO: add it to the parameters.
+	while (!offspring.random_mutate() && remaining_tries--) { }
 
 	return std::move(offspring);
 }
 
 bool netkit::genome::random_mutate() {
-	std::uniform_int_distribution<unsigned int> mutation_selector(0, m_neat->params.sum_all_mutation_weights() - 1);
-	unsigned int rnd_val = mutation_selector(m_neat->rand_engine);
-
-	if (rnd_val < m_neat->params.mutation_add_link_weight) {
-		return mutate_add_link();
-	}
-	rnd_val -= m_neat->params.mutation_add_link_weight;
-
-	if (rnd_val < m_neat->params.mutation_add_neuron_weight) {
+	std::bernoulli_distribution add_neuron_true(m_neat->params.mutation_probs[ADD_NEURON]);
+	std::bernoulli_distribution add_link_true(m_neat->params.mutation_probs[ADD_LINK]);
+	if (add_neuron_true(m_neat->rand_engine)) {
+		// let's add a new neuron!
 		return mutate_add_neuron();
-	}
-	rnd_val -= m_neat->params.mutation_add_neuron_weight;
+	} else if (add_link_true(m_neat->rand_engine)) {
+		// We do not add a new neuron AND a new link at the same time.
+		return mutate_add_link();
+	} else { // We can do any other mutation if there was no structural mutation.
+		// The two first values are the add neuron and add link mutations.
+		std::vector<mutation_t> mutations_to_perform;
+		mutations_to_perform.reserve(NUMBER_OF_MUTATIONS - 2);
+		for (size_t mut_id = 2; mut_id < NUMBER_OF_MUTATIONS; ++mut_id) {
+			std::bernoulli_distribution select_mutation(m_neat->params.mutation_probs[mut_id]);
+			if (select_mutation(m_neat->rand_engine)) {
+				mutations_to_perform.push_back(static_cast<mutation_t>(mut_id));
+			}
+		}
 
-	if (rnd_val < m_neat->params.mutation_all_weights_weight) {
-		return mutate_all_weights();
-	}
-	rnd_val -= m_neat->params.mutation_all_weights_weight;
+		bool return_value = false;
+		for (mutation_t mut_id : mutations_to_perform) {
+			switch (mut_id) {
+				case REMOVE_GENE:
+					return_value |= mutate_remove_gene();
+					break;
+				case REENABLE_GENE:
+					return_value |= mutate_reenable_gene();
+					break;
+				case TOGGLE_ENABLE:
+					return_value |= mutate_toggle_enable();
+					break;
+				case RESET_WEIGHTS:
+					return_value |= mutate_reset_weights();
+					break;
+				case ONE_WEIGHT:
+					return_value |= mutate_one_weight();
+					break;
+				case ALL_WEIGHTS:
+					return_value |= mutate_all_weights();
+					break;
+				default: // should not happen
+					break;
+			}
+		}
 
-	if (rnd_val < m_neat->params.mutation_one_weight_weight) {
-		return mutate_one_weight();
+		return return_value;
 	}
-	rnd_val -= m_neat->params.mutation_one_weight_weight;
-
-	if (rnd_val < m_neat->params.mutation_reset_weights_weight) {
-		return mutate_reset_weights();
-	}
-	rnd_val -= m_neat->params.mutation_reset_weights_weight;
-
-	if (rnd_val < m_neat->params.mutation_remove_gene_weight) {
-		return mutate_remove_gene();
-	}
-	rnd_val -= m_neat->params.mutation_remove_gene_weight;
-
-	if (rnd_val < m_neat->params.mutation_reenable_gene_weight) {
-		return mutate_reenable_gene();
-	}
-
-	// the last option is...
-	return mutate_toggle_enable();
 }
 
 bool netkit::genome::mutate_add_link() {
@@ -222,6 +241,11 @@ bool netkit::genome::mutate_add_neuron() {
 		m_neat->innov_pool.find_innovation(NEW_NEURON, m_genes[sel_idx].from, m_genes[sel_idx].to);
 
 	if (existing_innovation.has_value()) {
+		// this existing innovation already occurred in this genome.
+		if (std::find(m_known_neuron_ids.cbegin(), m_known_neuron_ids.cend(), existing_innovation->new_neuron_id) != m_known_neuron_ids.cend()) {
+			return false;
+		}
+
 		add_gene({existing_innovation->innov_num, existing_innovation->from,
 				 existing_innovation->new_neuron_id, m_genes[sel_idx].weight});
 		add_gene({existing_innovation->innov_num_2, existing_innovation->new_neuron_id,

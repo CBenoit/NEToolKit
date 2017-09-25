@@ -42,7 +42,7 @@ void run_genome_mutations_crossovers() {
 	geno.mutate_add_neuron();
 	std::cout << "\nMutate add neuron:" << std::endl << geno << std::endl;
 
-	for (size_t i = 0; i < 5; i++) {
+	for (size_t i = 0; i < 20; i++) {
 		geno2.random_mutate();
 	}
 	std::cout << "\nHere is another genome based on an older version of the previous one that has been randomly mutated:" << std::endl << geno2 << std::endl;

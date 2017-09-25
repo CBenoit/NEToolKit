@@ -168,8 +168,7 @@ void netkit::neat::epoch() {
 
 		while (offsprings_produced < spec.get_expected_offsprings()) {
 			++offsprings_produced;
-			double rnd_val = prob(rand_engine);
-			if (rnd_val < params.crossover_prob) { // let's go for a crossover
+			if (prob(rand_engine) < params.crossover_prob) { // let's go for a crossover
 				genome* genitor1 = &m_population.get_genome(spec.select_one_genitor());
 				genome* genitor2 = nullptr;
 
@@ -182,7 +181,12 @@ void netkit::neat::epoch() {
 					genitor2 = &m_population.get_genome(spec.select_one_genitor());
 				}
 
-				offsprings.push_back(genitor1->random_crossover(*genitor2));
+				// mutate the offspring or not
+				if (prob(rand_engine) < params.mutation_during_crossover_prob) {
+					offsprings.push_back(genitor1->random_crossover(*genitor2).get_random_mutation());
+				} else {
+					offsprings.push_back(genitor1->random_crossover(*genitor2));
+				}
 			} else {
 				genome* genitor = &m_population.get_genome(spec.select_one_genitor());
 				offsprings.push_back(genitor->get_random_mutation());

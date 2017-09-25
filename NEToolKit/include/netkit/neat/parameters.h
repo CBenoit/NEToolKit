@@ -1,7 +1,20 @@
 #pragma once
 
+#include "neat_primitive_types.h"
+
 namespace netkit {
 struct parameters {
+	parameters() {
+		mutation_probs[ADD_LINK] = 0.06;
+		mutation_probs[ADD_NEURON] = 0.03;
+		mutation_probs[REMOVE_GENE] = 0.03;
+		mutation_probs[REENABLE_GENE] = 0.03;
+		mutation_probs[TOGGLE_ENABLE] = 0.03;
+		mutation_probs[RESET_WEIGHTS] = 0.03;
+		mutation_probs[ONE_WEIGHT] = 0.09;
+		mutation_probs[ALL_WEIGHTS] = 0.21;
+	}
+
 	// === general ===
 	unsigned int number_of_inputs = 2;
 	unsigned int number_of_outputs = 1;
@@ -24,7 +37,7 @@ struct parameters {
 	 *		W the average weight differences of matching genes.
 	 */
 	double distance_coef_c1 = 1.0;
-	double distance_coef_c2 = 1.0;
+	double distance_coef_c2 = 1.5;
 	double distance_coef_c3 = 0.4;
 
 	// If the compatibility distance between two genomes is lesser or equal than the threshold,
@@ -32,28 +45,15 @@ struct parameters {
 	double compatibility_threshold = 3.0;
 
 	// === mutations ===
-	unsigned int mutation_add_link_weight = 3;
-	unsigned int mutation_add_neuron_weight = 1;
-	unsigned int mutation_reenable_gene_weight = 1;
-	unsigned int mutation_toggle_enable_weight = 1;
-	unsigned int mutation_one_weight_weight = 3;
-	unsigned int mutation_all_weights_weight = 7;
-	unsigned int mutation_reset_weights_weight = 1;
-	unsigned int mutation_remove_gene_weight = 2;
-
-	unsigned int sum_all_mutation_weights() const {
-		return mutation_add_link_weight + mutation_add_neuron_weight
-			+ mutation_reenable_gene_weight + mutation_toggle_enable_weight
-			+ mutation_one_weight_weight + mutation_all_weights_weight
-		    + mutation_reset_weights_weight + mutation_remove_gene_weight;
-	}
+	double mutation_during_crossover_prob = 0.25;
+	double mutation_probs[NUMBER_OF_MUTATIONS];
 
 	double initial_weight_perturbation = 10.0;
 	double weight_mutation_power = 3.0;
 
 	// === crossovers ===
 	// crossover probability
-	double crossover_prob = 0.3;
+	double crossover_prob = 0.20;
 	double interspecies_crossover_prob = 0.05;
 
 	unsigned int crossover_multipoint_rnd_weight = 2;
