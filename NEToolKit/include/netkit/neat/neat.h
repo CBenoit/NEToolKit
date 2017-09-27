@@ -51,7 +51,7 @@ private:
 	void helper_speciate();
 
 public:
-	const parameters params;
+	parameters params;
 	innovation_pool innov_pool;
 	std::minstd_rand0 rand_engine;
 

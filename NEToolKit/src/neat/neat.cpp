@@ -133,7 +133,7 @@ void netkit::neat::epoch() {
 	unsigned int total_expected_offsprings = 0;
 	for (species& spec : m_all_species) {
 		unsigned int this_species_expected_offsprings;
-		if (spec.get_age() - spec.get_age_of_last_improvement() >= params.extinction_threshold) {
+		if (spec.get_age() - spec.get_age_of_last_improvement() >= params.no_reproduction_threshold) {
 			// if a species doesn't improve for "extinction threshold" generations it goes extinct.
 			this_species_expected_offsprings = 0;
 		} else {
@@ -161,7 +161,7 @@ void netkit::neat::epoch() {
 		unsigned int offsprings_produced = 0;
 
 		// keep the champion of species with 5 or more members
-		if (spec.number_of_members() >= 5) { // TODO: externalize in parameters
+		if (offsprings_produced < spec.get_expected_offsprings() && spec.number_of_members() >= 5) { // TODO: externalize in parameters
 			offsprings.emplace_back(m_population.get_genome(spec.get_champion()));
 			++offsprings_produced;
 		}
@@ -212,6 +212,15 @@ void netkit::neat::epoch() {
 	  m_all_species.end()
 	);
 	// /!\ from now, best_species pointer may be invalid!!!
+
+	// adjust the compatibility threshold if it is dynamic.
+	if (params.dynamic_compatibility_threshold) {
+		if (m_all_species.size() > params.target_number_of_species) {
+			params.compatibility_threshold += params.compatibility_threshold_change_step;
+		} else if (m_all_species.size() < params.target_number_of_species) {
+			params.compatibility_threshold -= params.compatibility_threshold_change_step;
+		}
+	}
 }
 
 std::optional<netkit::species*> netkit::neat::find_appropriate_species_for(const genome& geno) {

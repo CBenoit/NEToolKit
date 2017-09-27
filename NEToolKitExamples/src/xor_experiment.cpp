@@ -182,7 +182,7 @@ exp_stats run_xor_experiment(bool display_xor_experiment_details) {
 
 	exp_stats stats;
 	stats.success = false; // will be set to true if a solution is found.
-	stats.number_of_generations = 100; // will be changed to the actual number of generations until a solution is found.
+	stats.number_of_generations = 150; // will be changed to the actual number of generations until a solution is found.
 
 	rate_xor_population(neat);
 

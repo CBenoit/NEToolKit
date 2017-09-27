@@ -25,8 +25,8 @@ struct parameters {
 	// TODO: not yet implemented.
 	unsigned int refocusing_threshold = 40;
 
-	// If a species doesn't improve for "extinction_threshold" generations, it goes extinct.
-	unsigned int extinction_threshold = 30;
+	// If a species doesn't improve for "no_reproduction_threshold" generations, it is not allowed to reproduce.
+	unsigned int no_reproduction_threshold = 30;
 
 	// === compatibility measurement coefficients ===
 	/* Those are the coefficients for the compatibility distance formula which is
@@ -43,6 +43,11 @@ struct parameters {
 	// If the compatibility distance between two genomes is lesser or equal than the threshold,
 	// they are considered to be in the same specie.
 	double compatibility_threshold = 3.0;
+
+	// enable dynamic compatibility threshold to target a specific number of species.
+	bool dynamic_compatibility_threshold = false;
+	unsigned int target_number_of_species = 10;
+	double compatibility_threshold_change_step = 0.05;
 
 	// === mutations ===
 	double mutation_during_crossover_prob = 0.25;
