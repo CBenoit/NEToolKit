@@ -122,8 +122,8 @@ void netkit::neat::epoch() {
 		spec.share_fitness();
 		spec.update_stats();
 		overall_average += spec.get_summed_fitnesses();
-		if (spec.get_summed_fitnesses() > best_fitnesses_so_far) {
-			best_fitnesses_so_far = spec.get_summed_fitnesses();
+		if (spec.get_best_fitness() > best_fitnesses_so_far) {
+			best_fitnesses_so_far = spec.get_best_fitness();
 			best_species = &spec;
 		}
 	}
