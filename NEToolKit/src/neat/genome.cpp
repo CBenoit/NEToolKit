@@ -5,13 +5,13 @@
 
 #include "netkit/network/activation_functions.h"
 #include "netkit/network/network_primitive_types.h"
-#include "netkit/neat/neat.h"
+#include "netkit/neat/base_neat.h"
 #include "netkit/neat/genome.h"
 #include "netkit/neat/innovation.h"
 
 const netkit::neuron_id_t netkit::genome::BIAS_ID = 0;
 
-netkit::genome::genome(neat* neat_instance)
+netkit::genome::genome(base_neat* neat_instance)
 	: m_number_of_inputs(neat_instance->params.number_of_inputs)
 	, m_number_of_outputs(neat_instance->params.number_of_outputs)
 	, m_genes()

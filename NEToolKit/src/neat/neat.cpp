@@ -6,83 +6,12 @@
 #include "netkit/neat/neat.h"
 
 netkit::neat::neat(const parameters& params_)
-	: params(params_)
-    , innov_pool(this->params)
-	, m_all_species()
-	, m_population()
-	, m_next_genome_id(0)
-	, m_next_species_id(0)
-	, m_best_genome_ever(nullptr)
-	, m_age_of_best_genome_ever() {
-	if (this->params.number_of_outputs == 0 || this->params.number_of_inputs == 0) {
-		throw std::invalid_argument("genomes needs at least one input and one output.");
-	}
-
-	m_all_species.reserve(15); // reserve some memory to store the species.
-
-	long seed = std::chrono::system_clock::now().time_since_epoch().count();
-	rand_engine = std::minstd_rand0(seed);
-}
-
-netkit::neat::neat(const neat& other)
-	: params(other.params)
-	, innov_pool(other.innov_pool)
-	, m_all_species(other.m_all_species)
-	, m_population(other.m_population)
-	, m_next_genome_id(other.m_next_genome_id)
-	, m_next_species_id(other.m_next_species_id)
-	, m_best_genome_ever(new genome{*other.m_best_genome_ever})
-	, m_age_of_best_genome_ever(other.m_age_of_best_genome_ever) {
-	long seed = std::chrono::system_clock::now().time_since_epoch().count();
-	rand_engine = std::minstd_rand0(seed);
-}
+	: base_neat(params_)
+	, m_next_genome_id(0) {}
 
 netkit::neat::neat(neat&& other) noexcept
-	: params(other.params)
-	, innov_pool(std::move(other.innov_pool))
-	, rand_engine(std::move(other.rand_engine))
-	, m_all_species(std::move(other.m_all_species))
-	, m_population(std::move(other.m_population))
-	, m_next_genome_id(other.m_next_genome_id)
-	, m_next_species_id(other.m_next_species_id)
-	, m_best_genome_ever(other.m_best_genome_ever)
-	, m_age_of_best_genome_ever(other.m_age_of_best_genome_ever) {
-	other.m_best_genome_ever = nullptr;
-}
-
-void netkit::neat::init() {
-	// produce the default initial genome.
-	genome initial_genome(this);
-
-	const neuron_id_t starting_idx_outputs = 1 + initial_genome.number_of_inputs();
-
-	// links from the bias
-	for (neuron_id_t i = 0; i < initial_genome.number_of_outputs(); i++) {
-		initial_genome.add_gene({innov_pool.next_innovation(), genome::BIAS_ID, starting_idx_outputs + i});
-	}
-
-	// links from the inputs
-	for (neuron_id_t j = 0; j < initial_genome.number_of_inputs(); j++) {
-		for (neuron_id_t i = 0; i < initial_genome.number_of_outputs(); i++) {
-			initial_genome.add_gene({innov_pool.next_innovation(), j + 1, starting_idx_outputs + i});
-		}
-	}
-
-	init(initial_genome);
-}
-
-void netkit::neat::init(const genome& initial_genome) {
-	m_best_genome_ever = nullptr;
-	m_age_of_best_genome_ever = 0;
-
-	// populate with random mutations from the initial genome.
-	for (size_t i = 0; i < params.initial_population_size; i++) {
-		m_population.add_genome(initial_genome.get_random_mutation());
-	}
-
-	// speciate the population
-	helper_speciate();
-}
+	: base_neat(std::move(other))
+	, m_next_genome_id(other.m_next_genome_id) {} // it's actually OK to get the trivial member from the moved object.
 
 std::vector<netkit::organism> netkit::neat::generate_and_get_all_organisms() {
 	std::vector<organism> organisms;
@@ -106,10 +35,7 @@ bool netkit::neat::has_more_organisms_to_process() {
 	return m_next_genome_id < m_population.size();
 }
 
-void netkit::neat::epoch() {
-	++m_age_of_best_genome_ever;
-	// TODO: take into account "refocusing_threshold" thanks to the m_age_of_best_genome_ever attribute.
-
+void netkit::neat::impl_epoch() {
 	// initialize generation-specific variables
 	m_next_genome_id = 0;
 
@@ -222,53 +148,3 @@ void netkit::neat::epoch() {
 		}
 	}
 }
-
-std::optional<netkit::species*> netkit::neat::find_appropriate_species_for(const genome& geno) {
-	for (species& spec : m_all_species) {
-		if (geno.is_compatible_with(spec.get_representant())) {
-			return {&spec};
-		}
-	}
-	return {};
-}
-
-const netkit::genome& netkit::neat::get_current_best_genome() const {
-	double best_fitness_so_far = std::numeric_limits<double>::min();
-	const genome* champion = nullptr;
-	for (const genome& geno : m_population.get_all_genomes()) {
-		if (geno.get_fitness() > best_fitness_so_far) {
-			best_fitness_so_far = geno.get_fitness();
-			champion = &geno;
-		}
-	}
-
-	return *champion;
-}
-
-void netkit::neat::notify_end_of_fitness_rating() {
-	if (m_best_genome_ever == nullptr) {
-		m_best_genome_ever = new genome{get_current_best_genome()};
-	} else {
-		const genome &current_best_genome = get_current_best_genome();
-		if (current_best_genome.get_fitness() > m_best_genome_ever->get_fitness()) {
-			delete m_best_genome_ever;
-			m_best_genome_ever = new genome{current_best_genome};
-			m_age_of_best_genome_ever = 0;
-		}
-	}
-}
-
-void netkit::neat::helper_speciate() {
-	genome_id_t geno_id = 0;
-	for (const genome& geno : m_population.get_all_genomes()) {
-		std::optional<species*> opt_species = find_appropriate_species_for(geno);
-		if (opt_species.has_value()) {
-			opt_species.value()->add_member(geno_id);
-		} else {
-			m_all_species.emplace_back(this, &m_population, m_next_species_id++, geno);
-			m_all_species.back().add_member(geno_id);
-		}
-		++geno_id;
-	}
-}
-

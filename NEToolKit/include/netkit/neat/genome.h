@@ -8,11 +8,11 @@
 #include "netkit/network/network.h"
 
 namespace netkit {
-class neat;
+class base_neat;
 
 class genome {
 public:
-	explicit genome(neat* neat_instance);
+	explicit genome(base_neat* neat_instance);
 	genome(const genome& other) = default;
 	genome(genome&& other) noexcept;
 
@@ -62,7 +62,7 @@ private:
 	std::vector<gene> m_genes;
 	std::vector<neuron_id_t> m_known_neuron_ids;
 
-	neat* m_neat;
+	base_neat* m_neat;
 
 	double m_fitness;
 

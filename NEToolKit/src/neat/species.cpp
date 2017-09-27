@@ -2,10 +2,10 @@
 #include <limits> // std::numeric_limits
 
 #include "netkit/neat/species.h"
-#include "netkit/neat/neat.h"
+#include "netkit/neat/base_neat.h"
 #include "netkit/neat/population.h"
 
-netkit::species::species(neat* neat_instance, population* population, species_id_t id, const genome& representant)
+netkit::species::species(base_neat* neat_instance, population* population, species_id_t id, const genome& representant)
 	: m_members()
 	, m_avg_fitness(0)
 	, m_best_fitness(0)

@@ -203,7 +203,6 @@ exp_stats run_xor_experiment(bool display_xor_experiment_details) {
 		neat.epoch(); // go to next generation
 
 		rate_xor_population(neat);
-		neat.notify_end_of_fitness_rating();
 
 		if (display_xor_experiment_details) {
 			for (netkit::species &spec : neat.get_all_species()) {
