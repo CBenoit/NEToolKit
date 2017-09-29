@@ -24,6 +24,7 @@ public:
 	const std::vector<genome>& get_all_genomes() const { return m_all_genomes; }
 	void set_genomes(const std::vector<genome>& genomes);
 	void set_genomes(std::vector<genome>&& genomes);
+	void replace_genome(genome_id_t id, genome geno);
 
 private:
 	std::vector<genome> m_all_genomes;

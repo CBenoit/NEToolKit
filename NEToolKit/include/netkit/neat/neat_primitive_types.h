@@ -8,6 +8,8 @@ using species_age_t = unsigned int;
 
 using genome_id_t = size_t;
 
+using tick_t = unsigned long;
+
 enum mutation_t {
 	ADD_LINK = 0,
 	ADD_NEURON = 1, // these two are treated a bit differently (see genome.cpp random_mutate method)

@@ -28,3 +28,6 @@ void netkit::population::set_genomes(std::vector<genome>&& genomes) {
 	m_all_genomes = std::move(genomes);
 }
 
+void netkit::population::replace_genome(genome_id_t id, genome geno) {
+	m_all_genomes[id] = std::move(geno);
+}

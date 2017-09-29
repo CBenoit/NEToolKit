@@ -78,17 +78,18 @@ void netkit::base_neat::init(const genome& initial_genome) {
 	}
 
 	// speciate the population
-	helper_speciate();
+	helper_speciate_all_population();
 }
 
 void netkit::base_neat::epoch() {
+	// FIXME: should probably be moved elsewhere? Probable performance issue for rtNEAT which run this method often.
 	// track the best genome ever produced.
 	if (m_best_genome_ever == nullptr) {
+		std::cout << "updated the best genome ever produced." << std::endl;
 		m_best_genome_ever = new genome{get_current_best_genome()};
 		m_age_of_best_genome_ever = 0;
 	} else {
 		const genome &current_best_genome = get_current_best_genome();
-		// using the non adjusted fitness! (so, before calling share fitness method on species)
 		if (current_best_genome.get_fitness() > m_best_genome_ever->get_fitness()) {
 			delete m_best_genome_ever;
 			m_best_genome_ever = new genome{current_best_genome};
@@ -123,17 +124,19 @@ const netkit::genome& netkit::base_neat::get_current_best_genome() const {
 	return *champion;
 }
 
-void netkit::base_neat::helper_speciate() {
-	genome_id_t geno_id = 0;
-	for (const genome& geno : m_population.get_all_genomes()) {
-		std::optional<species*> opt_species = find_appropriate_species_for(geno);
-		if (opt_species.has_value()) {
-			opt_species.value()->add_member(geno_id);
-		} else {
-			m_all_species.emplace_back(this, &m_population, m_next_species_id++, geno);
-			m_all_species.back().add_member(geno_id);
-		}
-		++geno_id;
+void netkit::base_neat::helper_speciate_all_population() {
+	for (genome_id_t geno_id = 0; geno_id < m_population.size(); ++geno_id) {
+		helper_speciate_one_genome(geno_id);
+	}
+}
+
+void netkit::base_neat::helper_speciate_one_genome(genome_id_t geno_id) {
+	std::optional<species*> opt_species = find_appropriate_species_for(m_population[geno_id]);
+	if (opt_species.has_value()) {
+		opt_species.value()->add_member(geno_id);
+	} else {
+		m_all_species.emplace_back(this, &m_population, m_next_species_id++, m_population[geno_id]);
+		m_all_species.back().add_member(geno_id);
 	}
 }
 

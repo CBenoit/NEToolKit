@@ -22,10 +22,13 @@ public:
 	genome& get_genome() const;
 	double get_fitness() const;
 	void set_fitness(double value) const;
+	tick_t get_time_alive() const;
+	void increase_time_alive();
 
 private:
 	population* m_population;
 	genome_id_t m_genome_id; // the id of the genotype
 	network m_network; // the phenotype
+	tick_t m_time_alive;
 };
 }

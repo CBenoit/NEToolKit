@@ -1,8 +1,5 @@
 #pragma once
 
-#include <optional>
-#include <random>
-
 #include "base_neat.h"
 #include "organism.h"
 

@@ -23,9 +23,11 @@ struct parameters {
 	// If the entire population doesn't improve for more that "refocusing_threshold" generations,
 	// only the top two species are allowed to reproduce, to refocus on the most promising species.
 	// TODO: not yet implemented.
+	// Not used by rtNEAT.
 	unsigned int refocusing_threshold = 40;
 
 	// If a species doesn't improve for "no_reproduction_threshold" generations, it is not allowed to reproduce.
+	// Not used by rtNEAT.
 	unsigned int no_reproduction_threshold = 30;
 
 	// === compatibility measurement coefficients ===
@@ -72,5 +74,10 @@ struct parameters {
 
 	// === other ===
 	unsigned int babies_stolen = 0; // TODO: not yet implemented
+
+	// === rtNEAT specifics ===
+	unsigned int number_of_replacements_before_species_reorganization = 5;
+	tick_t minmum_alive_time_before_being_replaced = 500;
+	double proportion_of_eligible_at_any_epoch = 0.5;
 };
 }

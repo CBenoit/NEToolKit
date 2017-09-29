@@ -15,6 +15,8 @@ public:
 	explicit genome(base_neat* neat_instance);
 	genome(const genome& other) = default;
 	genome(genome&& other) noexcept;
+	genome& operator=(const genome& other) = default;
+	genome& operator=(genome&& other) noexcept;
 
 	void add_gene(gene new_gene);
 
@@ -22,6 +24,8 @@ public:
 
 	void set_fitness(double fitness) { m_fitness = fitness; }
 	double get_fitness() const { return m_fitness; }
+	void set_adjusted_fitness(double fitness) { m_adjusted_fitness = fitness; }
+	double get_adjusted_fitness() const { return m_adjusted_fitness; }
 
 	unsigned int number_of_inputs() const { return m_number_of_inputs; }
 	unsigned int number_of_outputs() const { return m_number_of_outputs; }
@@ -56,8 +60,8 @@ public:
 	static const neuron_id_t BIAS_ID; // the first neuron is always the bias (see definition).
 
 private:
-	const unsigned int m_number_of_inputs; // [1:m_number_of_inputs] are the inputs.
-	const unsigned int m_number_of_outputs; // [m_number+1:m_number+m_number_of_outputs] are the outputs.
+	unsigned int m_number_of_inputs; // [1:m_number_of_inputs] are the inputs.
+	unsigned int m_number_of_outputs; // [m_number+1:m_number+m_number_of_outputs] are the outputs.
 
 	std::vector<gene> m_genes;
 	std::vector<neuron_id_t> m_known_neuron_ids;
@@ -65,6 +69,7 @@ private:
 	base_neat* m_neat;
 
 	double m_fitness;
+	double m_adjusted_fitness;
 
 	bool reenable_gene_ok() const;
 

@@ -1,7 +1,4 @@
 #include <utility> // std::move
-#include <stdexcept> // std::invalid_argument
-#include <algorithm> // std::find
-#include <chrono> //
 
 #include "netkit/neat/neat.h"
 
@@ -41,15 +38,15 @@ void netkit::neat::impl_epoch() {
 
 	// Compute the overall average fitness.
 	species* best_species = nullptr;
-	double best_fitnesses_so_far = std::numeric_limits<double>::min();
+	double best_fitness_so_far = std::numeric_limits<double>::min();
 	double overall_average = 0;
 	for (species& spec : m_all_species) {
 		spec.sort_by_fitness();
 		spec.share_fitness();
 		spec.update_stats();
-		overall_average += spec.get_summed_fitnesses();
-		if (spec.get_best_fitness() > best_fitnesses_so_far) {
-			best_fitnesses_so_far = spec.get_best_fitness();
+		overall_average += spec.get_summed_adjusted_fitnesses();
+		if (spec.get_best_fitness() > best_fitness_so_far) {
+			best_fitness_so_far = spec.get_best_fitness();
 			best_species = &spec;
 		}
 	}
@@ -63,7 +60,7 @@ void netkit::neat::impl_epoch() {
 			// if a species doesn't improve for "extinction threshold" generations it goes extinct.
 			this_species_expected_offsprings = 0;
 		} else {
-			this_species_expected_offsprings = static_cast<unsigned int>(spec.get_summed_fitnesses() / overall_average);
+			this_species_expected_offsprings = static_cast<unsigned int>(spec.get_summed_adjusted_fitnesses() / overall_average);
 		}
 
 		spec.set_expected_offsprings(this_species_expected_offsprings);
@@ -81,7 +78,7 @@ void netkit::neat::impl_epoch() {
 	// Build the next generation offsprings.
 	std::vector<genome> offsprings;
 	offsprings.reserve(next_generation_pop_size);
-	std::uniform_real_distribution<double> prob(0.0,1.0);
+	std::uniform_real_distribution<double> prob(0.0, 1.0);
 	std::uniform_int_distribution<size_t> species_selector(0, m_all_species.size() - 1);
 	for (species& spec : m_all_species) {
 		unsigned int offsprings_produced = 0;
@@ -99,8 +96,7 @@ void netkit::neat::impl_epoch() {
 				genome* genitor2 = nullptr;
 
 				// interspecies crossover prob
-				double rnd_val2 = prob(rand_engine);
-				if (rnd_val2 < params.interspecies_crossover_prob) {
+				if (prob(rand_engine) < params.interspecies_crossover_prob) {
 					unsigned long rnd_spec_val = species_selector(rand_engine);
 					genitor2 = &m_population.get_genome(m_all_species[rnd_spec_val].select_one_genitor());
 				} else {
@@ -128,7 +124,7 @@ void netkit::neat::impl_epoch() {
 	m_population.set_genomes(std::move(offsprings));
 
 	// finally speciate the population
-	helper_speciate();
+	helper_speciate_all_population();
 
 	// remove species that has no more member. They go extinct!
 	m_all_species.erase(

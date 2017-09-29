@@ -17,7 +17,8 @@ netkit::genome::genome(base_neat* neat_instance)
 	, m_genes()
 	, m_known_neuron_ids()
 	, m_neat(neat_instance)
-	, m_fitness(0) {
+	, m_fitness(0)
+	, m_adjusted_fitness(0) {
 	m_known_neuron_ids.push_back(BIAS_ID);
 
 	for (neuron_id_t i = 0; i < m_number_of_inputs; i++) {
@@ -35,7 +36,19 @@ netkit::genome::genome(genome&& other) noexcept
   , m_genes(std::move(other.m_genes))
   , m_known_neuron_ids(std::move(other.m_known_neuron_ids))
   , m_neat(other.m_neat)
-  , m_fitness(0) {
+  , m_fitness(0)
+  , m_adjusted_fitness(0) {}
+
+netkit::genome& netkit::genome::operator=(genome&& other) noexcept {
+	m_number_of_inputs = other.m_number_of_inputs;
+	m_number_of_outputs = other.m_number_of_outputs;
+	m_genes = std::move(other.m_genes);
+	m_known_neuron_ids = std::move(other.m_known_neuron_ids);
+	m_neat = other.m_neat;
+	m_fitness = 0;
+	m_adjusted_fitness = 0;
+
+	return *this;
 }
 
 void netkit::genome::add_gene(gene new_gene) {

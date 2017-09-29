@@ -8,8 +8,10 @@
 netkit::species::species(base_neat* neat_instance, population* population, species_id_t id, const genome& representant)
 	: m_members()
 	, m_avg_fitness(0)
+	, m_avg_adjusted_fitness(0)
 	, m_best_fitness(0)
 	, m_summed_fitnesses(0)
+	, m_summed_adjusted_fitnesses(0)
 	, m_best_fitness_ever(0)
 	, m_id(id)
 	, m_age(0)
@@ -23,8 +25,10 @@ netkit::species::species(base_neat* neat_instance, population* population, speci
 netkit::species::species(const species& other)
 	: m_members(other.m_members)
 	, m_avg_fitness(other.m_avg_fitness)
+	, m_avg_adjusted_fitness(other.m_avg_adjusted_fitness)
 	, m_best_fitness(other.m_best_fitness)
 	, m_summed_fitnesses(other.m_summed_fitnesses)
+	, m_summed_adjusted_fitnesses(other.m_summed_adjusted_fitnesses)
 	, m_best_fitness_ever(other.m_best_fitness_ever)
 	, m_id(other.m_id)
 	, m_age(other.m_age)
@@ -38,8 +42,10 @@ netkit::species::species(const species& other)
 netkit::species::species(species&& other) noexcept
 	: m_members(std::move(other.m_members))
 	, m_avg_fitness(other.m_avg_fitness)
+	, m_avg_adjusted_fitness(other.m_avg_adjusted_fitness)
 	, m_best_fitness(other.m_best_fitness)
 	, m_summed_fitnesses(other.m_summed_fitnesses)
+	, m_summed_adjusted_fitnesses(other.m_summed_adjusted_fitnesses)
 	, m_best_fitness_ever(other.m_best_fitness_ever)
 	, m_id(other.m_id)
 	, m_age(other.m_age)
@@ -59,8 +65,10 @@ netkit::species& netkit::species::operator=(const species& other) {
 
 	m_members = other.m_members;
 	m_avg_fitness = other.m_avg_fitness;
+	m_avg_adjusted_fitness = other.m_avg_adjusted_fitness;
 	m_best_fitness = other.m_best_fitness;
 	m_summed_fitnesses = other.m_summed_fitnesses;
+	m_summed_adjusted_fitnesses = other.m_summed_adjusted_fitnesses;
 	m_best_fitness_ever = other.m_best_fitness_ever;
 	m_id = other.m_id;
 	m_age = other.m_age;
@@ -81,8 +89,10 @@ netkit::species& netkit::species::operator=(species&& other) noexcept {
 
 	m_members = std::move(other.m_members);
 	m_avg_fitness = other.m_avg_fitness;
+	m_avg_adjusted_fitness = other.m_avg_adjusted_fitness;
 	m_best_fitness = other.m_best_fitness;
 	m_summed_fitnesses = other.m_summed_fitnesses;
+	m_summed_adjusted_fitnesses = other.m_summed_adjusted_fitnesses;
 	m_best_fitness_ever = other.m_best_fitness_ever;
 	m_id = other.m_id;
 	m_age = other.m_age;
@@ -116,14 +126,19 @@ netkit::genome_id_t netkit::species::get_champion() const {
 
 netkit::genome_id_t netkit::species::get_random_member() const {
 	std::uniform_int_distribution<size_t> member_selector(0, m_members.size() - 1);
-	return m_members[member_selector(m_neat->rand_engine)];
+	size_t val = member_selector(m_neat->rand_engine);
+	return m_members[val];
 }
 
 bool netkit::species::has(genome_id_t geno_id) const {
 	return std::find(m_members.cbegin(), m_members.cend(), geno_id) != m_members.cend();
 }
 
-netkit::genome_id_t netkit::species::select_one_genitor() const {
+netkit::genome_id_t netkit::species::select_one_genitor() {
+	if (!m_sorted) {
+		sort_by_fitness();
+	}
+
 	if (m_best_fitness > 0) {
 		std::uniform_real_distribution<double> distribution(0., 1.);
 		double rnd_val = distribution(m_neat->rand_engine);
@@ -152,17 +167,21 @@ void netkit::species::sort_by_fitness() {
 
 void netkit::species::update_stats() {
 	m_avg_fitness = 0;
+	m_avg_adjusted_fitness = 0;
 	m_best_fitness = 0;
 	m_summed_fitnesses = 0;
+	m_summed_adjusted_fitnesses = 0;
 
 	for (genome_id_t g : m_members) {
 		m_summed_fitnesses += m_population->get_genome(g).get_fitness();
+		m_summed_adjusted_fitnesses += m_population->get_genome(g).get_adjusted_fitness();
 
 		if (m_population->get_genome(g).get_fitness() > m_best_fitness) {
 			m_best_fitness = m_population->get_genome(g).get_fitness();
 		}
 	}
 	m_avg_fitness = m_summed_fitnesses / static_cast<double>(m_members.size());
+	m_avg_adjusted_fitness = m_summed_adjusted_fitnesses / static_cast<double>(m_members.size());
 
 	if (m_best_fitness > m_best_fitness_ever) {
 		m_best_fitness_ever = m_best_fitness;
@@ -188,15 +207,19 @@ void netkit::species::add_member(genome_id_t geno_id) {
 	m_sorted = false;
 }
 
+void netkit::species::remove_member(genome_id_t geno_id) {
+	m_members.erase(std::remove(m_members.begin(), m_members.end(), geno_id), m_members.end());
+}
+
 void netkit::species::share_fitness() const {
 	for (genome_id_t g : m_members) {
-		m_population->get_genome(g).set_fitness(
+		m_population->get_genome(g).set_adjusted_fitness(
 			m_population->get_genome(g).get_fitness() / static_cast<double>(m_members.size())
 		);
 	}
 }
 
-std::ostream & netkit::operator<<(std::ostream & os, const species& spec) {
+std::ostream& netkit::operator<<(std::ostream & os, const species& spec) {
 	os << "<species: id = " << spec.m_id << ", age = " << spec.m_age
 	   << ", age of last improvement = " << spec.m_age_of_last_improvement
 	   << "\navg fitness = " << spec.m_avg_fitness

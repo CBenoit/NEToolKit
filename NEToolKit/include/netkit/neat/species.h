@@ -19,8 +19,10 @@ public:
 
 	const std::vector<genome_id_t>& get_members_ids() const { return m_members; }
 	double get_avg_fitness() const { return m_avg_fitness; }
+	double get_avg_adjusted_fitness() const { return m_avg_adjusted_fitness; }
 	double get_best_fitness() const { return m_best_fitness; }
 	double get_summed_fitnesses() const { return m_summed_fitnesses; }
+	double get_summed_adjusted_fitnesses() const { return m_summed_adjusted_fitnesses; }
 	double get_best_fitness_ever() const { return m_best_fitness_ever; }
 	species_id_t get_id() const { return m_id; }
 	species_age_t get_age() const { return m_age; }
@@ -31,7 +33,7 @@ public:
 	genome_id_t get_random_member() const;
 	bool has(genome_id_t geno_id) const;
 	unsigned int get_expected_offsprings() const { return m_expected_offsprings; }
-	genome_id_t select_one_genitor() const;
+	genome_id_t select_one_genitor();
 	bool empty() const { return m_members.empty(); }
 	size_t number_of_members() const { return m_members.size(); }
 
@@ -39,6 +41,7 @@ public:
 	void update_stats();
 	void init_for_next_gen(genome new_representant);
 	void add_member(genome_id_t geno_id);
+	void remove_member(genome_id_t geno_id);
 	void share_fitness() const; // share the fitness amongst members
 	void set_expected_offsprings(unsigned int value) { m_expected_offsprings = value; }
 
@@ -46,8 +49,10 @@ private:
 	std::vector<genome_id_t> m_members;
 
 	double m_avg_fitness;
+	double m_avg_adjusted_fitness;
 	double m_best_fitness;
 	double m_summed_fitnesses;
+	double m_summed_adjusted_fitnesses;
 	double m_best_fitness_ever;
 
 	species_id_t m_id;

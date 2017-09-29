@@ -34,7 +34,9 @@ public:
 	const genome& get_best_genome_ever() const { return *m_best_genome_ever; }
 
 protected:
-	void helper_speciate();
+	void helper_speciate_all_population();
+
+	void helper_speciate_one_genome(genome_id_t geno_id);
 
 	// overload this function to do a custom epoch implementation
 	virtual void impl_epoch() = 0;
