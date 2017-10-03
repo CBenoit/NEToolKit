@@ -97,7 +97,7 @@ void xor_network_test() {
 	std::cout << "Running the benchmark..." << std::endl;
 	clock_t begin = std::clock();
 
-	for (unsigned int i = 100000; i--; ) {
+	for (unsigned int i = 100000; i--;) {
 		net.activate();
 	}
 
@@ -132,7 +132,8 @@ void run_100_xor_experiments() {
 		print_exp_stats(stats);
 
 		// I do not move the division outside of the loop to avoid too much float point precision loss...
-		average_number_of_generations += static_cast<double>(stats.number_of_generations) / static_cast<double>(number_of_experiments);
+		average_number_of_generations += static_cast<double>(stats.number_of_generations) / static_cast<double>
+										 (number_of_experiments);
 		average_neurons += static_cast<double>(stats.number_of_neurons) / static_cast<double>(number_of_experiments);
 		average_links += static_cast<double>(stats.number_of_links) / static_cast<double>(number_of_experiments);
 		average_fitness += stats.best_fitness_ever / static_cast<double>(number_of_experiments);
@@ -142,7 +143,8 @@ void run_100_xor_experiments() {
 		all_results.push_back(stats);
 	}
 
-	double std_number_of_generations = compute_standard_deviation(number_of_experiments, average_number_of_generations, [&](size_t i) {
+	double std_number_of_generations = compute_standard_deviation(number_of_experiments,
+	average_number_of_generations, [&](size_t i) {
 		return static_cast<double>(all_results[i].number_of_generations);
 	});
 
@@ -159,11 +161,16 @@ void run_100_xor_experiments() {
 	});
 
 	std::cout << "\n====== summary ======" << std::endl;
-	std::cout << "Average generations required to get a solution:\t" << average_fitness << " (std = " << std_number_of_generations << ")" << std::endl;
-	std::cout << "Average neurons in the best solutions:\t-\t" << average_neurons << " (std = " << std_neurons << ")" << std::endl;
-	std::cout << "Average links in the best solutions:\t-\t" << average_links << " (std = " << std_links << ")" << std::endl;
-	std::cout << "Average fitness of the best solutions:\t-\t" << average_fitness << " (std = " << std_fitness << ")" << std::endl;
-	std::cout << "Number of successes:\t-\t-\t-\t" << number_of_success << " (which means " << number_of_experiments - number_of_success << " failure(s))" << std::endl;
+	std::cout << "Average generations required to get a solution:\t" << average_fitness
+			  << " (std = " << std_number_of_generations << ")" << std::endl;
+	std::cout << "Average neurons in the best solutions:\t-\t" << average_neurons
+			  << " (std = " << std_neurons << ")" << std::endl;
+	std::cout << "Average links in the best solutions:\t-\t" << average_links
+			  << " (std = " << std_links << ")" << std::endl;
+	std::cout << "Average fitness of the best solutions:\t-\t" << average_fitness
+			  << " (std = " << std_fitness << ")" << std::endl;
+	std::cout << "Number of successes:\t-\t-\t-\t" << number_of_success
+			  << " (which means " << number_of_experiments - number_of_success << " failure(s))" << std::endl;
 }
 
 void run_one_xor_experiment() {
@@ -190,7 +197,7 @@ void run_one_real_time_xor_experiment(bool display_details) {
 
 	if (display_details) {
 		std::cout << "\n\n======== Here's the initial population. =========" << std::endl;
-		for (netkit::species &spec : rtneat.get_all_species()) {
+		for (netkit::species& spec : rtneat.get_all_species()) {
 			spec.update_stats();
 			print_species_stats(spec);
 		}
@@ -222,7 +229,7 @@ void run_one_real_time_xor_experiment(bool display_details) {
 	}
 
 	if (display_details) {
-		const netkit::genome &best_geno = rtneat.get_best_genome_ever();
+		const netkit::genome& best_geno = rtneat.get_best_genome_ever();
 		netkit::network net = best_geno.generate_network();
 		std::cout << "\nHere's the best genome ever produced for this run:" << std::endl;
 		std::cout << best_geno << std::endl;
@@ -250,7 +257,7 @@ exp_stats run_xor_experiment(bool display_xor_experiment_details) {
 
 	if (display_xor_experiment_details) {
 		std::cout << "\n\n======== Here's the initial generation's population. =========" << std::endl;
-		for (netkit::species &spec : neat.get_all_species()) {
+		for (netkit::species& spec : neat.get_all_species()) {
 			spec.update_stats();
 			print_species_stats(spec);
 		}
@@ -267,7 +274,7 @@ exp_stats run_xor_experiment(bool display_xor_experiment_details) {
 		rate_xor_population(neat);
 
 		if (display_xor_experiment_details) {
-			for (netkit::species &spec : neat.get_all_species()) {
+			for (netkit::species& spec : neat.get_all_species()) {
 				spec.update_stats();
 				print_species_stats(spec);
 			}
@@ -285,7 +292,7 @@ exp_stats run_xor_experiment(bool display_xor_experiment_details) {
 			wait_user();
 	}
 
-	const netkit::genome &best_geno = neat.get_best_genome_ever();
+	const netkit::genome& best_geno = neat.get_best_genome_ever();
 	netkit::network net = best_geno.generate_network();
 	stats.best_fitness_ever = best_geno.get_fitness();
 	stats.number_of_neurons = net.number_of_neurons();
@@ -303,11 +310,11 @@ exp_stats run_xor_experiment(bool display_xor_experiment_details) {
 
 void print_species_stats(const netkit::species& spec) {
 	std::cout << "<species: id = " << spec.get_id() << ", age = " << spec.get_age()
-	          << ", age of last improvement = " << spec.get_age_of_last_improvement()
-	          << "\n\tavg fitness = " << spec.get_avg_fitness()
-	          << ", best fitness = " << spec.get_best_fitness()
-	          << ", best fitness ever = " << spec.get_best_fitness_ever()
-	          << "\n\tnumber of members = " << spec.number_of_members() << ">" << std::endl;
+			  << ", age of last improvement = " << spec.get_age_of_last_improvement()
+			  << "\n\tavg fitness = " << spec.get_avg_fitness()
+			  << ", best fitness = " << spec.get_best_fitness()
+			  << ", best fitness ever = " << spec.get_best_fitness_ever()
+			  << "\n\tnumber of members = " << spec.number_of_members() << ">" << std::endl;
 }
 
 void rate_xor_population(netkit::neat& neat) {
@@ -375,8 +382,8 @@ double compute_standard_deviation(unsigned int number_of_values, double average,
 
 void print_exp_stats(exp_stats& stats) {
 	std::cout << "Number of generations = " << stats.number_of_generations
-	          << ", number of neurons = " << stats.number_of_neurons
-	          << ", number of links = " << stats.number_of_links
-	          << ", best fitness = " << stats.best_fitness_ever
-	          << std::endl;
+			  << ", number of neurons = " << stats.number_of_neurons
+			  << ", number of links = " << stats.number_of_links
+			  << ", best fitness = " << stats.best_fitness_ever
+			  << std::endl;
 }

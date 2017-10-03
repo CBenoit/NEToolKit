@@ -9,6 +9,6 @@ netkit::gene::gene(innov_num_t innov_num_, neuron_id_t from_id_, neuron_id_t to_
 
 std::ostream& netkit::operator<<(std::ostream& os, const gene& g) {
 	os << "<gene: from = " << g.from << " to = " << g.to << " weight = " << g.weight
-		<< " innovation = " << g.innov_num << " enabled = " << g.enabled << ">";
+	   << " innovation = " << g.innov_num << " enabled = " << g.enabled << ">";
 	return os;
 }

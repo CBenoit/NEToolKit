@@ -12,20 +12,15 @@
 
 namespace netkit {
 class innovation_pool {
-public:
+  public:
 	explicit innovation_pool(const parameters& params);
 	innovation_pool(const innovation_pool& other) = default;
 	innovation_pool(innovation_pool&& other) noexcept;
 	innovation_pool& operator=(const innovation_pool& other) = default;
 	innovation_pool& operator=(innovation_pool&& other) noexcept;
 
-	innov_num_t next_innovation() {
-		return m_next_innovation++;
-	}
-
-	neuron_id_t next_hidden_neuron_id() {
-		return m_next_hidden_neuron_id++;
-	}
+	innov_num_t next_innovation() { return m_next_innovation++; }
+	neuron_id_t next_hidden_neuron_id() { return m_next_hidden_neuron_id++; }
 
 	// just in case, const gene* is a pointer to a constant gene,
 	// not a const pointer to a gene (that would be gene* const) nor
@@ -47,7 +42,7 @@ public:
 	// please register an innovation only if it isn't already registerd!
 	void register_innovation(innovation new_innov);
 
-private:
+  private:
 	innov_num_t m_next_innovation;
 	neuron_id_t m_next_hidden_neuron_id;
 	std::vector<gene> m_all_genes;
@@ -56,9 +51,9 @@ private:
 	template<typename func_t>
 	inline std::optional<gene> helper_find_gene(func_t predicate) {
 		auto it = std::find_if(
-			m_all_genes.begin(), m_all_genes.end(),
-			predicate
-		);
+					  m_all_genes.begin(), m_all_genes.end(),
+					  predicate
+				  );
 
 		if (it == m_all_genes.end()) {
 			return {};
@@ -70,9 +65,9 @@ private:
 	template<typename func_t>
 	inline std::optional<innovation> helper_find_innovation(func_t predicate) {
 		auto it = std::find_if(
-			m_all_innovations.begin(), m_all_innovations.end(),
-			predicate
-		);
+					  m_all_innovations.begin(), m_all_innovations.end(),
+					  predicate
+				  );
 
 		if (it == m_all_innovations.end()) {
 			return {};

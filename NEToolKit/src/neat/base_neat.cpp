@@ -7,7 +7,7 @@
 
 netkit::base_neat::base_neat(const parameters& params_)
 	: params(params_)
-    , innov_pool(this->params)
+	, innov_pool(this->params)
 	, m_all_species()
 	, m_population()
 	, m_next_species_id(0)
@@ -89,7 +89,7 @@ void netkit::base_neat::epoch() {
 		m_best_genome_ever = new genome{get_current_best_genome()};
 		m_age_of_best_genome_ever = 0;
 	} else {
-		const genome &current_best_genome = get_current_best_genome();
+		const genome& current_best_genome = get_current_best_genome();
 		if (current_best_genome.get_fitness() > m_best_genome_ever->get_fitness()) {
 			delete m_best_genome_ever;
 			m_best_genome_ever = new genome{current_best_genome};

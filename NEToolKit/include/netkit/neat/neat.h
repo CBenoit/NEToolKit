@@ -5,7 +5,7 @@
 
 namespace netkit {
 class neat : public base_neat {
-public:
+  public:
 	explicit neat(const parameters& params);
 	neat(const neat& other) = default;
 	neat(neat&& other) noexcept;
@@ -21,10 +21,10 @@ public:
 	// check if there is no more organism left to generate
 	bool has_more_organisms_to_process();
 
-private:
+  private:
 	void impl_epoch() final;
 
-private:
+  private:
 	genome_id_t m_next_genome_id;
 };
 }

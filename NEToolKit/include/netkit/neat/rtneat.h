@@ -9,7 +9,7 @@
 namespace netkit {
 // you should call the epoch method on every game tick.
 class rtneat : public base_neat {
-public:
+  public:
 	explicit rtneat(const parameters& params);
 	rtneat(const rtneat& other) = default;
 	rtneat(rtneat&& other) noexcept;
@@ -25,10 +25,10 @@ public:
 	void increase_population(unsigned int number_of_organisms);
 	void decrease_population(unsigned int number_of_organisms);
 
-private:
+  private:
 	void impl_epoch() final;
 
-private:
+  private:
 	unsigned int m_nb_replacements_performed;
 	bool m_replacement_occured;
 	genome_id_t m_replaced_genome_id;

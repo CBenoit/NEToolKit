@@ -34,10 +34,12 @@ std::vector<netkit::organism>& netkit::rtneat::get_all_organisms() {
 void netkit::rtneat::impl_epoch() {
 	++m_current_tick;
 
-	auto frequency = static_cast<tick_t>(std::ceil(
-	  static_cast<double>(params.minmum_alive_time_before_being_replaced)
-	  / (static_cast<double>(m_population.size()) * params.proportion_of_eligible_at_any_epoch)
-	));
+	auto frequency = static_cast<tick_t>(
+						 std::ceil(
+							 static_cast<double>(params.minmum_alive_time_before_being_replaced)
+							 / (static_cast<double>(m_population.size()) * params.proportion_of_eligible_at_any_epoch)
+						 )
+					 );
 	if (m_current_tick % frequency != 0) {
 		m_replacement_occured = false;
 		return;
@@ -53,7 +55,8 @@ void netkit::rtneat::impl_epoch() {
 	bool found_candidate = false;
 	double worst_fitness = std::numeric_limits<double>::max();
 	for (genome_id_t gen_id = 0; gen_id < m_population.size(); ++gen_id) {
-		if (m_population[gen_id].get_fitness() < worst_fitness && m_all_organisms[gen_id].get_time_alive() > params.minmum_alive_time_before_being_replaced) {
+		if (m_population[gen_id].get_fitness() < worst_fitness
+			&& m_all_organisms[gen_id].get_time_alive() > params.minmum_alive_time_before_being_replaced) {
 			worst_genome = gen_id;
 			worst_fitness = m_population[gen_id].get_fitness();
 			found_candidate = true;
@@ -132,10 +135,10 @@ void netkit::rtneat::impl_epoch() {
 
 			// remove species that has no more member. They go extinct!
 			m_all_species.erase(
-			  std::remove_if(m_all_species.begin(), m_all_species.end(), [](const species& s) {
-				  return s.empty();
-			  }),
-			  m_all_species.end()
+			std::remove_if(m_all_species.begin(), m_all_species.end(), [](const species & s) {
+				return s.empty();
+			}),
+			m_all_species.end()
 			);
 
 			if (params.dynamic_compatibility_threshold) {
@@ -151,7 +154,8 @@ void netkit::rtneat::impl_epoch() {
 		// Step 6: replacing the old agent with the new one aka replace the old organism.
 		m_replacement_occured = true;
 		m_replaced_genome_id = worst_genome;
-		m_all_organisms[m_replaced_genome_id] = organism(&m_population, m_replaced_genome_id, m_population[m_replaced_genome_id].generate_network());
+		m_all_organisms[m_replaced_genome_id] = organism(&m_population, m_replaced_genome_id,
+														 m_population[m_replaced_genome_id].generate_network());
 	} else {
 		m_replacement_occured = false;
 	}

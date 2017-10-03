@@ -20,7 +20,7 @@ void run_random_evolution() {
 		}
 
 		std::cout << "\n\n======== Here's the generation " << gen << "'s population. =========" << std::endl;
-		for (netkit::species &spec : neat.get_all_species()) {
+		for (netkit::species& spec : neat.get_all_species()) {
 			spec.update_stats();
 			std::cout << spec << std::endl;
 		}

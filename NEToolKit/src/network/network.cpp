@@ -183,7 +183,7 @@ int netkit::network::max_depth() const {
 	return m_max_depth;
 }
 
-std::ostream & netkit::operator<<(std::ostream & os, const network & net) {
+std::ostream& netkit::operator<<(std::ostream& os, const network& net) {
 	os << "<network:" << std::endl;
 
 	os << "\tneurons are:" << std::endl;

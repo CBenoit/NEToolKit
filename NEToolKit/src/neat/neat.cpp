@@ -72,7 +72,7 @@ void netkit::neat::impl_epoch() {
 	// Need to make up for lost floating point precision in offsprings assignation
 	// by giving the missing offsprings to the current best species.
 	best_species->set_expected_offsprings(
-	  best_species->get_expected_offsprings() + next_generation_pop_size - total_expected_offsprings
+		best_species->get_expected_offsprings() + next_generation_pop_size - total_expected_offsprings
 	);
 
 	// Build the next generation offsprings.
@@ -84,7 +84,8 @@ void netkit::neat::impl_epoch() {
 		unsigned int offsprings_produced = 0;
 
 		// keep the champion of species with 5 or more members
-		if (offsprings_produced < spec.get_expected_offsprings() && spec.number_of_members() >= 5) { // TODO: externalize in parameters
+		if (offsprings_produced < spec.get_expected_offsprings()
+			&& spec.number_of_members() >= 5) { // TODO: externalize in parameters
 			offsprings.emplace_back(m_population.get_genome(spec.get_champion()));
 			++offsprings_produced;
 		}
@@ -128,10 +129,10 @@ void netkit::neat::impl_epoch() {
 
 	// remove species that has no more member. They go extinct!
 	m_all_species.erase(
-	  std::remove_if(m_all_species.begin(), m_all_species.end(), [](const species& s) {
-		  return s.empty();
-	  }),
-	  m_all_species.end()
+	std::remove_if(m_all_species.begin(), m_all_species.end(), [](const species & s) {
+		return s.empty();
+	}),
+	m_all_species.end()
 	);
 	// /!\ from now, best_species pointer may be invalid!!!
 

@@ -9,7 +9,7 @@ class species; // forward declaration
 class population;
 
 class organism {
-public:
+  public:
 	organism(population* population, genome_id_t genome_id, const network& network);
 	organism(population* population, genome_id_t genome_id, network&& network);
 	organism(const organism& other) = default;
@@ -25,7 +25,7 @@ public:
 	tick_t get_time_alive() const;
 	void increase_time_alive();
 
-private:
+  private:
 	population* m_population;
 	genome_id_t m_genome_id; // the id of the genotype
 	network m_network; // the phenotype

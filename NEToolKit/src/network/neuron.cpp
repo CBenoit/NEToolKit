@@ -33,7 +33,8 @@ void netkit::neuron::add_incoming_link(link_id_t id) {
 }
 
 void netkit::neuron::remove_incoming_link(link_id_t id) {
-	m_incoming.erase(std::remove_if(m_incoming.begin(), m_incoming.end(), [id] (const link_id_t& i) -> bool { return i == id; }), m_incoming.end());
+	m_incoming.erase(std::remove_if(m_incoming.begin(), m_incoming.end(), [id](const link_id_t& i) -> bool { return i == id; }),
+					 m_incoming.end());
 }
 
 void netkit::neuron::add_outgoing_link(link_id_t id) {

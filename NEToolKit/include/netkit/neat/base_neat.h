@@ -10,7 +10,7 @@
 
 namespace netkit {
 class base_neat {
-public:
+  public:
 	explicit base_neat(const parameters& params);
 	base_neat(const base_neat& other);
 	base_neat(base_neat&& other) noexcept;
@@ -33,7 +33,7 @@ public:
 
 	const genome& get_best_genome_ever() const { return *m_best_genome_ever; }
 
-protected:
+  protected:
 	void helper_speciate_all_population();
 
 	void helper_speciate_one_genome(genome_id_t geno_id);
@@ -41,12 +41,12 @@ protected:
 	// overload this function to do a custom epoch implementation
 	virtual void impl_epoch() = 0;
 
-public:
+  public:
 	parameters params;
 	innovation_pool innov_pool;
 	std::minstd_rand0 rand_engine;
 
-protected:
+  protected:
 	std::vector<species> m_all_species;
 	population m_population;
 	species_id_t m_next_species_id;

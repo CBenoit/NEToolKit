@@ -8,7 +8,7 @@
 
 namespace netkit {
 class network {
-public:
+  public:
 	network();
 	network(const network& other) = default;
 	network(network&& other) noexcept;
@@ -40,10 +40,10 @@ public:
 	// that being said, it uses a cache system to avoid unnecessary recomputation.
 	int max_depth() const;
 
-public:
+  public:
 	static const neuron_id_t BIAS_ID;
 
-private:
+  private:
 	std::vector<link> m_links;
 	std::vector<neuron> m_all_neurons;
 

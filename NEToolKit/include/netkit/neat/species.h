@@ -9,7 +9,7 @@ class base_neat;
 class population;
 
 class species {
-public:
+  public:
 	species(base_neat* neat_instance, population* population, species_id_t id, const genome& representant);
 	species(const species& other);
 	species(species&& other) noexcept;
@@ -45,7 +45,7 @@ public:
 	void share_fitness() const; // share the fitness amongst members
 	void set_expected_offsprings(unsigned int value) { m_expected_offsprings = value; }
 
-private:
+  private:
 	std::vector<genome_id_t> m_members;
 
 	double m_avg_fitness;

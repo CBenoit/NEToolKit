@@ -45,7 +45,8 @@ void run_genome_mutations_crossovers() {
 	for (size_t i = 0; i < 20; i++) {
 		geno2.random_mutate();
 	}
-	std::cout << "\nHere is another genome based on an older version of the previous one that has been randomly mutated:" << std::endl << geno2 << std::endl;
+	std::cout << "\nHere is another genome based on an older version of the previous one that has been randomly mutated:" <<
+			  std::endl << geno2 << std::endl;
 
 	std::cout << "\nDistance between the two genomes: " << geno.distance_to(geno2) << std::endl;
 	std::cout << "Compatibility threshold is " << neat.params.compatibility_threshold << " so ";
@@ -59,7 +60,8 @@ void run_genome_mutations_crossovers() {
 
 	std::cout << "\nMultipoint crossover random:" << std::endl << geno.crossover_multipoint_rnd(geno2) << std::endl;
 
-	std::cout << "\nMultipoint crossover average (allow weights convergence):" << std::endl << geno.crossover_multipoint_avg(geno2) << std::endl;
+	std::cout << "\nMultipoint crossover average (allow weights convergence):" << std::endl <<
+			  geno.crossover_multipoint_avg(geno2) << std::endl;
 
 	geno2.set_fitness(20);
 	std::cout << "\nSetting second genome's fitness to " << geno2.get_fitness() << "." << std::endl;

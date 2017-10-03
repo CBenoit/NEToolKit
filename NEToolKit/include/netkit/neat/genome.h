@@ -11,7 +11,7 @@ namespace netkit {
 class base_neat;
 
 class genome {
-public:
+  public:
 	explicit genome(base_neat* neat_instance);
 	genome(const genome& other) = default;
 	genome(genome&& other) noexcept;
@@ -56,10 +56,10 @@ public:
 
 	network generate_network() const;
 
-public:
+  public:
 	static const neuron_id_t BIAS_ID; // the first neuron is always the bias (see definition).
 
-private:
+  private:
 	unsigned int m_number_of_inputs; // [1:m_number_of_inputs] are the inputs.
 	unsigned int m_number_of_outputs; // [m_number+1:m_number+m_number_of_outputs] are the outputs.
 

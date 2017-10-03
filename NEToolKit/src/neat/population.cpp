@@ -16,7 +16,7 @@ netkit::genome_id_t netkit::population::add_genome(genome geno) {
 	return m_all_genomes.size() - 1;
 }
 
-void netkit::population::set_genomes(const std::vector<genome> &genomes) {
+void netkit::population::set_genomes(const std::vector<genome>& genomes) {
 	m_all_genomes.clear();
 	m_all_genomes.reserve(genomes.size());
 	for (const genome& geno : genomes) {

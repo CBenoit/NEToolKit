@@ -36,7 +36,7 @@ netkit::species::species(const species& other)
 	, m_expected_offsprings(other.m_expected_offsprings)
 	, m_sorted(other.m_sorted)
 	, m_representant(new genome(*other.m_representant))
-    , m_neat(other.m_neat)
+	, m_neat(other.m_neat)
 	, m_population(other.m_population) {}
 
 netkit::species::species(species&& other) noexcept
@@ -53,7 +53,7 @@ netkit::species::species(species&& other) noexcept
 	, m_expected_offsprings(other.m_expected_offsprings)
 	, m_sorted(other.m_sorted)
 	, m_representant(other.m_representant) // steal the pointer HA!
-    , m_neat(other.m_neat)
+	, m_neat(other.m_neat)
 	, m_population(other.m_population) {
 	other.m_representant = nullptr; // don't forget to invalidate the other's pointer.
 }
@@ -158,7 +158,7 @@ netkit::genome_id_t netkit::species::select_one_genitor() {
 
 void netkit::species::sort_by_fitness() {
 	if (!m_sorted) {
-		std::sort(m_members.begin(), m_members.end(), [&] (genome_id_t g1, genome_id_t g2) -> bool {
+		std::sort(m_members.begin(), m_members.end(), [&](genome_id_t g1, genome_id_t g2) -> bool {
 			return m_population->get_genome(g1).get_fitness() > m_population->get_genome(g2).get_fitness();
 		});
 		m_sorted = true;
@@ -221,7 +221,7 @@ void netkit::species::share_fitness() const {
 	}
 }
 
-std::ostream& netkit::operator<<(std::ostream & os, const species& spec) {
+std::ostream& netkit::operator<<(std::ostream& os, const species& spec) {
 	os << "<species: id = " << spec.m_id << ", age = " << spec.m_age
 	   << ", age of last improvement = " << spec.m_age_of_last_improvement
 	   << "\navg fitness = " << spec.m_avg_fitness

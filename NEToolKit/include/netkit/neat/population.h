@@ -9,7 +9,7 @@ namespace netkit {
 class neat; // forward declaration
 
 class population {
-public:
+  public:
 	population();
 	population(const population& other) = default;
 	population(population&& other) noexcept;
@@ -26,7 +26,7 @@ public:
 	void set_genomes(std::vector<genome>&& genomes);
 	void replace_genome(genome_id_t id, genome geno);
 
-private:
+  private:
 	std::vector<genome> m_all_genomes;
 };
 }

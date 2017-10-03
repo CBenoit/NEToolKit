@@ -7,7 +7,7 @@
 
 namespace netkit {
 class neuron {
-public:
+  public:
 	neuron(neuron_value_t value, activation_func_t func);
 	explicit neuron(activation_func_t func);
 	neuron(const neuron& other) = default;
@@ -27,7 +27,7 @@ public:
 	const std::vector<link_id_t>& incoming_links_ids() const;
 	const std::vector<link_id_t>& outgoing_links_ids() const;
 
-private:
+  private:
 	std::vector<link_id_t> m_incoming;
 	std::vector<link_id_t> m_outgoing;
 

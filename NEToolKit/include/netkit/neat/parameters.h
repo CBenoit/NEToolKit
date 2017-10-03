@@ -34,9 +34,9 @@ struct parameters {
 	/* Those are the coefficients for the compatibility distance formula which is
 	 * dist = c1*E/N + c2*D/N + c3*W
 	 * with N the number of genes of the larger genome,
-	 *		E the number of excess genes,
-	 *		D the number of disjoint genes,
-	 *		W the average weight differences of matching genes.
+	 *      E the number of excess genes,
+	 *      D the number of disjoint genes,
+	 *      W the average weight differences of matching genes.
 	 */
 	double distance_coef_c1 = 1.0;
 	double distance_coef_c2 = 1.5;
@@ -69,7 +69,7 @@ struct parameters {
 
 	unsigned int sum_all_crossover_weights() const {
 		return crossover_multipoint_avg_weight + crossover_multipoint_best_weight
-			+ crossover_multipoint_rnd_weight;
+			   + crossover_multipoint_rnd_weight;
 	}
 
 	// === other ===
