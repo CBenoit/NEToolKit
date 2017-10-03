@@ -369,7 +369,8 @@ double compute_standard_deviation(unsigned int number_of_values, double average,
 	for (unsigned int i = 0; i < number_of_values; ++i) {
 		result += std::pow(getter(i) - average, 2) / number_of_values;
 	}
-	return result;
+	// result is currently the variance.
+	return std::sqrt(result);
 }
 
 void print_exp_stats(exp_stats& stats) {
