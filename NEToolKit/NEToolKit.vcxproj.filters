@@ -78,6 +78,12 @@
     <ClInclude Include="include\netkit\neat\species.h">
       <Filter>Header Files\neat</Filter>
     </ClInclude>
+    <ClInclude Include="include\netkit\neat\base_neat.h">
+      <Filter>Header Files\neat</Filter>
+    </ClInclude>
+    <ClInclude Include="include\netkit\neat\rtneat.h">
+      <Filter>Header Files\neat</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\neat\gene.cpp">
@@ -114,6 +120,12 @@
       <Filter>Source Files\neat</Filter>
     </ClCompile>
     <ClCompile Include="src\neat\species.cpp">
+      <Filter>Source Files\neat</Filter>
+    </ClCompile>
+    <ClCompile Include="src\neat\base_neat.cpp">
+      <Filter>Source Files\neat</Filter>
+    </ClCompile>
+    <ClCompile Include="src\neat\rtneat.cpp">
       <Filter>Source Files\neat</Filter>
     </ClCompile>
   </ItemGroup>

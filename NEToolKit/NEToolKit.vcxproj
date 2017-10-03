@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\netkit\neat\base_neat.h" />
     <ClInclude Include="include\netkit\neat\gene.h" />
     <ClInclude Include="include\netkit\neat\genome.h" />
     <ClInclude Include="include\netkit\neat\innovation.h" />
@@ -28,6 +29,7 @@
     <ClInclude Include="include\netkit\neat\organism.h" />
     <ClInclude Include="include\netkit\neat\parameters.h" />
     <ClInclude Include="include\netkit\neat\population.h" />
+    <ClInclude Include="include\netkit\neat\rtneat.h" />
     <ClInclude Include="include\netkit\neat\species.h" />
     <ClInclude Include="include\netkit\network\activation_functions.h" />
     <ClInclude Include="include\netkit\network\link.h" />
@@ -36,6 +38,7 @@
     <ClInclude Include="include\netkit\network\neuron.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\neat\base_neat.cpp" />
     <ClCompile Include="src\neat\gene.cpp" />
     <ClCompile Include="src\neat\genome.cpp" />
     <ClCompile Include="src\neat\innovation.cpp" />
@@ -43,6 +46,7 @@
     <ClCompile Include="src\neat\neat.cpp" />
     <ClCompile Include="src\neat\organism.cpp" />
     <ClCompile Include="src\neat\population.cpp" />
+    <ClCompile Include="src\neat\rtneat.cpp" />
     <ClCompile Include="src\neat\species.cpp" />
     <ClCompile Include="src\network\activation_functions.cpp" />
     <ClCompile Include="src\network\link.cpp" />
@@ -117,7 +121,7 @@
     <ClCompile>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>

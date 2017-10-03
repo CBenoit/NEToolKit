@@ -19,7 +19,7 @@ netkit::base_neat::base_neat(const parameters& params_)
 
 	m_all_species.reserve(15); // reserve some memory to store the species.
 
-	long seed = std::chrono::system_clock::now().time_since_epoch().count();
+	long seed = static_cast<long>(std::chrono::system_clock::now().time_since_epoch().count());
 	rand_engine = std::minstd_rand0(seed);
 }
 
@@ -31,7 +31,7 @@ netkit::base_neat::base_neat(const base_neat& other)
 	, m_next_species_id(other.m_next_species_id)
 	, m_best_genome_ever(new genome{*other.m_best_genome_ever})
 	, m_age_of_best_genome_ever(other.m_age_of_best_genome_ever) {
-	long seed = std::chrono::system_clock::now().time_since_epoch().count();
+	long seed = static_cast<long>(std::chrono::system_clock::now().time_since_epoch().count());
 	rand_engine = std::minstd_rand0(seed);
 }
 

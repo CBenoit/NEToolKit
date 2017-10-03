@@ -191,8 +191,10 @@ void netkit::species::update_stats() {
 
 void netkit::species::init_for_next_gen(genome new_representant) {
 	m_avg_fitness = 0;
+	m_avg_adjusted_fitness = 0;
 	m_best_fitness = 0;
 	m_summed_fitnesses = 0;
+	m_summed_adjusted_fitnesses = 0;
 	++m_age;
 
 	delete m_representant;
