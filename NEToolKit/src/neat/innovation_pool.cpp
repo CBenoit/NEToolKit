@@ -36,9 +36,7 @@ void netkit::innovation_pool::register_gene(gene new_gene) {
 
 std::optional<netkit::innovation> netkit::innovation_pool::find_innovation(innov_type type, neuron_id_t from,
 																		   neuron_id_t to) {
-	return helper_find_innovation(
-	[&](innovation & i) { return i.type == type && i.from == from && i.to == to; }
-		   );
+	return helper_find_innovation([&](innovation & i) { return i.type == type && i.from == from && i.to == to; });
 }
 
 std::optional<netkit::innovation> netkit::innovation_pool::find_innovation(innov_num_t innov_num) {

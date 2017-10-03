@@ -4,7 +4,7 @@ A toolkit for NeuroEvolution featuring NEAT and rtNEAT **(work in progress)**.
 
 ## Requirements
 
-A compiler supporting c++17 standard is a necessary to build.
+A compiler supporting c++17 standard is a compulsory to build.
 
 ## Building on Linux
 
