@@ -46,3 +46,8 @@ std::optional<netkit::innovation> netkit::innovation_pool::find_innovation(innov
 void netkit::innovation_pool::register_innovation(innovation new_innov) {
 	m_all_innovations.push_back(std::move(new_innov));
 }
+
+void netkit::innovation_pool::clear() {
+	m_all_innovations.clear();
+	m_all_genes.clear();
+}

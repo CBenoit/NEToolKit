@@ -42,6 +42,8 @@ class innovation_pool {
 	// please register an innovation only if it isn't already registerd!
 	void register_innovation(innovation new_innov);
 
+	void clear();
+
   private:
 	innov_num_t m_next_innovation;
 	neuron_id_t m_next_hidden_neuron_id;

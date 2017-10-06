@@ -144,4 +144,8 @@ void netkit::neat::impl_epoch() {
 			params.compatibility_threshold -= params.compatibility_threshold_change_step;
 		}
 	}
+
+	// The original paper says it's important to remember innovations that already occurred within only one generation.
+	// Memorizing for every generation or not doesn't seems to have performance issues. Further tests needed.
+	//innov_pool.clear();
 }

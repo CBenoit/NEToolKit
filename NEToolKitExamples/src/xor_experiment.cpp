@@ -13,6 +13,8 @@
 #include <netkit/neat/parameters.h>
 #include <netkit/neat/neat.h>
 #include <netkit/neat/rtneat.h>
+#include <netkit/csv/serializer.h>
+#include <netkit/csv/deserializer.h>
 
 #include "xor_experiment.h"
 #include "utils.h"
@@ -105,6 +107,33 @@ void xor_network_test() {
 	double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
 	std::cout << "Done!" << std::endl;
 	std::cout << "It took " << elapsed_secs << " seconds of processor time to do so." << std::endl;
+
+	wait_user();
+	netkit::serializer ser("verylonganduselessfilefortest.csv");
+	ser.append(50);
+	ser.append(18);
+	ser.append(10);
+	ser.new_line();
+	ser.append("jamboneau");
+	ser.append(40);
+	ser.close();
+
+	std::cout << "stuff written if file." << std::endl;
+
+	wait_user();
+
+	netkit::deserializer des("verylonganduselessfilefortest.csv");
+	int val;
+	std::string str_val;
+	for (int j = 0; j < 3; ++j) {
+		des.get_next(val);
+		std::cout << val << std::endl;
+	}
+	//des.next_line();
+	des.get_next(str_val);
+	std::cout << str_val << std::endl;
+	des.get_next(val);
+	std::cout << val << std::endl;
 }
 
 void run_100_xor_experiments() {
