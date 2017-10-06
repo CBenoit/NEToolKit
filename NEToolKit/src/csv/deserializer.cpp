@@ -6,7 +6,7 @@ netkit::deserializer::deserializer(std::string filename, char separator)
 	m_file.open(filename, std::ios::in);
 }
 
-void netkit::deserializer::next_line() {
+void netkit::deserializer::skip_line() {
 	while (m_file.get() != '\n') {}
 }
 

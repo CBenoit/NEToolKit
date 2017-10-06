@@ -12,3 +12,24 @@ std::ostream& netkit::operator<<(std::ostream& os, const gene& g) {
 	   << " innovation = " << g.innov_num << " enabled = " << g.enabled << ">";
 	return os;
 }
+
+netkit::serializer& netkit::operator<<(serializer& ser, const gene& g) {
+	ser.append(g.innov_num);
+	ser.append(g.from);
+	ser.append(g.to);
+	ser.append(g.weight);
+	ser.append(g.enabled);
+	ser.new_line();
+
+	return ser;
+}
+
+netkit::deserializer& netkit::operator>>(netkit::deserializer& ser, gene& g) {
+	ser.get_next(g.innov_num);
+	ser.get_next(g.from);
+	ser.get_next(g.to);
+	ser.get_next(g.weight);
+	ser.get_next(g.enabled);
+
+	return ser;
+}

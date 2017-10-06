@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+#include "netkit/csv/serializer.h"
+#include "netkit/csv/deserializer.h"
 #include "netkit/network/network_primitive_types.h"
 #include "neat_primitive_types.h"
 
@@ -19,7 +21,11 @@ struct gene {
 	// TODO: ability to be frozen?
 
 	friend std::ostream& operator<<(std::ostream& os, const gene& g);
+	friend serializer& operator<<(serializer& ser, const gene& g);
+	friend deserializer& operator>>(deserializer& ser, gene& g);
 };
 
 std::ostream& operator<<(std::ostream& os, const gene& g);
+serializer& operator<<(serializer& ser, const gene& g);
+deserializer& operator>>(deserializer& ser, gene& g);
 }
