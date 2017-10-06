@@ -31,6 +31,12 @@
     <Filter Include="Source Files\rtneat">
       <UniqueIdentifier>{5cbe71cd-8468-49ac-9a55-2ed64717f52e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\csv">
+      <UniqueIdentifier>{13575ecc-664b-4ebe-93e3-aca9bf8f2de1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\csv">
+      <UniqueIdentifier>{96b24c19-5dac-4448-87c5-af882adae8fb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\netkit\network\activation_functions.h">
@@ -84,6 +90,12 @@
     <ClInclude Include="include\netkit\neat\rtneat.h">
       <Filter>Header Files\neat</Filter>
     </ClInclude>
+    <ClInclude Include="include\netkit\csv\deserializer.h">
+      <Filter>Header Files\csv</Filter>
+    </ClInclude>
+    <ClInclude Include="include\netkit\csv\serializer.h">
+      <Filter>Header Files\csv</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\neat\gene.cpp">
@@ -127,6 +139,12 @@
     </ClCompile>
     <ClCompile Include="src\neat\rtneat.cpp">
       <Filter>Source Files\neat</Filter>
+    </ClCompile>
+    <ClCompile Include="src\csv\serializer.cpp">
+      <Filter>Source Files\csv</Filter>
+    </ClCompile>
+    <ClCompile Include="src\csv\deserializer.cpp">
+      <Filter>Source Files\csv</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
