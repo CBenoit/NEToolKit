@@ -6,8 +6,6 @@
 #include "neat_primitive_types.h"
 
 namespace netkit {
-class neat; // forward declaration
-
 class population {
   public:
 	population();
