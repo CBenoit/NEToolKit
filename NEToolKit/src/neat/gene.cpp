@@ -24,7 +24,7 @@ netkit::serializer& netkit::operator<<(serializer& ser, const gene& g) {
 	return ser;
 }
 
-netkit::deserializer& netkit::operator>>(netkit::deserializer& ser, gene& g) {
+netkit::deserializer& netkit::operator>>(netkit::deserializer& des, gene& g) {
 	ser.get_next(g.innov_num);
 	ser.get_next(g.from);
 	ser.get_next(g.to);

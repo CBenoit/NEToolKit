@@ -2,13 +2,17 @@
 
 #include <vector>
 
+#include "netkit/csv/serializer.h"
+#include "netkit/csv/deserializer.h"
 #include "genome.h"
 #include "neat_primitive_types.h"
 
 namespace netkit {
+class base_neat; // forward declaration
+
 class population {
   public:
-	population();
+	population(base_neat* neat_instance);
 	population(const population& other) = default;
 	population(population&& other) noexcept;
 	population& operator=(const population& other) = default;
@@ -26,5 +30,12 @@ class population {
 
   private:
 	std::vector<genome> m_all_genomes;
+	base_neat* m_neat;
+
+	friend serializer& operator<<(serializer& ser, const population& pop);
+	friend deserializer& operator>>(deserializer& des, population& pop);
 };
+
+serializer& operator<<(serializer& ser, const population& pop);
+deserializer& operator>>(deserializer& des, population& pop);
 }

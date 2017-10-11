@@ -3,9 +3,11 @@
 #include <vector>
 #include <iostream>
 
-#include "gene.h"
+#include "netkit/csv/serializer.h"
+#include "netkit/csv/deserializer.h"
 #include "netkit/network/network_primitive_types.h"
 #include "netkit/network/network.h"
+#include "gene.h"
 
 namespace netkit {
 class base_neat;
@@ -134,7 +136,11 @@ class genome {
 	}
 
 	friend std::ostream& operator<<(std::ostream& os, const genome& genome);
+	friend serializer& operator<<(serializer& ser, const genome& genome);
+	friend deserializer& operator>>(deserializer& des, genome& genome);
 };
 
 std::ostream& operator<<(std::ostream& os, const genome& genome);
+serializer& operator<<(serializer& ser, const genome& genome);
+deserializer& operator>>(deserializer& des, genome& genome);
 }

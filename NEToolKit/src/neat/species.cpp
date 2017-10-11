@@ -236,3 +236,53 @@ std::ostream& netkit::operator<<(std::ostream& os, const species& spec) {
 
 	return os;
 }
+
+netkit::serializer& netkit::operator<<(serializer& ser, const species& spec) {
+	// The stats values shall can be computed back afterward, so we don't serialize them.
+
+	// serialize important values
+	ser.append(spec.m_id);
+	ser.append(spec.m_age);
+	ser.append(spec.m_age_of_last_improvement);
+	ser.append(spec.m_sorted);
+	ser.new_line();
+
+	// serialize the representant
+	ser << *spec.m_representant;
+
+	// serialize members
+	ser.append(spec.m_members.size());
+	ser.new_line();
+	for (genome_id_t id : spec.m_members) {
+		ser.append(id);
+	}
+	ser.new_line();
+
+	return ser;
+}
+
+netkit::deserializer& netkit::operator>>(deserializer& des, species& spec) {
+	// serialize important values
+	des.get_next(spec.m_id);
+	des.get_next(spec.m_age);
+	des.get_next(spec.m_age_of_last_improvement);
+	des.get_next(spec.m_sorted);
+
+	// deserialize the representant
+	genome repr(spec.m_neat);
+	des >> repr;
+	spec.m_representant = new genome(std::move(repr));
+
+	// deserialize members
+	size_t number_of_members;
+	des.get_next(number_of_members);
+	spec.m_members.clear();
+	spec.m_members.reserve(number_of_members);
+	for (size_t i = 0; i < number_of_members; ++i) {
+		genome_id_t id;
+		des.get_next(id);
+		spec.m_members.emplace_back(id);
+	}
+
+	return des;
+}

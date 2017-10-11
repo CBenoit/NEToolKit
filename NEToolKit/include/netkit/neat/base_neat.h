@@ -3,6 +3,7 @@
 #include <optional>
 #include <random>
 
+#include "netkit/csv/deserializer.h"
 #include "parameters.h"
 #include "innovation_pool.h"
 #include "population.h"
@@ -21,6 +22,9 @@ class base_neat {
 
 	// init population with the given genome.
 	void init(const genome& initial_genome);
+
+	// init population and simulation with the given deserializer.
+	void init(netkit::deserializer& des);
 
 	// you should have rated every organisms before calling this.
 	void epoch();

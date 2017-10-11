@@ -1,13 +1,17 @@
 #include "netkit/neat/population.h"
+#include "netkit/neat/base_neat.h"
 
-netkit::population::population()
-	: m_all_genomes() {}
+netkit::population::population(base_neat* neat_instance)
+	: m_all_genomes()
+	, m_neat(neat_instance) {}
 
 netkit::population::population(population&& other) noexcept
-	: m_all_genomes(std::move(other.m_all_genomes)) {}
+	: m_all_genomes(std::move(other.m_all_genomes))
+	, m_neat(other.m_neat) {}
 
 netkit::population& netkit::population::operator=(population&& other) noexcept {
 	m_all_genomes = std::move(other.m_all_genomes);
+	m_neat = other.m_neat;
 	return *this;
 }
 
@@ -30,4 +34,27 @@ void netkit::population::set_genomes(std::vector<genome>&& genomes) {
 
 void netkit::population::replace_genome(genome_id_t id, genome geno) {
 	m_all_genomes[id] = std::move(geno);
+}
+
+netkit::serializer& netkit::operator<<(serializer& ser, const population& pop) {
+	ser.append(pop.m_all_genomes.size());
+	ser.new_line();
+	for (const genome& g : pop.m_all_genomes) {
+		ser << g;
+	}
+
+	return ser;
+}
+
+netkit::deserializer& netkit::operator>>(deserializer& des, population& pop) {
+	pop.clear();
+	size_t number_of_genomes;
+	ser.get_next(number_of_genomes);
+	for (size_t i = 0; i < number_of_genomes; ++i) {
+		genome g(pop.m_neat);
+		ser >> g;
+		pop.add_genome(std::move(g));
+	}
+
+	return ser;
 }

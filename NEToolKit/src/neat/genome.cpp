@@ -473,3 +473,43 @@ std::ostream& netkit::operator<<(std::ostream& os, const genome& genome) {
 
 	return os;
 }
+
+netkit::serializer& netkit::operator<<(serializer& ser, const genome& genome) {
+	// The number of inputs and outputs depends on the NEAT parameters and the NEAT class is required to build
+	// a genome, so we will assume these don't need to be serialized.
+	// No need to serialize the known neurons as well since the list can be reconstructed from the genes.
+
+	// serialize fitness values
+	ser.append(genome.m_fitness);
+	ser.append(genome.m_adjusted_fitness);
+	ser.new_line();
+
+	// serialize genes
+	ser.append(genome.m_genes.size());
+	ser.new_line();
+	for (const gene& g : genome.m_genes) {
+		ser << g;
+	}
+
+	return ser;
+}
+
+netkit::deserializer& netkit::operator>>(netkit::deserializer& des, genome& genome) {
+	// deserialize fitness values
+	ser.get_next(genome.m_fitness);
+	ser.get_next(genome.m_adjusted_fitness);
+
+	// deserialize genes
+	size_t number_of_genes;
+	ser.get_next(number_of_genes);
+	genome.m_genes.clear();
+	genome.m_known_neuron_ids.clear();
+	genome.m_genes.reserve(number_of_genes);
+	for (size_t i = 0; i < number_of_genes; ++i) {
+		gene g(0, 0, 0, 0);
+		ser >> g;
+		genome.add_gene(g);
+	}
+
+	return ser;
+}

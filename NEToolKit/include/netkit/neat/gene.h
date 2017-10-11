@@ -22,10 +22,10 @@ struct gene {
 
 	friend std::ostream& operator<<(std::ostream& os, const gene& g);
 	friend serializer& operator<<(serializer& ser, const gene& g);
-	friend deserializer& operator>>(deserializer& ser, gene& g);
+	friend deserializer& operator>>(deserializer& des, gene& g);
 };
 
 std::ostream& operator<<(std::ostream& os, const gene& g);
 serializer& operator<<(serializer& ser, const gene& g);
-deserializer& operator>>(deserializer& ser, gene& g);
+deserializer& operator>>(deserializer& des, gene& g);
 }

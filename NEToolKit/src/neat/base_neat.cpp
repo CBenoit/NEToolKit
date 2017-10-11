@@ -9,7 +9,7 @@ netkit::base_neat::base_neat(const parameters& params_)
 	: params(params_)
 	, innov_pool(this->params)
 	, m_all_species()
-	, m_population()
+	, m_population(this)
 	, m_next_species_id(0)
 	, m_best_genome_ever(nullptr)
 	, m_age_of_best_genome_ever() {

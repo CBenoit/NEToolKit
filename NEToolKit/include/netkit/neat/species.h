@@ -1,5 +1,7 @@
 #pragma once
 
+#include "netkit/csv/serializer.h"
+#include "netkit/csv/deserializer.h"
 #include "neat_primitive_types.h"
 #include "genome.h"
 
@@ -69,7 +71,11 @@ class species {
 	population* m_population;
 
 	friend std::ostream& operator<<(std::ostream& os, const species& spec);
+	friend serializer& operator<<(serializer& ser, const species& spec);
+	friend deserializer& operator>>(deserializer& des, species& spec);
 };
 
 std::ostream& operator<<(std::ostream& os, const species& spec);
+serializer& operator<<(serializer& ser, const species& spec);
+deserializer& operator>>(deserializer& des, species& spec);
 }
