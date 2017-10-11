@@ -1,14 +1,14 @@
 #include "netkit/neat/dynamic_population.h"
 
 netkit::dynamic_population::dynamic_population()
-  : m_all_genomes()
+	: m_all_genomes()
 	, m_marked_for_removal()
-, m_lookup_genome_id(0) {}
+	, m_lookup_genome_id(0) {}
 
 netkit::dynamic_population::dynamic_population(dynamic_population&& other) noexcept
-  : m_all_genomes(std::move(other.m_all_genomes))
+	: m_all_genomes(std::move(other.m_all_genomes))
 	, m_marked_for_removal(std::move(other.m_marked_for_removal))
-, m_lookup_genome_id(other.m_lookup_genome_id) {}
+	, m_lookup_genome_id(other.m_lookup_genome_id) {}
 
 netkit::dynamic_population& netkit::dynamic_population::operator=(dynamic_population&& other) noexcept {
 	m_all_genomes = std::move(other.m_all_genomes);

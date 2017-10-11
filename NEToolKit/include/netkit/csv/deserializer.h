@@ -7,7 +7,7 @@
 
 namespace netkit {
 class deserializer {
-public:
+  public:
 	explicit deserializer(std::string filename, char separator = ';');
 
 	template<typename T>
@@ -16,7 +16,7 @@ public:
 	void skip_line();
 	void close();
 
-private:
+  private:
 	std::ifstream m_file;
 	char m_separator;
 };

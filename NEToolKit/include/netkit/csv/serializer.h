@@ -5,7 +5,7 @@
 
 namespace netkit {
 class serializer {
-public:
+  public:
 	explicit serializer(std::string filename, std::string separator = ";");
 
 	template<typename T>
@@ -14,7 +14,7 @@ public:
 	void new_line();
 	void close();
 
-private:
+  private:
 	std::ofstream m_file;
 	std::string m_separator;
 	bool m_beggining_of_line;

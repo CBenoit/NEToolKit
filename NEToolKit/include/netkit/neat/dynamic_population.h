@@ -6,9 +6,9 @@
 #include "neat_primitive_types.h"
 
 namespace netkit {
-	// this class handle dynamic renewal of the population by allowing automatic replacement of old genomes marked for removal.
+// this class handle dynamic renewal of the population by allowing automatic replacement of old genomes marked for removal.
 class dynamic_population {
-public:
+  public:
 	dynamic_population();
 	dynamic_population(const dynamic_population& other) = default;
 	dynamic_population(dynamic_population&& other) noexcept;
@@ -27,7 +27,7 @@ public:
 	void replace_genome(genome_id_t id, genome geno);
 	void mark_genome_for_removal(genome_id_t geno_id);
 
-private:
+  private:
 	std::vector<genome> m_all_genomes;
 	std::vector<bool> m_marked_for_removal;
 	genome_id_t m_lookup_genome_id;
