@@ -49,12 +49,12 @@ netkit::serializer& netkit::operator<<(serializer& ser, const population& pop) {
 netkit::deserializer& netkit::operator>>(deserializer& des, population& pop) {
 	pop.clear();
 	size_t number_of_genomes;
-	ser.get_next(number_of_genomes);
+	des.get_next(number_of_genomes);
 	for (size_t i = 0; i < number_of_genomes; ++i) {
 		genome g(pop.m_neat);
-		ser >> g;
+		des >> g;
 		pop.add_genome(std::move(g));
 	}
 
-	return ser;
+	return des;
 }

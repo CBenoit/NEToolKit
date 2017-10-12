@@ -245,6 +245,7 @@ netkit::serializer& netkit::operator<<(serializer& ser, const species& spec) {
 	ser.append(spec.m_age);
 	ser.append(spec.m_age_of_last_improvement);
 	ser.append(spec.m_sorted);
+	ser.append(spec.m_best_fitness_ever);
 	ser.new_line();
 
 	// serialize the representant
@@ -267,10 +268,12 @@ netkit::deserializer& netkit::operator>>(deserializer& des, species& spec) {
 	des.get_next(spec.m_age);
 	des.get_next(spec.m_age_of_last_improvement);
 	des.get_next(spec.m_sorted);
+	des.get_next(spec.m_best_fitness_ever);
 
 	// deserialize the representant
 	genome repr(spec.m_neat);
 	des >> repr;
+	delete spec.m_representant; // important!
 	spec.m_representant = new genome(std::move(repr));
 
 	// deserialize members

@@ -85,7 +85,6 @@ void netkit::base_neat::epoch() {
 	// FIXME: should probably be moved elsewhere? Probable performance issue for rtNEAT which run this method often.
 	// track the best genome ever produced.
 	if (m_best_genome_ever == nullptr) {
-		std::cout << "updated the best genome ever produced." << std::endl;
 		m_best_genome_ever = new genome{get_current_best_genome()};
 		m_age_of_best_genome_ever = 0;
 	} else {
@@ -124,6 +123,14 @@ const netkit::genome& netkit::base_neat::get_current_best_genome() const {
 	return *champion;
 }
 
+std::optional<netkit::genome> netkit::base_neat::get_best_genome_ever() const {
+	if (m_best_genome_ever == nullptr) {
+		return {};
+	}
+
+	return {*m_best_genome_ever};
+}
+
 void netkit::base_neat::helper_speciate_all_population() {
 	for (genome_id_t geno_id = 0; geno_id < m_population.size(); ++geno_id) {
 		helper_speciate_one_genome(geno_id);
@@ -140,3 +147,62 @@ void netkit::base_neat::helper_speciate_one_genome(genome_id_t geno_id) {
 	}
 }
 
+netkit::serializer& netkit::operator<<(serializer& ser, const base_neat& neat) {
+	// serialize important values
+	ser.append(neat.m_next_species_id);
+	ser.append(neat.m_age_of_best_genome_ever);
+
+	// serialize best genome ever
+	if (neat.m_best_genome_ever == nullptr) {
+		ser.append(false);
+		ser.new_line();
+	} else {
+		ser.append(true);
+		ser.new_line();
+		ser << *neat.m_best_genome_ever;
+	}
+
+	// serialize population
+	ser << neat.m_population;
+
+	// serialize species
+	ser.append(neat.m_all_species.size());
+	ser.new_line();
+	for (auto& species : neat.m_all_species) {
+		ser << species;
+	}
+
+	return ser;
+}
+
+netkit::deserializer& netkit::operator>>(deserializer& des, base_neat& neat) {
+	// deserialize important values
+	des.get_next(neat.m_next_species_id);
+	des.get_next(neat.m_age_of_best_genome_ever);
+
+	// deserialize best genome ever
+	bool has_best_genome_ever;
+	des.get_next(has_best_genome_ever);
+	if (has_best_genome_ever) {
+		genome best_g(&neat);
+		des >> best_g;
+		delete neat.m_best_genome_ever; // important!
+		neat.m_best_genome_ever = new genome(std::move(best_g));
+	}
+
+	// deserialize population
+	des >> neat.m_population;
+
+	// deserialize species
+	size_t number_of_species;
+	des.get_next(number_of_species);
+	neat.m_all_species.clear();
+	for (size_t i = 0; i < number_of_species; ++i) {
+		netkit::genome dummy(&neat); // FIXME: find a better way to handle that? Maybe with a constructor that uses the deserializer?
+		netkit::species species(&neat, &neat.m_population, 0, dummy); // the dummy will be replaced by the right representant during deserialization.
+		des >> species;
+		neat.m_all_species.push_back(std::move(species));
+	}
+
+	return des;
+}

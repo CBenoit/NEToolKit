@@ -63,7 +63,7 @@ class species {
 
 	unsigned int m_expected_offsprings;
 
-	bool m_sorted;
+	bool m_sorted; // FIXME: the fitness of the members can change without this variable being set to false. If it cannot be fixed, it should be removed...
 
 	genome* m_representant;
 

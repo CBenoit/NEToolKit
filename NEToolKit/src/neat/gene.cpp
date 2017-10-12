@@ -25,11 +25,11 @@ netkit::serializer& netkit::operator<<(serializer& ser, const gene& g) {
 }
 
 netkit::deserializer& netkit::operator>>(netkit::deserializer& des, gene& g) {
-	ser.get_next(g.innov_num);
-	ser.get_next(g.from);
-	ser.get_next(g.to);
-	ser.get_next(g.weight);
-	ser.get_next(g.enabled);
+	des.get_next(g.innov_num);
+	des.get_next(g.from);
+	des.get_next(g.to);
+	des.get_next(g.weight);
+	des.get_next(g.enabled);
 
-	return ser;
+	return des;
 }

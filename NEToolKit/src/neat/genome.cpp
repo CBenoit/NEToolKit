@@ -36,8 +36,8 @@ netkit::genome::genome(genome&& other) noexcept
 	, m_genes(std::move(other.m_genes))
 	, m_known_neuron_ids(std::move(other.m_known_neuron_ids))
 	, m_neat(other.m_neat)
-	, m_fitness(0)
-	, m_adjusted_fitness(0) {}
+	, m_fitness(other.m_fitness)
+	, m_adjusted_fitness(other.m_adjusted_fitness) {}
 
 netkit::genome& netkit::genome::operator=(genome&& other) noexcept {
 	m_number_of_inputs = other.m_number_of_inputs;
@@ -45,8 +45,8 @@ netkit::genome& netkit::genome::operator=(genome&& other) noexcept {
 	m_genes = std::move(other.m_genes);
 	m_known_neuron_ids = std::move(other.m_known_neuron_ids);
 	m_neat = other.m_neat;
-	m_fitness = 0;
-	m_adjusted_fitness = 0;
+	m_fitness = other.m_fitness;
+	m_adjusted_fitness = other.m_adjusted_fitness;
 
 	return *this;
 }
@@ -70,6 +70,7 @@ void netkit::genome::add_gene(gene new_gene) {
 		}
 		--current_position;
 	}
+
 	m_genes.emplace_back(new_gene);
 }
 
@@ -138,6 +139,9 @@ netkit::genome netkit::genome::get_random_mutation() const {
 
 	unsigned int remaining_tries = 3; // a mutation can fail, so let's give it three tries. TODO: add it to the parameters.
 	while (!offspring.random_mutate() && remaining_tries--) { }
+
+	offspring.set_fitness(0);
+	offspring.set_adjusted_fitness(0);
 
 	return std::move(offspring);
 }
@@ -366,7 +370,7 @@ bool netkit::genome::mutate_remove_gene() {
 
 	std::uniform_int_distribution<size_t> gene_selector(0, m_genes.size() - 1);
 	m_genes.erase(m_genes.begin() + gene_selector(m_neat->rand_engine));
-	// TODO: check if a neuron goes unknown afterward.
+	// TODO: check if a neuron goes unknown afterward. /!\ do not remove bias, input and output neurons.
 
 	return true;
 }
@@ -496,20 +500,30 @@ netkit::serializer& netkit::operator<<(serializer& ser, const genome& genome) {
 
 netkit::deserializer& netkit::operator>>(netkit::deserializer& des, genome& genome) {
 	// deserialize fitness values
-	ser.get_next(genome.m_fitness);
-	ser.get_next(genome.m_adjusted_fitness);
+	des.get_next(genome.m_fitness);
+	des.get_next(genome.m_adjusted_fitness);
 
 	// deserialize genes
 	size_t number_of_genes;
-	ser.get_next(number_of_genes);
+	des.get_next(number_of_genes);
 	genome.m_genes.clear();
+
+	// clean known neurons list.
 	genome.m_known_neuron_ids.clear();
+	genome.m_known_neuron_ids.push_back(genome.BIAS_ID);
+	for (neuron_id_t i = 0; i < genome.m_number_of_inputs; i++) {
+		genome.m_known_neuron_ids.push_back(i + 1);
+	}
+	for (neuron_id_t i = 0; i < genome.m_number_of_outputs; i++) {
+		genome.m_known_neuron_ids.push_back(i + 1 + genome.m_number_of_inputs);
+	}
+
 	genome.m_genes.reserve(number_of_genes);
 	for (size_t i = 0; i < number_of_genes; ++i) {
 		gene g(0, 0, 0, 0);
-		ser >> g;
+		des >> g;
 		genome.add_gene(g);
 	}
 
-	return ser;
+	return des;
 }

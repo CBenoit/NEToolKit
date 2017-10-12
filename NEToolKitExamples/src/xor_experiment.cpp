@@ -13,28 +13,15 @@
 #include <netkit/neat/parameters.h>
 #include <netkit/neat/neat.h>
 #include <netkit/neat/rtneat.h>
-#include <netkit/csv/serializer.h>
-#include <netkit/csv/deserializer.h>
 
 #include "xor_experiment.h"
 #include "utils.h"
 
-struct exp_stats {
-	size_t number_of_generations;
-	size_t number_of_neurons;
-	size_t number_of_links;
-	double best_fitness_ever;
-	bool success;
-};
-
-void print_species_stats(const netkit::species& spec);
 void rate_xor_population(netkit::neat& neat);
 void rate_organism(netkit::organism& org);
 void print_xor_network_results(netkit::network& net);
 bool is_a_xor_solution(const netkit::genome& geno);
 exp_stats run_xor_experiment(bool display_xor_experiment_details);
-double compute_standard_deviation(unsigned int number_of_values, double average, std::function<double(size_t)> getter);
-void print_exp_stats(exp_stats& stats);
 
 std::vector<std::vector<netkit::neuron_value_t>> inputs_per_run = {
 	{0, 0},
@@ -223,7 +210,7 @@ void run_one_real_time_xor_experiment(bool display_details) {
 
 		rtneat.epoch();
 
-		if (is_a_xor_solution(rtneat.get_best_genome_ever())) {
+		if (is_a_xor_solution(*rtneat.get_best_genome_ever())) {
 			if (display_details)
 				std::cout << "\n=====> Found a solution!" << std::endl;
 			break;
@@ -231,10 +218,10 @@ void run_one_real_time_xor_experiment(bool display_details) {
 	}
 
 	if (display_details) {
-		const netkit::genome& best_geno = rtneat.get_best_genome_ever();
-		netkit::network net = best_geno.generate_network();
+		auto opt_best_geno = rtneat.get_best_genome_ever();
+		netkit::network net = opt_best_geno->generate_network();
 		std::cout << "\nHere's the best genome ever produced for this run:" << std::endl;
-		std::cout << best_geno << std::endl;
+		std::cout << *opt_best_geno << std::endl;
 		std::cout << net << std::endl;
 		print_xor_network_results(net);
 	}
@@ -282,7 +269,7 @@ exp_stats run_xor_experiment(bool display_xor_experiment_details) {
 			}
 		}
 
-		if (is_a_xor_solution(neat.get_best_genome_ever())) {
+		if (is_a_xor_solution(*neat.get_best_genome_ever())) {
 			if (display_xor_experiment_details)
 				std::cout << "\n=====> Found a solution!" << std::endl;
 			stats.success = true;
@@ -294,29 +281,20 @@ exp_stats run_xor_experiment(bool display_xor_experiment_details) {
 			wait_user();
 	}
 
-	const netkit::genome& best_geno = neat.get_best_genome_ever();
-	netkit::network net = best_geno.generate_network();
-	stats.best_fitness_ever = best_geno.get_fitness();
+	auto opt_best_geno = neat.get_best_genome_ever();
+	netkit::network net = opt_best_geno->generate_network();
+	stats.best_fitness_ever = opt_best_geno->get_fitness();
 	stats.number_of_neurons = net.number_of_neurons();
 	stats.number_of_links = net.number_of_links();
 
 	if (display_xor_experiment_details) {
 		std::cout << "\nHere's the best genome ever produced for this run:" << std::endl;
-		std::cout << best_geno << std::endl;
+		std::cout << *opt_best_geno << std::endl;
 		std::cout << net << std::endl;
 		print_xor_network_results(net);
 	}
 
 	return stats;
-}
-
-void print_species_stats(const netkit::species& spec) {
-	std::cout << "<species: id = " << spec.get_id() << ", age = " << spec.get_age()
-			  << ", age of last improvement = " << spec.get_age_of_last_improvement()
-			  << "\n\tavg fitness = " << spec.get_avg_fitness()
-			  << ", best fitness = " << spec.get_best_fitness()
-			  << ", best fitness ever = " << spec.get_best_fitness_ever()
-			  << "\n\tnumber of members = " << spec.number_of_members() << ">" << std::endl;
 }
 
 void rate_xor_population(netkit::neat& neat) {
@@ -371,21 +349,4 @@ bool is_a_xor_solution(const netkit::genome& geno) {
 	}
 
 	return true;
-}
-
-double compute_standard_deviation(unsigned int number_of_values, double average, std::function<double(size_t)> getter) {
-	double result = 0;
-	for (unsigned int i = 0; i < number_of_values; ++i) {
-		result += std::pow(getter(i) - average, 2) / number_of_values;
-	}
-	// result is currently the variance.
-	return std::sqrt(result);
-}
-
-void print_exp_stats(exp_stats& stats) {
-	std::cout << "Number of generations = " << stats.number_of_generations
-			  << ", number of neurons = " << stats.number_of_neurons
-			  << ", number of links = " << stats.number_of_links
-			  << ", best fitness = " << stats.best_fitness_ever
-			  << std::endl;
 }

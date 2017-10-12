@@ -3,6 +3,7 @@
 #include <optional>
 #include <random>
 
+#include "netkit/csv/serializer.h"
 #include "netkit/csv/deserializer.h"
 #include "parameters.h"
 #include "innovation_pool.h"
@@ -23,9 +24,6 @@ class base_neat {
 	// init population with the given genome.
 	void init(const genome& initial_genome);
 
-	// init population and simulation with the given deserializer.
-	void init(netkit::deserializer& des);
-
 	// you should have rated every organisms before calling this.
 	void epoch();
 
@@ -35,7 +33,7 @@ class base_neat {
 
 	const genome& get_current_best_genome() const;
 
-	const genome& get_best_genome_ever() const { return *m_best_genome_ever; }
+	std::optional<genome> get_best_genome_ever() const;
 
   protected:
 	void helper_speciate_all_population();
@@ -56,5 +54,11 @@ class base_neat {
 	species_id_t m_next_species_id;
 	genome* m_best_genome_ever;
 	unsigned int m_age_of_best_genome_ever;
+
+	friend serializer& operator<<(serializer& ser, const base_neat& neat);
+	friend deserializer& operator>>(deserializer& des, base_neat& neat);
 };
+
+serializer& operator<<(serializer& ser, const base_neat& neat);
+deserializer& operator>>(deserializer& des, base_neat& neat);
 }
