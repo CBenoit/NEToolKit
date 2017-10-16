@@ -51,3 +51,54 @@ void netkit::innovation_pool::clear() {
 	m_all_innovations.clear();
 	m_all_genes.clear();
 }
+
+netkit::serializer& netkit::operator<<(serializer& ser, const innovation_pool& innov_pool) {
+	// serialize useful variables
+	ser.append(innov_pool.m_next_innovation);
+	ser.append(innov_pool.m_next_hidden_neuron_id);
+	ser.new_line();
+
+	// serialize genes
+	ser.append(innov_pool.m_all_genes.size());
+	ser.new_line();
+	for (const gene& g : innov_pool.m_all_genes) {
+		ser << g;
+	}
+
+	// serialize innovations
+	ser.append(innov_pool.m_all_innovations.size());
+	ser.new_line();
+	for (const innovation& i : innov_pool.m_all_innovations) {
+		ser << i;
+	}
+
+	return ser;
+}
+
+netkit::deserializer& netkit::operator>>(deserializer& des, innovation_pool& innov_pool) {
+	// deserialize useful variables
+	des.get_next(innov_pool.m_next_innovation);
+	des.get_next(innov_pool.m_next_hidden_neuron_id);
+
+	// deserialize genes
+	size_t num_genes;
+	des.get_next(num_genes);
+	innov_pool.m_all_genes.clear();
+	innov_pool.m_all_genes.reserve(num_genes);
+	for (size_t i = 0; i < num_genes; ++i) {	
+		gene g(0, 0, 0, 0);
+		des >> g;
+		innov_pool.m_all_genes.push_back(g);
+	}
+
+	// deserialize innovations
+	size_t num_innovations;
+	des.get_next(num_innovations);
+	innov_pool.m_all_innovations.clear();
+	innov_pool.m_all_innovations.reserve(num_innovations);
+	for (size_t i = 0; i < num_innovations; ++i) {
+		innov_pool.m_all_innovations.push_back(innovation::next_innovation_from_des(des));
+	}
+
+	return des;
+}

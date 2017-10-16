@@ -172,6 +172,9 @@ netkit::serializer& netkit::operator<<(serializer& ser, const base_neat& neat) {
 		ser << species;
 	}
 
+	// serialize innovation pool
+	ser << neat.innov_pool;
+
 	return ser;
 }
 
@@ -203,6 +206,9 @@ netkit::deserializer& netkit::operator>>(deserializer& des, base_neat& neat) {
 		des >> species;
 		neat.m_all_species.push_back(std::move(species));
 	}
+
+	// deserialize the innovation pool
+	des >> neat.innov_pool;
 
 	return des;
 }

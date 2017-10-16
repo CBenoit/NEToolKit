@@ -1,5 +1,7 @@
 #pragma once
 
+#include "netkit/csv/serializer.h"
+#include "netkit/csv/deserializer.h"
 #include "netkit/network/network_primitive_types.h"
 #include "neat_primitive_types.h"
 
@@ -21,6 +23,8 @@ class innovation {
 		return innovation(NEW_NEURON, innov_num_1, innov_num_2, from, to, new_neuron_id);
 	}
 
+	static innovation next_innovation_from_des(deserializer& des);
+
 	innovation(const innovation& other) = default;
 
 	const innov_type type;
@@ -33,5 +37,9 @@ class innovation {
   private:
 	innovation(innov_type type, innov_num_t innov_num, innov_num_t innov_num_2,
 			   neuron_id_t from, neuron_id_t to, neuron_id_t new_neuron_id);
+
+	friend serializer& operator<<(serializer& ser, const innovation& innov);
 };
+
+serializer& operator<<(serializer& ser, const innovation& innov);
 }

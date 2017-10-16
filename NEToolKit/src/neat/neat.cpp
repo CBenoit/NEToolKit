@@ -133,10 +133,10 @@ void netkit::neat::impl_epoch() {
 
 	// remove species that has no more member. They go extinct!
 	m_all_species.erase(
-	std::remove_if(m_all_species.begin(), m_all_species.end(), [](const species & s) {
-		return s.empty();
-	}),
-	m_all_species.end()
+		std::remove_if(m_all_species.begin(), m_all_species.end(), [](const species & s) {
+			return s.empty();
+		}),
+		m_all_species.end()
 	);
 	// /!\ from now, best_species pointer may be invalid!!!
 

@@ -21,6 +21,7 @@ class genome {
 	genome& operator=(genome&& other) noexcept;
 
 	void add_gene(gene new_gene);
+	const std::vector<gene>& get_genes() const { return m_genes; }
 
 	bool link_exists(neuron_id_t from, neuron_id_t to) const;
 

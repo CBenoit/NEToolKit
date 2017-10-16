@@ -4,11 +4,14 @@
 #include <functional>
 #include <optional>
 
+#include "netkit/csv/serializer.h"
+#include "netkit/csv/deserializer.h"
 #include "netkit/network/network_primitive_types.h"
 #include "neat_primitive_types.h"
 #include "parameters.h"
 #include "gene.h"
 #include "innovation.h"
+#include "population.h"
 
 namespace netkit {
 class innovation_pool {
@@ -77,5 +80,11 @@ class innovation_pool {
 
 		return *it;
 	}
+
+	friend serializer& operator<<(serializer& ser, const innovation_pool& innov_pool);
+	friend deserializer& operator>>(deserializer& des, innovation_pool& innov_pool);
 };
+
+serializer& operator<<(serializer& ser, const innovation_pool& innov_pool);
+deserializer& operator>>(deserializer& des, innovation_pool& innov_pool);
 }
