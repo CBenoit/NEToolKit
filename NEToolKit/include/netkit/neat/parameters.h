@@ -30,6 +30,10 @@ struct parameters {
 	// Not used by rtNEAT.
 	unsigned int no_reproduction_threshold = 30;
 
+	// Do not update the representant of species with a random member at each generation
+	// and keep the first representant. Not used by rtNEAT.
+	bool keep_same_representant_for_species = false;
+
 	// === compatibility measurement coefficients ===
 	/* Those are the coefficients for the compatibility distance formula which is
 	 * dist = c1*E/N + c2*D/N + c3*W

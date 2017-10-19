@@ -121,7 +121,9 @@ void netkit::neat::impl_epoch() {
 	// Can't be performed in the previous loop since init_for_next_gen method clear the members for
 	// next speciation, and we need the members for interspecies crossovers.
 	for (species& spec : m_all_species) {
-		spec.init_for_next_gen(m_population.get_genome(spec.get_random_member()));
+		spec.init_for_next_gen(params.keep_same_representant_for_species
+		                       ? spec.get_representant()
+		                       : m_population.get_genome(spec.get_random_member()));
 	}
 
 	// update the population with the new offsprings.
