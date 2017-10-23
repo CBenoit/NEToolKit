@@ -7,12 +7,12 @@ struct parameters {
 	parameters() {
 		mutation_probs[ADD_LINK] = 0.06;
 		mutation_probs[ADD_NEURON] = 0.03;
+		mutation_probs[REMOVE_NEURON] = 0.03;
 		mutation_probs[REMOVE_GENE] = 0.03;
 		mutation_probs[REENABLE_GENE] = 0.03;
 		mutation_probs[TOGGLE_ENABLE] = 0.03;
 		mutation_probs[RESET_WEIGHTS] = 0.03;
-		mutation_probs[ONE_WEIGHT] = 0.09;
-		mutation_probs[ALL_WEIGHTS] = 0.21;
+		mutation_probs[PERTURBATE_WEIGHTS] = 0.30;
 	}
 
 	// === general ===

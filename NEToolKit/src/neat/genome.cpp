@@ -148,17 +148,21 @@ netkit::genome netkit::genome::get_random_mutation() const {
 
 bool netkit::genome::random_mutate() {
 	std::bernoulli_distribution add_neuron_true(m_neat->params.mutation_probs[ADD_NEURON]);
+	std::bernoulli_distribution remove_neuron_true(m_neat->params.mutation_probs[REMOVE_NEURON]);
 	std::bernoulli_distribution add_link_true(m_neat->params.mutation_probs[ADD_LINK]);
 	if (add_neuron_true(m_neat->rand_engine)) {
 		// let's add a new neuron!
 		return mutate_add_neuron();
+	} else if (remove_neuron_true(m_neat->rand_engine)) {
+		// let's remove a neuron, wee!
+		return mutate_remove_neuron();
 	} else if (add_link_true(m_neat->rand_engine)) {
 		// We do not add a new neuron AND a new link at the same time.
 		return mutate_add_link();
 	} else { // We can do any other mutation if there was no structural mutation.
 		// The two first values are the add neuron and add link mutations.
 		std::vector<mutation_t> mutations_to_perform;
-		mutations_to_perform.reserve(NUMBER_OF_MUTATIONS - 2);
+		mutations_to_perform.reserve(NUMBER_OF_MUTATIONS - 3);
 		for (size_t mut_id = 2; mut_id < NUMBER_OF_MUTATIONS; ++mut_id) {
 			std::bernoulli_distribution select_mutation(m_neat->params.mutation_probs[mut_id]);
 			if (select_mutation(m_neat->rand_engine)) {
@@ -181,11 +185,8 @@ bool netkit::genome::random_mutate() {
 			case RESET_WEIGHTS:
 				return_value |= mutate_reset_weights();
 				break;
-			case ONE_WEIGHT:
-				return_value |= mutate_one_weight();
-				break;
-			case ALL_WEIGHTS:
-				return_value |= mutate_all_weights();
+			case PERTURBATE_WEIGHTS:
+				return_value |= mutate_weights();
 				break;
 			default: // should not happen
 				break;
@@ -240,10 +241,7 @@ bool netkit::genome::mutate_add_neuron() {
 	// iterate in genes in a random order...
 	std::vector<int> candidates_idx(m_genes.size());
 	std::iota(candidates_idx.begin(), candidates_idx.end(), 0);
-
-	static std::random_device rd;
-	static std::mt19937 g(rd());
-	std::shuffle(candidates_idx.begin(), candidates_idx.end(), g);
+	std::shuffle(candidates_idx.begin(), candidates_idx.end(), m_neat->rand_engine);
 
 	int sel_idx = -1; // selected gene index
 	for (int idx : candidates_idx) {
@@ -300,6 +298,21 @@ bool netkit::genome::mutate_add_neuron() {
 	return true;
 }
 
+bool netkit::genome::mutate_remove_neuron(){
+	if (m_known_neuron_ids.size() == m_number_of_inputs + m_number_of_outputs + 1) {
+		return false;
+	}
+
+	std::uniform_int_distribution<size_t> neuron_selector(m_number_of_inputs + m_number_of_outputs + 1, m_known_neuron_ids.size() - 1);
+	neuron_id_t selected_neuron = m_known_neuron_ids[neuron_selector(m_neat->rand_engine)];
+	m_known_neuron_ids.erase(std::remove(m_known_neuron_ids.begin(), m_known_neuron_ids.end(), selected_neuron), m_known_neuron_ids.end());
+	m_genes.erase(std::remove_if(m_genes.begin(), m_genes.end(), [&selected_neuron](const gene& g) {
+		return g.from == selected_neuron || g.to == selected_neuron;
+	}), m_genes.end());
+
+	return true;
+}
+
 bool netkit::genome::mutate_reenable_gene() {
 	std::vector<gene*> candidates;
 	for (gene& g : m_genes) {
@@ -329,25 +342,24 @@ bool netkit::genome::mutate_toggle_enable() {
 	return true;
 }
 
-bool netkit::genome::mutate_one_weight() {
+bool netkit::genome::mutate_weights() {
 	if (m_genes.empty()) {
 		return false;
 	}
 
 	std::uniform_real_distribution<netkit::neuron_value_t> perturbator(-m_neat->params.weight_mutation_power,
-																	   m_neat->params.weight_mutation_power);
-	std::uniform_int_distribution<size_t> gene_selector(0, m_genes.size() - 1);
-	size_t rnd_val = gene_selector(m_neat->rand_engine);
-	m_genes[rnd_val].weight += perturbator(m_neat->rand_engine);
+	                                                                   m_neat->params.weight_mutation_power);
+	std::vector<size_t>  candidates_idx(m_genes.size());
+	std::iota(candidates_idx.begin(), candidates_idx.end(), 0);
+	std::shuffle(candidates_idx.begin(), candidates_idx.end(), m_neat->rand_engine);
 
-	return true;
-}
-
-bool netkit::genome::mutate_all_weights() {
-	std::uniform_real_distribution<netkit::neuron_value_t> perturbator(-m_neat->params.weight_mutation_power,
-																	   m_neat->params.weight_mutation_power);
-	for (gene& g : m_genes) {
-		g.weight += perturbator(m_neat->rand_engine);
+	size_t nb_genes = 1;
+	if (m_genes.size() > 1) {
+		std::uniform_int_distribution<size_t> nb_genes_selector(0, m_genes.size() - 1);
+		nb_genes = nb_genes_selector(m_neat->rand_engine);
+	}
+	for (size_t i = 0; i < nb_genes; ++i) {
+		m_genes[candidates_idx[i]].weight += perturbator(m_neat->rand_engine);
 	}
 
 	return true;

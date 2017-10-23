@@ -33,14 +33,14 @@ void run_genome_mutations_crossovers() {
 	geno.mutate_reenable_gene();
 	std::cout << "\nMutate reenable gene:" << std::endl << geno << std::endl;
 
-	geno.mutate_one_weight();
-	std::cout << "\nMutate one weight:" << std::endl << geno << std::endl;
-
-	geno.mutate_all_weights();
-	std::cout << "\nMutate all weights:" << std::endl << geno << std::endl;
-
 	geno.mutate_add_neuron();
 	std::cout << "\nMutate add neuron:" << std::endl << geno << std::endl;
+
+	geno.mutate_weights();
+	std::cout << "\nMutate weights:" << std::endl << geno << std::endl;
+
+	geno.mutate_remove_neuron();
+	std::cout << "\nMutate remove neuron:" << std::endl << geno << std::endl;
 
 	for (size_t i = 0; i < 20; i++) {
 		geno2.random_mutate();

@@ -43,11 +43,10 @@ class genome {
 	bool random_mutate();
 	bool mutate_add_link();
 	bool mutate_add_neuron(); // pick a random enabled link and split it
-	//bool mutate_remove_neuron(); TODO: maybe?
+	bool mutate_remove_neuron();
 	bool mutate_reenable_gene(); // reenable a random disabled gene
 	bool mutate_toggle_enable();
-	bool mutate_one_weight();
-	bool mutate_all_weights();
+	bool mutate_weights();
 	bool mutate_reset_weights();
 	bool mutate_remove_gene();
 
