@@ -19,6 +19,7 @@ class genome {
 	genome(genome&& other) noexcept;
 	genome& operator=(const genome& other) = default;
 	genome& operator=(genome&& other) noexcept;
+	bool operator==(const genome& other);
 
 	void add_gene(gene new_gene);
 	const std::vector<gene>& get_genes() const { return m_genes; }

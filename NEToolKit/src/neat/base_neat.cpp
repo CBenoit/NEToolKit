@@ -1,6 +1,6 @@
 #include <utility> // std::move
 #include <stdexcept> // std::invalid_argument
-#include <algorithm> // std::find
+#include <algorithm> // std::find, std::shuffle
 #include <chrono> // std::chrono::system_clock
 
 #include "netkit/neat/base_neat.h"
@@ -9,6 +9,7 @@ netkit::base_neat::base_neat(const parameters& params_)
 	: params(params_)
 	, innov_pool(this->params)
 	, m_all_species()
+	, m_best_genomes_library()
 	, m_population(this)
 	, m_next_species_id(0)
 	, m_best_genome_ever(nullptr)
@@ -18,6 +19,7 @@ netkit::base_neat::base_neat(const parameters& params_)
 	}
 
 	m_all_species.reserve(15); // reserve some memory to store the species.
+	m_best_genomes_library.reserve(params.best_genomes_library_max_size);
 
 	long seed = static_cast<long>(std::chrono::system_clock::now().time_since_epoch().count());
 	rand_engine = std::minstd_rand0(seed);
@@ -27,6 +29,7 @@ netkit::base_neat::base_neat(const base_neat& other)
 	: params(other.params)
 	, innov_pool(other.innov_pool)
 	, m_all_species(other.m_all_species)
+	, m_best_genomes_library(other.m_best_genomes_library)
 	, m_population(other.m_population)
 	, m_next_species_id(other.m_next_species_id)
 	, m_best_genome_ever(new genome{*other.m_best_genome_ever})
@@ -40,6 +43,7 @@ netkit::base_neat::base_neat(base_neat&& other) noexcept
 	, innov_pool(std::move(other.innov_pool))
 	, rand_engine(std::move(other.rand_engine))
 	, m_all_species(std::move(other.m_all_species))
+	, m_best_genomes_library(std::move(other.m_best_genomes_library))
 	, m_population(std::move(other.m_population))
 	, m_next_species_id(other.m_next_species_id)
 	, m_best_genome_ever(other.m_best_genome_ever)
@@ -147,10 +151,39 @@ void netkit::base_neat::helper_speciate_one_genome(genome_id_t geno_id) {
 	}
 }
 
+void netkit::base_neat::helper_update_best_genomes_library_with(const genome& geno) {
+	if (std::find(m_best_genomes_library.begin(), m_best_genomes_library.end(), geno) != m_best_genomes_library.end()) {
+		return; // already in the library.
+	}
+
+	if (m_best_genomes_library.size() < params.best_genomes_library_max_size) {
+		m_best_genomes_library.emplace_back(geno);
+	} else {
+		auto worst = std::min_element(m_best_genomes_library.begin(), m_best_genomes_library.end(), [&geno](const genome & g1,
+		const genome & g2) {
+			return g1.get_fitness() < g2.get_fitness();
+		});
+
+		if (worst->get_fitness() < geno.get_fitness()) {
+			*worst = geno;
+		}
+	}
+}
+
+std::optional<netkit::genome> netkit::base_neat::helper_get_genome_from_best_genome_library() {
+	if (m_best_genomes_library.empty()) {
+		return {};
+	}
+
+	std::uniform_int_distribution<size_t> index_selector(0, m_best_genomes_library.size() - 1);
+	return {m_best_genomes_library[index_selector(rand_engine)]};
+}
+
 netkit::serializer& netkit::operator<<(serializer& ser, const base_neat& neat) {
 	// serialize important values
 	ser.append(neat.m_next_species_id);
 	ser.append(neat.m_age_of_best_genome_ever);
+	ser.append(neat.params.compatibility_threshold);
 
 	// serialize best genome ever
 	if (neat.m_best_genome_ever == nullptr) {
@@ -172,6 +205,13 @@ netkit::serializer& netkit::operator<<(serializer& ser, const base_neat& neat) {
 		ser << species;
 	}
 
+	// serialize best genomes library
+	ser.append(neat.m_best_genomes_library.size());
+	ser.new_line();
+	for (auto& geno : neat.m_best_genomes_library) {
+		ser << geno;
+	}
+
 	// serialize innovation pool
 	ser << neat.innov_pool;
 
@@ -182,6 +222,12 @@ netkit::deserializer& netkit::operator>>(deserializer& des, base_neat& neat) {
 	// deserialize important values
 	des.get_next(neat.m_next_species_id);
 	des.get_next(neat.m_age_of_best_genome_ever);
+
+	double compat_thres;
+	des.get_next(compat_thres);
+	if (neat.params.dynamic_compatibility_threshold) {
+		neat.params.compatibility_threshold = compat_thres;
+	}
 
 	// deserialize best genome ever
 	bool has_best_genome_ever;
@@ -201,10 +247,22 @@ netkit::deserializer& netkit::operator>>(deserializer& des, base_neat& neat) {
 	des.get_next(number_of_species);
 	neat.m_all_species.clear();
 	for (size_t i = 0; i < number_of_species; ++i) {
-		netkit::genome dummy(&neat); // FIXME: find a better way to handle that? Maybe with a constructor that uses the deserializer?
-		netkit::species species(&neat, &neat.m_population, 0, dummy); // the dummy will be replaced by the right representant during deserialization.
+		// FIXME: find a better way to handle that? Maybe with a constructor that uses the deserializer?
+		// the dummy will be replaced by the right representant during deserialization.
+		netkit::genome dummy(&neat);
+		netkit::species species(&neat, &neat.m_population, 0, dummy);
 		des >> species;
 		neat.m_all_species.push_back(std::move(species));
+	}
+
+	// deserialize best genomes library
+	neat.m_best_genomes_library.clear();
+	size_t number_of_genomes;
+	des.get_next(number_of_genomes);
+	for (size_t i = 0; i < number_of_genomes; ++i) {
+		genome g(&neat);
+		des >> g;
+		neat.m_best_genomes_library.push_back(std::move(g));
 	}
 
 	// deserialize the innovation pool

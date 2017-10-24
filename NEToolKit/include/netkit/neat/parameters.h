@@ -83,5 +83,12 @@ struct parameters {
 	unsigned int number_of_replacements_before_species_reorganization = 5;
 	tick_t minmum_alive_time_before_being_replaced = 500;
 	double proportion_of_eligible_at_any_epoch = 0.5;
+
+	// === Library of best genomes ===
+	// Implemented for NEAT. TODO: for rtNEAT.
+	bool use_best_genomes_library = false;
+	double replace_bad_genes_using_best_genomes_library_prob = 0.05;
+	double bad_genome_max_fitness = 6;
+	unsigned int best_genomes_library_max_size = 5;
 };
 }

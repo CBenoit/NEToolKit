@@ -86,33 +86,50 @@ void netkit::neat::impl_epoch() {
 		// keep the champion of species with 5 or more members
 		if (offsprings_produced < spec.get_expected_offsprings()
 			&& spec.number_of_members() >= 5) { // TODO: externalize in parameters
+			if (params.use_best_genomes_library) {
+				// update genome library using the champion of the species.
+				helper_update_best_genomes_library_with(m_population.get_genome(spec.get_champion()));
+			}
 			offsprings.emplace_back(m_population.get_genome(spec.get_champion()));
 			++offsprings_produced;
 		}
 
 		while (offsprings_produced < spec.get_expected_offsprings()) {
 			++offsprings_produced;
-			if (prob(rand_engine) < params.crossover_prob) { // let's go for a crossover
-				genome* genitor1 = &m_population.get_genome(spec.select_one_genitor());
-				genome* genitor2 = nullptr;
+			genome* genitor = &m_population.get_genome(spec.select_one_genitor());
 
-				// interspecies crossover prob
-				if (prob(rand_engine) < params.interspecies_crossover_prob) {
-					unsigned long rnd_spec_val = species_selector(rand_engine);
-					genitor2 = &m_population.get_genome(m_all_species[rnd_spec_val].select_one_genitor());
-				} else {
-					genitor2 = &m_population.get_genome(spec.select_one_genitor());
+			// if using the best genomes library.
+			bool replacement_occured = false;
+			if (!m_best_genomes_library.empty() && genitor->get_fitness() < params.bad_genome_max_fitness
+				&& prob(rand_engine) < params.replace_bad_genes_using_best_genomes_library_prob) {
+				auto good_geno = helper_get_genome_from_best_genome_library();
+				if (good_geno->get_fitness() > genitor->get_fitness()) {
+					offsprings.push_back(*good_geno);
+					replacement_occured = true;
 				}
+			}
 
-				// mutate the offspring or not
-				if (prob(rand_engine) < params.mutation_during_crossover_prob) {
-					offsprings.push_back(genitor1->random_crossover(*genitor2).get_random_mutation());
+			if (!replacement_occured) {
+				if (prob(rand_engine) < params.crossover_prob) { // let's go for a crossover
+					genome* genitor2 = nullptr;
+
+					// interspecies crossover prob
+					if (prob(rand_engine) < params.interspecies_crossover_prob) {
+						unsigned long rnd_spec_val = species_selector(rand_engine);
+						genitor2 = &m_population.get_genome(m_all_species[rnd_spec_val].select_one_genitor());
+					} else {
+						genitor2 = &m_population.get_genome(spec.select_one_genitor());
+					}
+
+					// mutate the offspring or not
+					if (prob(rand_engine) < params.mutation_during_crossover_prob) {
+						offsprings.push_back(genitor->random_crossover(*genitor2).get_random_mutation());
+					} else {
+						offsprings.push_back(genitor->random_crossover(*genitor2));
+					}
 				} else {
-					offsprings.push_back(genitor1->random_crossover(*genitor2));
+					offsprings.push_back(genitor->get_random_mutation());
 				}
-			} else {
-				genome* genitor = &m_population.get_genome(spec.select_one_genitor());
-				offsprings.push_back(genitor->get_random_mutation());
 			}
 		}
 	}
@@ -122,8 +139,8 @@ void netkit::neat::impl_epoch() {
 	// next speciation, and we need the members for interspecies crossovers.
 	for (species& spec : m_all_species) {
 		spec.init_for_next_gen(params.keep_same_representant_for_species
-		                       ? spec.get_representant()
-		                       : m_population.get_genome(spec.get_random_member()));
+							   ? spec.get_representant()
+							   : m_population.get_genome(spec.get_random_member()));
 	}
 
 	// update the population with the new offsprings.
@@ -135,10 +152,10 @@ void netkit::neat::impl_epoch() {
 
 	// remove species that has no more member. They go extinct!
 	m_all_species.erase(
-		std::remove_if(m_all_species.begin(), m_all_species.end(), [](const species & s) {
-			return s.empty();
-		}),
-		m_all_species.end()
+	std::remove_if(m_all_species.begin(), m_all_species.end(), [](const species & s) {
+		return s.empty();
+	}),
+	m_all_species.end()
 	);
 	// /!\ from now, best_species pointer may be invalid!!!
 

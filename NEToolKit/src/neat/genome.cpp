@@ -1,5 +1,5 @@
 #include <map>
-#include <algorithm> // find, random_shuffle
+#include <algorithm> // find, shuffle
 #include <numeric> // iota
 #include <random>
 
@@ -49,6 +49,24 @@ netkit::genome& netkit::genome::operator=(genome&& other) noexcept {
 	m_adjusted_fitness = other.m_adjusted_fitness;
 
 	return *this;
+}
+
+bool netkit::genome::operator==(const genome& other) {
+	if (m_genes.size() != other.m_genes.size()) {
+		return false;
+	}
+
+	auto it1 = m_genes.begin();
+	auto it2 = other.m_genes.begin();
+	while (it1 != m_genes.end()) {
+		if (it1->innov_num != it2->innov_num or it1->weight != it2->weight) {
+			return false;
+		}
+		++it1;
+		++it2;
+	}
+
+	return true;
 }
 
 void netkit::genome::add_gene(gene new_gene) {
@@ -298,15 +316,17 @@ bool netkit::genome::mutate_add_neuron() {
 	return true;
 }
 
-bool netkit::genome::mutate_remove_neuron(){
+bool netkit::genome::mutate_remove_neuron() {
 	if (m_known_neuron_ids.size() == m_number_of_inputs + m_number_of_outputs + 1) {
 		return false;
 	}
 
-	std::uniform_int_distribution<size_t> neuron_selector(m_number_of_inputs + m_number_of_outputs + 1, m_known_neuron_ids.size() - 1);
+	std::uniform_int_distribution<size_t> neuron_selector(m_number_of_inputs + m_number_of_outputs + 1,
+														  m_known_neuron_ids.size() - 1);
 	neuron_id_t selected_neuron = m_known_neuron_ids[neuron_selector(m_neat->rand_engine)];
-	m_known_neuron_ids.erase(std::remove(m_known_neuron_ids.begin(), m_known_neuron_ids.end(), selected_neuron), m_known_neuron_ids.end());
-	m_genes.erase(std::remove_if(m_genes.begin(), m_genes.end(), [&selected_neuron](const gene& g) {
+	m_known_neuron_ids.erase(std::remove(m_known_neuron_ids.begin(), m_known_neuron_ids.end(), selected_neuron),
+							 m_known_neuron_ids.end());
+	m_genes.erase(std::remove_if(m_genes.begin(), m_genes.end(), [&selected_neuron](const gene & g) {
 		return g.from == selected_neuron || g.to == selected_neuron;
 	}), m_genes.end());
 
@@ -348,7 +368,7 @@ bool netkit::genome::mutate_weights() {
 	}
 
 	std::uniform_real_distribution<netkit::neuron_value_t> perturbator(-m_neat->params.weight_mutation_power,
-	                                                                   m_neat->params.weight_mutation_power);
+																	   m_neat->params.weight_mutation_power);
 	std::vector<size_t>  candidates_idx(m_genes.size());
 	std::iota(candidates_idx.begin(), candidates_idx.end(), 0);
 	std::shuffle(candidates_idx.begin(), candidates_idx.end(), m_neat->rand_engine);

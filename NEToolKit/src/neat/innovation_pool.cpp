@@ -85,7 +85,7 @@ netkit::deserializer& netkit::operator>>(deserializer& des, innovation_pool& inn
 	des.get_next(num_genes);
 	innov_pool.m_all_genes.clear();
 	innov_pool.m_all_genes.reserve(num_genes);
-	for (size_t i = 0; i < num_genes; ++i) {	
+	for (size_t i = 0; i < num_genes; ++i) {
 		gene g(0, 0, 0, 0);
 		des >> g;
 		innov_pool.m_all_genes.push_back(g);

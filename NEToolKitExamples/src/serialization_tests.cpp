@@ -17,12 +17,14 @@ void run_serialization_tests() {
 
 	netkit::parameters params;
 	params.initial_population_size = 5;
+	params.use_best_genomes_library = true;
 	netkit::neat neat(params);
 
 	std::string target_filename = "serialization_test.csv";
 	std::cout << "Going to write in the file \"" << target_filename << "\"." << std::endl;
 
-	{ // gene
+	{
+		// gene
 		wait_user();
 		std::cout << "\nGenes serialization test." << std::endl;
 
@@ -54,7 +56,8 @@ void run_serialization_tests() {
 		des.close();
 	}
 
-	{ // genome
+	{
+		// genome
 		wait_user();
 		std::cout << "\nGenome serialization test." << std::endl;
 
@@ -83,7 +86,8 @@ void run_serialization_tests() {
 		des.close();
 	}
 
-	{ // population
+	{
+		// population
 		wait_user();
 		std::cout << "\nPopulation serialization test." << std::endl;
 
@@ -112,7 +116,8 @@ void run_serialization_tests() {
 		des.close();
 	}
 
-	{ // species
+	{
+		// species
 		wait_user();
 		std::cout << "\nSpecies serialization test." << std::endl;
 
@@ -137,15 +142,18 @@ void run_serialization_tests() {
 
 		netkit::deserializer des(target_filename);
 
-		netkit::genome dummy(&neat); // FIXME: find a better way to handle that? Maybe with a constructor that uses the deserializer?
-		netkit::species species2(&neat, &pop, 0, dummy); // the dummy will be replaced by the right representant during deserialization.
+		// FIXME: find a better way to handle that? Maybe with a constructor that uses the deserializer?
+		// the dummy will be replaced by the right representant during deserialization.
+		netkit::genome dummy(&neat);
+		netkit::species species2(&neat, &pop, 0, dummy);
 		des >> species2;
 		species2.update_stats();
 		std::cout << species2 << std::endl;
 		des.close();
 	}
 
-	{ // whole NEAT simulation state
+	{
+		// whole NEAT simulation state
 		wait_user();
 		std::cout << "\nWhole NEAT simulation state serialization test." << std::endl;
 

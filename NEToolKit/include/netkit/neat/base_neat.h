@@ -35,10 +35,17 @@ class base_neat {
 
 	std::optional<genome> get_best_genome_ever() const;
 
+	const std::vector<genome>& get_best_genomes_library() { return m_best_genomes_library; }
+
   protected:
 	void helper_speciate_all_population();
 
 	void helper_speciate_one_genome(genome_id_t geno_id);
+
+	// update only if applicable.
+	void helper_update_best_genomes_library_with(const genome& geno);
+
+	std::optional<genome> helper_get_genome_from_best_genome_library();
 
 	// overload this function to do a custom epoch implementation
 	virtual void impl_epoch() = 0;
@@ -50,6 +57,7 @@ class base_neat {
 
   protected:
 	std::vector<species> m_all_species;
+	std::vector<genome> m_best_genomes_library;
 	population m_population;
 	species_id_t m_next_species_id;
 	genome* m_best_genome_ever;
