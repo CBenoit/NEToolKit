@@ -59,7 +59,7 @@ bool netkit::genome::operator==(const genome& other) {
 	auto it1 = m_genes.begin();
 	auto it2 = other.m_genes.begin();
 	while (it1 != m_genes.end()) {
-		if (it1->innov_num != it2->innov_num or it1->weight != it2->weight) {
+		if (it1->innov_num != it2->innov_num || it1->weight != it2->weight) {
 			return false;
 		}
 		++it1;
