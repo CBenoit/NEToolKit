@@ -8,11 +8,11 @@
 namespace netkit {
 // forward declarations
 class base_neat;
-class population;
+class base_population;
 
 class species {
   public:
-	species(base_neat* neat_instance, population* population, species_id_t id, const genome& representant);
+	species(base_neat* neat_instance, base_population* population, species_id_t id, const genome& representant);
 	species(const species& other);
 	species(species&& other) noexcept;
 	species& operator=(const species& other);
@@ -68,7 +68,7 @@ class species {
 	genome* m_representant;
 
 	base_neat* m_neat;
-	population* m_population;
+	base_population* m_population;
 
 	friend std::ostream& operator<<(std::ostream& os, const species& spec);
 	friend serializer& operator<<(serializer& ser, const species& spec);

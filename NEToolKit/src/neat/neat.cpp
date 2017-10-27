@@ -4,10 +4,12 @@
 
 netkit::neat::neat(const parameters& params_)
 	: base_neat(params_)
+	, m_population(this)
 	, m_next_genome_id(0) {}
 
 netkit::neat::neat(neat&& other) noexcept
 	: base_neat(std::move(other))
+	, m_population(this)
 	, m_next_genome_id(other.m_next_genome_id) {} // it's actually OK to get the trivial member from the moved object.
 
 std::vector<netkit::organism> netkit::neat::generate_and_get_all_organisms() {
@@ -30,6 +32,13 @@ netkit::organism netkit::neat::generate_and_get_next_organism() {
 
 bool netkit::neat::has_more_organisms_to_process() {
 	return m_next_genome_id < m_population.size();
+}
+
+void netkit::neat::impl_init(const genome& initial_genome) {
+	// populate with random mutations from the initial genome.
+	for (size_t i = 0; i < params.initial_population_size; i++) {
+		m_population.add_genome(initial_genome.get_random_mutation());
+	}
 }
 
 void netkit::neat::impl_epoch() {
@@ -171,4 +180,30 @@ void netkit::neat::impl_epoch() {
 	// The original paper says it's important to remember innovations that already occurred within only one generation.
 	// Memorizing for every generation or not doesn't seems to have performance issues. Further tests needed.
 	//innov_pool.clear();
+}
+
+netkit::base_population* netkit::neat::pop() {
+	return &m_population;
+}
+
+const netkit::base_population* netkit::neat::pop() const {
+	return &m_population;
+}
+
+netkit::serializer& netkit::operator<<(serializer& ser, const neat& n) {
+	n.helper_serialize_base_neat(ser);
+
+	// serialize population
+	ser << n.m_population;
+
+	return ser;
+}
+
+netkit::deserializer& netkit::operator>>(deserializer& des, neat& n) {
+	n.helper_deserialize_base_neat(des);
+
+	// deserialize population
+	des >> n.m_population;
+
+	return des;
 }

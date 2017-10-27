@@ -1,18 +1,19 @@
 #include "netkit/neat/dynamic_population.h"
+#include "netkit/neat/base_neat.h"
 
-netkit::dynamic_population::dynamic_population()
-	: m_all_genomes()
-	, m_marked_for_removal()
+netkit::dynamic_population::dynamic_population(base_neat* neat_instance)
+	: base_population(neat_instance)
+    , m_marked_for_removal()
 	, m_lookup_genome_id(0) {}
 
 netkit::dynamic_population::dynamic_population(dynamic_population&& other) noexcept
-	: m_all_genomes(std::move(other.m_all_genomes))
+	: base_population(std::move(other))
 	, m_marked_for_removal(std::move(other.m_marked_for_removal))
 	, m_lookup_genome_id(other.m_lookup_genome_id) {}
 
 netkit::dynamic_population& netkit::dynamic_population::operator=(dynamic_population&& other) noexcept {
-	m_all_genomes = std::move(other.m_all_genomes);
-	m_marked_for_removal = std::move(other.m_marked_for_removal);
+	base_population::operator=(std::move(other));
+	m_marked_for_removal = std::move(other.m_marked_for_removal); // it's safe here
 	m_lookup_genome_id = other.m_lookup_genome_id;
 	return *this;
 }
@@ -77,4 +78,50 @@ void netkit::dynamic_population::replace_genome(genome_id_t id, genome geno) {
 void netkit::dynamic_population::mark_genome_for_removal(genome_id_t geno_id) {
 	m_marked_for_removal[geno_id] = true;
 	m_lookup_genome_id = geno_id;
+}
+
+netkit::serializer& netkit::operator<<(serializer& ser, const dynamic_population& pop) {
+	ser.append(pop.m_lookup_genome_id);
+	ser.append(pop.m_all_genomes.size());
+	ser.new_line();
+
+	// genomes
+	for (const genome& g : pop.m_all_genomes) {
+		ser << g;
+	}
+
+	// flags
+	for (bool f : pop.m_marked_for_removal) {
+		ser.append(f);
+	}
+	ser.new_line();
+
+	return ser;
+}
+
+netkit::deserializer& netkit::operator>>(deserializer& des, dynamic_population& pop) {
+	pop.m_all_genomes.clear();
+	pop.m_marked_for_removal.clear();
+
+	des.get_next(pop.m_lookup_genome_id);
+	size_t number_of_genomes;
+	des.get_next(number_of_genomes);
+
+	// genomes
+	pop.m_all_genomes.reserve(number_of_genomes);
+	for (size_t i = 0; i < number_of_genomes; ++i) {
+		genome g(pop.m_neat);
+		des >> g;
+		pop.m_all_genomes.push_back(std::move(g));
+	}
+
+	// flags
+	pop.m_marked_for_removal.reserve(number_of_genomes);
+	for (size_t i = 0; i < number_of_genomes; ++i) {
+		bool flag;
+		des.get_next(flag);
+		pop.m_marked_for_removal.push_back(flag);
+	}
+
+	return des;
 }

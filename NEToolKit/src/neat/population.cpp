@@ -1,17 +1,12 @@
 #include "netkit/neat/population.h"
 #include "netkit/neat/base_neat.h"
 
-netkit::population::population(base_neat* neat_instance)
-	: m_all_genomes()
-	, m_neat(neat_instance) {}
+netkit::population::population(base_neat* neat_instance) : base_population(neat_instance) {}
 
-netkit::population::population(population&& other) noexcept
-	: m_all_genomes(std::move(other.m_all_genomes))
-	, m_neat(other.m_neat) {}
+netkit::population::population(population&& other) noexcept : base_population(std::move(other)) {}
 
 netkit::population& netkit::population::operator=(population&& other) noexcept {
-	m_all_genomes = std::move(other.m_all_genomes);
-	m_neat = other.m_neat;
+	base_population::operator=(std::move(other));
 	return *this;
 }
 

@@ -7,10 +7,11 @@
 #include "netkit/csv/deserializer.h"
 #include "parameters.h"
 #include "innovation_pool.h"
-#include "population.h"
 #include "species.h"
 
 namespace netkit {
+class base_population; // forward declaration
+
 class base_neat {
   public:
 	explicit base_neat(const parameters& params);
@@ -47,8 +48,21 @@ class base_neat {
 
 	std::optional<genome> helper_get_genome_from_best_genome_library();
 
-	// overload this function to do a custom epoch implementation
+	void helper_serialize_base_neat(serializer& ser) const;
+
+	void helper_deserialize_base_neat(deserializer& des);
+
+	// overload this function for initialization
+	virtual void impl_init(const genome& initial_genome) = 0;
+
+	// overload this function for epoch implementation
 	virtual void impl_epoch() = 0;
+
+	// returns a pointer to the population to use (non-const version)
+	virtual base_population* pop() = 0;
+
+	// returns a pointer to the population to use (const version)
+	virtual const base_population* pop() const = 0;
 
   public:
 	parameters params;
@@ -58,15 +72,8 @@ class base_neat {
   protected:
 	std::vector<species> m_all_species;
 	std::vector<genome> m_best_genomes_library;
-	population m_population;
 	species_id_t m_next_species_id;
 	genome* m_best_genome_ever;
 	unsigned int m_age_of_best_genome_ever;
-
-	friend serializer& operator<<(serializer& ser, const base_neat& neat);
-	friend deserializer& operator>>(deserializer& des, base_neat& neat);
 };
-
-serializer& operator<<(serializer& ser, const base_neat& neat);
-deserializer& operator>>(deserializer& des, base_neat& neat);
 }

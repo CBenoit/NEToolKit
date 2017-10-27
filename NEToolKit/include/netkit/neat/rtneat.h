@@ -3,6 +3,7 @@
 #include <map>
 #include <chrono>
 
+#include "dynamic_population.h"
 #include "base_neat.h"
 #include "organism.h"
 
@@ -26,13 +27,26 @@ class rtneat : public base_neat {
 	void decrease_population(unsigned int number_of_organisms);
 
   private:
+	void impl_init(const genome& initial_genome) final;
+
 	void impl_epoch() final;
 
+	base_population* pop() final;
+
+	const base_population* pop() const final;
+
   private:
+	dynamic_population m_population;
 	unsigned int m_nb_replacements_performed;
 	bool m_replacement_occured;
 	genome_id_t m_replaced_genome_id;
 	tick_t m_current_tick;
 	std::vector<organism> m_all_organisms;
+
+	friend serializer& operator<<(serializer& ser, const rtneat& n);
+	friend deserializer& operator>>(deserializer& des, rtneat& n);
 };
+
+serializer& operator<<(serializer& ser, const rtneat& n);
+deserializer& operator>>(deserializer& des, rtneat& n);
 }

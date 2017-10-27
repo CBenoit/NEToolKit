@@ -5,6 +5,7 @@
 
 netkit::rtneat::rtneat(const parameters& params_)
 	: base_neat(params_)
+	, m_population(this)
 	, m_nb_replacements_performed(0)
 	, m_replacement_occured(false)
 	, m_replaced_genome_id(0)
@@ -13,6 +14,7 @@ netkit::rtneat::rtneat(const parameters& params_)
 
 netkit::rtneat::rtneat(rtneat&& other) noexcept
 	: base_neat(std::move(other))
+	, m_population(this)
 	, m_nb_replacements_performed(other.m_nb_replacements_performed)
 	, m_replacement_occured(other.m_replacement_occured)
 	, m_replaced_genome_id(other.m_replaced_genome_id)
@@ -29,6 +31,13 @@ void netkit::rtneat::generate_all_organisms() {
 
 std::vector<netkit::organism>& netkit::rtneat::get_all_organisms() {
 	return m_all_organisms;
+}
+
+void netkit::rtneat::impl_init(const genome& initial_genome) {
+	// populate with random mutations from the initial genome.
+	for (size_t i = 0; i < params.initial_population_size; i++) {
+		m_population.add_genome(initial_genome.get_random_mutation());
+	}
 }
 
 void netkit::rtneat::impl_epoch() {
@@ -159,4 +168,30 @@ void netkit::rtneat::impl_epoch() {
 	} else {
 		m_replacement_occured = false;
 	}
+}
+
+netkit::base_population* netkit::rtneat::pop() {
+	return &m_population;
+}
+
+const netkit::base_population* netkit::rtneat::pop() const {
+	return &m_population;
+}
+
+netkit::serializer& netkit::operator<<(serializer& ser, const rtneat& n) {
+	n.helper_serialize_base_neat(ser);
+
+	// serialize population
+	ser << n.m_population;
+
+	return ser;
+}
+
+netkit::deserializer& netkit::operator>>(deserializer& des, rtneat& n) {
+	n.helper_deserialize_base_neat(des);
+
+	// deserialize population
+	des >> n.m_population;
+
+	return des;
 }

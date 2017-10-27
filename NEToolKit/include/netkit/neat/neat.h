@@ -1,9 +1,14 @@
 #pragma once
 
+#include "netkit/csv/serializer.h"
+#include "netkit/csv/deserializer.h"
+#include "population.h"
 #include "base_neat.h"
 #include "organism.h"
 
 namespace netkit {
+class base_population; // forward declaration
+
 class neat : public base_neat {
   public:
 	explicit neat(const parameters& params);
@@ -22,9 +27,22 @@ class neat : public base_neat {
 	bool has_more_organisms_to_process();
 
   private:
+	void impl_init(const genome& initial_genome) final;
+
 	void impl_epoch() final;
 
+	base_population* pop() final;
+
+	const base_population* pop() const final;
+
   private:
+	population m_population;
 	genome_id_t m_next_genome_id;
+
+	friend serializer& operator<<(serializer& ser, const neat& n);
+	friend deserializer& operator>>(deserializer& des, neat& n);
 };
+
+serializer& operator<<(serializer& ser, const neat& n);
+deserializer& operator>>(deserializer& des, neat& n);
 }

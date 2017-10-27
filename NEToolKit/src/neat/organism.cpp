@@ -1,13 +1,13 @@
-#include "netkit/neat/population.h"
+#include "netkit/neat/base_population.h"
 #include "netkit/neat/organism.h"
 
-netkit::organism::organism(population* population, genome_id_t genome_id, const network& network)
+netkit::organism::organism(base_population* population, genome_id_t genome_id, const network& network)
 	: m_population(population)
 	, m_genome_id(genome_id)
 	, m_network(network)
 	, m_time_alive(0) {}
 
-netkit::organism::organism(population* population, genome_id_t genome_id, network&& network)
+netkit::organism::organism(base_population* population, genome_id_t genome_id, network&& network)
 	: m_population(population)
 	, m_genome_id(genome_id)
 	, m_network(std::move(network))

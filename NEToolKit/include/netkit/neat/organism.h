@@ -6,12 +6,12 @@
 
 namespace netkit {
 class species; // forward declaration
-class population;
+class base_population;
 
 class organism {
   public:
-	organism(population* population, genome_id_t genome_id, const network& network);
-	organism(population* population, genome_id_t genome_id, network&& network);
+	organism(base_population* population, genome_id_t genome_id, const network& network);
+	organism(base_population* population, genome_id_t genome_id, network&& network);
 	organism(const organism& other) = default;
 	organism(organism&& other) noexcept;
 	organism& operator=(const organism& other) = default;
@@ -26,7 +26,7 @@ class organism {
 	void increase_time_alive();
 
   private:
-	population* m_population;
+	base_population* m_population;
 	genome_id_t m_genome_id; // the id of the genotype
 	network m_network; // the phenotype
 	tick_t m_time_alive;
