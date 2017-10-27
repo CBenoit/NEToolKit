@@ -22,6 +22,8 @@
     <ClInclude Include="include\netkit\csv\deserializer.h" />
     <ClInclude Include="include\netkit\csv\serializer.h" />
     <ClInclude Include="include\netkit\neat\base_neat.h" />
+    <ClInclude Include="include\netkit\neat\base_population.h" />
+    <ClInclude Include="include\netkit\neat\dynamic_population.h" />
     <ClInclude Include="include\netkit\neat\gene.h" />
     <ClInclude Include="include\netkit\neat\genome.h" />
     <ClInclude Include="include\netkit\neat\innovation.h" />
@@ -43,6 +45,8 @@
     <ClCompile Include="src\csv\deserializer.cpp" />
     <ClCompile Include="src\csv\serializer.cpp" />
     <ClCompile Include="src\neat\base_neat.cpp" />
+    <ClCompile Include="src\neat\base_population.cpp" />
+    <ClCompile Include="src\neat\dynamic_population.cpp" />
     <ClCompile Include="src\neat\gene.cpp" />
     <ClCompile Include="src\neat\genome.cpp" />
     <ClCompile Include="src\neat\innovation.cpp" />

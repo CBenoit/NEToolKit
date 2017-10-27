@@ -111,7 +111,7 @@ void netkit::neat::impl_epoch() {
 			bool replacement_occured = false;
 			if (!m_best_genomes_library.empty() && genitor->get_fitness() < params.bad_genome_max_fitness
 				&& prob(rand_engine) < params.replace_bad_genes_using_best_genomes_library_prob) {
-				auto good_geno = helper_get_genome_from_best_genome_library();
+				auto good_geno = get_random_genome_from_best_genome_library();
 				if (good_geno->get_fitness() > genitor->get_fitness()) {
 					offsprings.push_back(*good_geno);
 					replacement_occured = true;

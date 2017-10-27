@@ -130,6 +130,15 @@ std::optional<netkit::genome> netkit::base_neat::get_best_genome_ever() const {
 	return {*m_best_genome_ever};
 }
 
+std::optional<netkit::genome> netkit::base_neat::get_random_genome_from_best_genome_library() {
+	if (m_best_genomes_library.empty()) {
+		return {};
+	}
+
+	std::uniform_int_distribution<size_t> index_selector(0, m_best_genomes_library.size() - 1);
+	return { m_best_genomes_library[index_selector(rand_engine)] };
+}
+
 void netkit::base_neat::helper_speciate_all_population() {
 	for (genome_id_t geno_id = 0; geno_id < pop()->size(); ++geno_id) {
 		helper_speciate_one_genome(geno_id);
@@ -163,15 +172,6 @@ void netkit::base_neat::helper_update_best_genomes_library_with(const genome& ge
 			*worst = geno;
 		}
 	}
-}
-
-std::optional<netkit::genome> netkit::base_neat::helper_get_genome_from_best_genome_library() {
-	if (m_best_genomes_library.empty()) {
-		return {};
-	}
-
-	std::uniform_int_distribution<size_t> index_selector(0, m_best_genomes_library.size() - 1);
-	return {m_best_genomes_library[index_selector(rand_engine)]};
 }
 
 void netkit::base_neat::helper_serialize_base_neat(serializer& ser) const {

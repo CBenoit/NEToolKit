@@ -8,6 +8,7 @@
 #include "parameters.h"
 #include "innovation_pool.h"
 #include "species.h"
+#include "organism.h"
 
 namespace netkit {
 class base_population; // forward declaration
@@ -38,6 +39,8 @@ class base_neat {
 
 	const std::vector<genome>& get_best_genomes_library() { return m_best_genomes_library; }
 
+	std::optional<genome> get_random_genome_from_best_genome_library();
+
   protected:
 	void helper_speciate_all_population();
 
@@ -45,8 +48,6 @@ class base_neat {
 
 	// update only if applicable.
 	void helper_update_best_genomes_library_with(const genome& geno);
-
-	std::optional<genome> helper_get_genome_from_best_genome_library();
 
 	void helper_serialize_base_neat(serializer& ser) const;
 

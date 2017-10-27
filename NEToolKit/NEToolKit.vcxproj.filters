@@ -96,6 +96,12 @@
     <ClInclude Include="include\netkit\csv\serializer.h">
       <Filter>Header Files\csv</Filter>
     </ClInclude>
+    <ClInclude Include="include\netkit\neat\base_population.h">
+      <Filter>Header Files\neat</Filter>
+    </ClInclude>
+    <ClInclude Include="include\netkit\neat\dynamic_population.h">
+      <Filter>Header Files\neat</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\neat\gene.cpp">
@@ -145,6 +151,12 @@
     </ClCompile>
     <ClCompile Include="src\csv\deserializer.cpp">
       <Filter>Source Files\csv</Filter>
+    </ClCompile>
+    <ClCompile Include="src\neat\base_population.cpp">
+      <Filter>Source Files\neat</Filter>
+    </ClCompile>
+    <ClCompile Include="src\neat\dynamic_population.cpp">
+      <Filter>Source Files\neat</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
