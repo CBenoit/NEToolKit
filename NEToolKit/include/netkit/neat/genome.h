@@ -44,6 +44,9 @@ class genome {
 	bool random_mutate();
 	bool mutate_add_link();
 	bool mutate_add_neuron(); // pick a random enabled link and split it
+	bool mutate_add_cascade(); // add a hidden neuron that has inputs from all input nodes
+	// and hidden nodes and is connected to all outputs.
+	// In addition, all existing connection are frozen.
 	bool mutate_remove_neuron();
 	bool mutate_reenable_gene(); // reenable a random disabled gene
 	bool mutate_toggle_enable();
@@ -58,6 +61,9 @@ class genome {
 	genome crossover_multipoint_avg(const genome& other) const; // a crossover for weights convergence
 
 	network generate_network() const;
+
+  private:
+	std::vector<size_t> helper_generate_candidate_idx();
 
   public:
 	static const neuron_id_t BIAS_ID; // the first neuron is always the bias (see definition).

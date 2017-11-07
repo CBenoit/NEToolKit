@@ -3,7 +3,7 @@
 
 netkit::dynamic_population::dynamic_population(base_neat* neat_instance)
 	: base_population(neat_instance)
-    , m_marked_for_removal()
+	, m_marked_for_removal()
 	, m_lookup_genome_id(0) {}
 
 netkit::dynamic_population::dynamic_population(dynamic_population&& other) noexcept

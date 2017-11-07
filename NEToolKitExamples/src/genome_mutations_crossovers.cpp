@@ -10,7 +10,7 @@ void run_genome_mutations_crossovers() {
 	params.number_of_inputs = 2;
 	params.number_of_outputs = 2;
 	params.compatibility_threshold = 2;
-	netkit::neat neat(std::move(params));
+	netkit::neat neat(params);
 
 	netkit::genome geno(&neat);
 	std::cout << "\nInitial genome: " << geno << std::endl;
@@ -20,6 +20,9 @@ void run_genome_mutations_crossovers() {
 
 	geno.mutate_add_link();
 	std::cout << "\nMutate add link:" << std::endl << geno << std::endl;
+
+	geno.mutate_add_cascade();
+	std::cout << "\nMutate add cascade:" << std::endl << geno << std::endl;
 
 	geno.mutate_toggle_enable();
 	std::cout << "\nMutate toggle enable:" << std::endl << geno << std::endl;
@@ -41,6 +44,11 @@ void run_genome_mutations_crossovers() {
 
 	geno.mutate_remove_neuron();
 	std::cout << "\nMutate remove neuron:" << std::endl << geno << std::endl;
+
+	for (int j = 0; j < 20; ++j) {
+		geno.mutate_weights();
+	}
+	std::cout << "\nMutate weights:" << std::endl << geno << std::endl;
 
 	for (size_t i = 0; i < 20; i++) {
 		geno2.random_mutate();

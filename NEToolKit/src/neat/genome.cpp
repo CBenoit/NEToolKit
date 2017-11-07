@@ -168,6 +168,7 @@ bool netkit::genome::random_mutate() {
 	std::bernoulli_distribution add_neuron_true(m_neat->params.mutation_probs[ADD_NEURON]);
 	std::bernoulli_distribution remove_neuron_true(m_neat->params.mutation_probs[REMOVE_NEURON]);
 	std::bernoulli_distribution add_link_true(m_neat->params.mutation_probs[ADD_LINK]);
+	std::bernoulli_distribution add_cascade_true(m_neat->params.mutation_probs[ADD_CASCADE]);
 	if (add_neuron_true(m_neat->rand_engine)) {
 		// let's add a new neuron!
 		return mutate_add_neuron();
@@ -177,10 +178,12 @@ bool netkit::genome::random_mutate() {
 	} else if (add_link_true(m_neat->rand_engine)) {
 		// We do not add a new neuron AND a new link at the same time.
 		return mutate_add_link();
+	} else if (add_cascade_true(m_neat->rand_engine)) {
+		return mutate_add_cascade();
 	} else { // We can do any other mutation if there was no structural mutation.
 		// The two first values are the add neuron and add link mutations.
 		std::vector<mutation_t> mutations_to_perform;
-		mutations_to_perform.reserve(NUMBER_OF_MUTATIONS - 3);
+		mutations_to_perform.reserve(NUMBER_OF_MUTATIONS - 4);
 		for (size_t mut_id = 2; mut_id < NUMBER_OF_MUTATIONS; ++mut_id) {
 			std::bernoulli_distribution select_mutation(m_neat->params.mutation_probs[mut_id]);
 			if (select_mutation(m_neat->rand_engine)) {
@@ -263,7 +266,7 @@ bool netkit::genome::mutate_add_neuron() {
 
 	int sel_idx = -1; // selected gene index
 	for (int idx : candidates_idx) {
-		if (m_genes[idx].enabled) {
+		if (m_genes[idx].enabled && !m_genes[idx].frozen) {
 			sel_idx = idx;
 			break;
 		}
@@ -316,6 +319,43 @@ bool netkit::genome::mutate_add_neuron() {
 	return true;
 }
 
+bool netkit::genome::mutate_add_cascade() {
+	for (gene& g : m_genes) { // freeze all existing genes.
+		g.frozen = true;
+	}
+
+	neuron_id_t new_neuron_id = m_neat->innov_pool.next_hidden_neuron_id();
+
+	std::uniform_real_distribution<netkit::neuron_value_t> perturbator(-m_neat->params.initial_weight_perturbation,
+																	   m_neat->params.initial_weight_perturbation);
+
+	// connect all hidden neurons to this neuron.
+	for (size_t i = m_number_of_outputs + m_number_of_inputs + 1; i < m_known_neuron_ids.size(); ++i) {
+		gene new_gene(m_neat->innov_pool.next_innovation(),
+					  m_known_neuron_ids[i], new_neuron_id, perturbator(m_neat->rand_engine));
+		m_neat->innov_pool.register_gene(new_gene);
+		add_gene(new_gene);
+	}
+
+	// connect all inputs (and the bias) to the new neuron.
+	for (size_t i = 0; i < m_number_of_inputs + 1; ++i) {
+		gene new_gene(m_neat->innov_pool.next_innovation(),
+					  m_known_neuron_ids[i], new_neuron_id, perturbator(m_neat->rand_engine));
+		m_neat->innov_pool.register_gene(new_gene);
+		add_gene(new_gene);
+	}
+
+	// connect the new neuron to all outputs.
+	for (size_t i = m_number_of_inputs + 1; i < m_number_of_outputs + m_number_of_inputs + 1; ++i) {
+		gene new_gene(m_neat->innov_pool.next_innovation(),
+					  new_neuron_id, m_known_neuron_ids[i], perturbator(m_neat->rand_engine));
+		m_neat->innov_pool.register_gene(new_gene);
+		add_gene(new_gene);
+	}
+
+	return true;
+}
+
 bool netkit::genome::mutate_remove_neuron() {
 	if (m_known_neuron_ids.size() == m_number_of_inputs + m_number_of_outputs + 1) {
 		return false;
@@ -336,7 +376,7 @@ bool netkit::genome::mutate_remove_neuron() {
 bool netkit::genome::mutate_reenable_gene() {
 	std::vector<gene*> candidates;
 	for (gene& g : m_genes) {
-		if (!g.enabled) {
+		if (!g.enabled && !g.frozen) {
 			candidates.push_back(&g);
 		}
 	}
@@ -351,33 +391,34 @@ bool netkit::genome::mutate_reenable_gene() {
 }
 
 bool netkit::genome::mutate_toggle_enable() {
-	if (m_genes.empty()) {
+	std::vector<size_t> candidates_idx = helper_generate_candidate_idx();
+	if (candidates_idx.empty()) {
 		return false;
 	}
 
-	std::uniform_int_distribution<size_t> gene_selector(0, m_genes.size() - 1);
+	std::uniform_int_distribution<size_t> gene_selector(0, candidates_idx.size() - 1);
 	size_t rnd_val = gene_selector(m_neat->rand_engine);
-	m_genes[rnd_val].enabled = !m_genes[rnd_val].enabled;
+	m_genes[candidates_idx[rnd_val]].enabled = !m_genes[candidates_idx[rnd_val]].enabled;
 
 	return true;
 }
 
 bool netkit::genome::mutate_weights() {
-	if (m_genes.empty()) {
+	std::vector<size_t> candidates_idx = helper_generate_candidate_idx();
+	if (candidates_idx.empty()) {
 		return false;
 	}
 
 	std::uniform_real_distribution<netkit::neuron_value_t> perturbator(-m_neat->params.weight_mutation_power,
 																	   m_neat->params.weight_mutation_power);
-	std::vector<size_t>  candidates_idx(m_genes.size());
-	std::iota(candidates_idx.begin(), candidates_idx.end(), 0);
 	std::shuffle(candidates_idx.begin(), candidates_idx.end(), m_neat->rand_engine);
 
 	size_t nb_genes = 1;
-	if (m_genes.size() > 1) {
-		std::uniform_int_distribution<size_t> nb_genes_selector(0, m_genes.size() - 1);
+	if (candidates_idx.size() > 1) {
+		std::uniform_int_distribution<size_t> nb_genes_selector(0, candidates_idx.size() - 1);
 		nb_genes = nb_genes_selector(m_neat->rand_engine);
 	}
+
 	for (size_t i = 0; i < nb_genes; ++i) {
 		m_genes[candidates_idx[i]].weight += perturbator(m_neat->rand_engine);
 	}
@@ -389,19 +430,22 @@ bool netkit::genome::mutate_reset_weights() {
 	std::uniform_real_distribution<netkit::neuron_value_t> perturbator(-m_neat->params.initial_weight_perturbation,
 																	   m_neat->params.initial_weight_perturbation);
 	for (gene& g : m_genes) {
-		g.weight = perturbator(m_neat->rand_engine);
+		if (!g.frozen) {
+			g.weight = perturbator(m_neat->rand_engine);
+		}
 	}
 
 	return true;
 }
 
 bool netkit::genome::mutate_remove_gene() {
-	if (m_genes.empty()) {
+	std::vector<size_t> candidates_idx = helper_generate_candidate_idx();
+	if (candidates_idx.empty()) {
 		return false;
 	}
 
-	std::uniform_int_distribution<size_t> gene_selector(0, m_genes.size() - 1);
-	m_genes.erase(m_genes.begin() + gene_selector(m_neat->rand_engine));
+	std::uniform_int_distribution<size_t> gene_selector(0, candidates_idx.size() - 1);
+	m_genes.erase(m_genes.begin() + candidates_idx[gene_selector(m_neat->rand_engine)]);
 	// TODO: check if a neuron goes unknown afterward. /!\ do not remove bias, input and output neurons.
 
 	return true;
@@ -489,6 +533,18 @@ netkit::network netkit::genome::generate_network() const {
 	}
 
 	return std::move(net);
+}
+
+std::vector<size_t> netkit::genome::helper_generate_candidate_idx() {
+	std::vector<size_t> candidates_idx;
+	candidates_idx.reserve(m_genes.size());
+	for (size_t i = 0; i < m_genes.size(); ++i) {
+		if (!m_genes[i].frozen) {
+			candidates_idx.emplace_back(i);
+		}
+	}
+
+	return candidates_idx;
 }
 
 bool netkit::genome::reenable_gene_ok() const {

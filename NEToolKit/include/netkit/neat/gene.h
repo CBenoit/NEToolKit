@@ -18,7 +18,7 @@ struct gene {
 	neuron_id_t to;
 	neuron_value_t weight;
 	bool enabled;
-	// TODO: ability to be frozen?
+	bool frozen;
 
 	friend std::ostream& operator<<(std::ostream& os, const gene& g);
 	friend serializer& operator<<(serializer& ser, const gene& g);

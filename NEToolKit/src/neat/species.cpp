@@ -5,7 +5,8 @@
 #include "netkit/neat/base_neat.h"
 #include "netkit/neat/base_population.h"
 
-netkit::species::species(base_neat* neat_instance, base_population* population, species_id_t id, const genome& representant)
+netkit::species::species(base_neat* neat_instance, base_population* population, species_id_t id,
+						 const genome& representant)
 	: m_members()
 	, m_avg_fitness(0)
 	, m_avg_adjusted_fitness(0)

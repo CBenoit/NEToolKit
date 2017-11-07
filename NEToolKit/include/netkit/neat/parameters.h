@@ -8,6 +8,7 @@ struct parameters {
 		mutation_probs[ADD_LINK] = 0.06;
 		mutation_probs[ADD_NEURON] = 0.03;
 		mutation_probs[REMOVE_NEURON] = 0.03;
+		mutation_probs[ADD_CASCADE] = 0.00; // see Cascade-NEAT. You might want to disable ADD_NEURON and ADD_LINK.
 		mutation_probs[REMOVE_GENE] = 0.03;
 		mutation_probs[REENABLE_GENE] = 0.03;
 		mutation_probs[TOGGLE_ENABLE] = 0.03;
