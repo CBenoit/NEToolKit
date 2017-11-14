@@ -110,7 +110,7 @@ std::optional<netkit::species*> netkit::base_neat::find_appropriate_species_for(
 }
 
 const netkit::genome& netkit::base_neat::get_current_best_genome() const {
-	double best_fitness_so_far = std::numeric_limits<double>::min();
+	double best_fitness_so_far =  -1 * std::numeric_limits<double>::max(); // /!\ min() give the minimal positive value for floating types.
 	const genome* champion = nullptr;
 	for (const genome& geno : pop()->get_all_genomes()) {
 		if (geno.get_fitness() > best_fitness_so_far) {

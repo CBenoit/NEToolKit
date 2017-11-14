@@ -47,7 +47,7 @@ void netkit::neat::impl_epoch() {
 
 	// Compute the overall average fitness.
 	species* best_species = nullptr;
-	double best_fitness_so_far = std::numeric_limits<double>::min();
+	double best_fitness_so_far = -1 * std::numeric_limits<double>::max();
 	double overall_average = 0;
 	for (species& spec : m_all_species) {
 		spec.sort_by_fitness();

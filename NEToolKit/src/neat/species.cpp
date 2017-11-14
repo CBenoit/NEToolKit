@@ -114,7 +114,7 @@ netkit::genome_id_t netkit::species::get_champion() const {
 		return m_members.front();
 	} else {
 		genome_id_t best = m_members.front();
-		double best_fitness_so_far = std::numeric_limits<double>::min();
+		double best_fitness_so_far = -1 * std::numeric_limits<double>::max();
 		for (genome_id_t g : m_members) {
 			if (m_population->get_genome(g).get_fitness() > best_fitness_so_far) {
 				best = g;
