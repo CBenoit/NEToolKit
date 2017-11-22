@@ -181,6 +181,7 @@ void run_serialization_tests() {
 
 			neat2.epoch();
 			rate_population(neat2);
+			neat2.update_best_genome_ever();
 
 			wait_user();
 

@@ -26,14 +26,13 @@ class rtneat : public base_neat {
 	void increase_population(unsigned int number_of_organisms);
 	void decrease_population(unsigned int number_of_organisms);
 
+	base_population* pop() final;
+	const base_population* pop() const final;
+
   private:
 	void impl_init(const genome& initial_genome) final;
 
 	void impl_epoch() final;
-
-	base_population* pop() final;
-
-	const base_population* pop() const final;
 
   private:
 	dynamic_population m_population;

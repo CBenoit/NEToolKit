@@ -41,6 +41,15 @@ class base_neat {
 
 	std::optional<genome> get_random_genome_from_best_genome_library();
 
+	// returns a pointer to the population to use (non-const version)
+	virtual base_population* pop() = 0;
+
+	// returns a pointer to the population to use (const version)
+	virtual const base_population* pop() const = 0;
+
+	// Call once per generation when population is rated.
+	void update_best_genome_ever();
+
   protected:
 	void helper_speciate_all_population();
 
@@ -58,12 +67,6 @@ class base_neat {
 
 	// overload this function for epoch implementation
 	virtual void impl_epoch() = 0;
-
-	// returns a pointer to the population to use (non-const version)
-	virtual base_population* pop() = 0;
-
-	// returns a pointer to the population to use (const version)
-	virtual const base_population* pop() const = 0;
 
   public:
 	parameters params;

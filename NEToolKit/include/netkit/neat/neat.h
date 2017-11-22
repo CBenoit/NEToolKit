@@ -26,14 +26,13 @@ class neat : public base_neat {
 	// check if there is no more organism left to generate
 	bool has_more_organisms_to_process();
 
+	base_population* pop() final;
+	const base_population* pop() const final;
+
   private:
 	void impl_init(const genome& initial_genome) final;
 
 	void impl_epoch() final;
-
-	base_population* pop() final;
-
-	const base_population* pop() const final;
 
   private:
 	population m_population;

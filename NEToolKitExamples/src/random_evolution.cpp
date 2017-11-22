@@ -18,6 +18,7 @@ void run_random_evolution() {
 			netkit::organism org = neat.generate_and_get_next_organism();
 			org.set_fitness(rand() / 1000000.0);
 		}
+		neat.update_best_genome_ever();
 
 		std::cout << "\n\n======== Here's the generation " << gen << "'s population. =========" << std::endl;
 		for (netkit::species& spec : neat.get_all_species()) {

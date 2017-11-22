@@ -210,6 +210,8 @@ void run_one_real_time_xor_experiment(bool display_details) {
 
 		rtneat.epoch();
 
+		// you may want to perform the following less often.
+		rtneat.update_best_genome_ever();
 		if (is_a_xor_solution(*rtneat.get_best_genome_ever())) {
 			if (display_details)
 				std::cout << "\n=====> Found a solution!" << std::endl;
@@ -259,8 +261,8 @@ exp_stats run_xor_experiment(bool display_xor_experiment_details) {
 			std::cout << "\n\n======== Here's the generation " << gen << "'s population. =========" << std::endl;
 
 		neat.epoch(); // go to next generation
-
 		rate_xor_population(neat);
+		neat.update_best_genome_ever();
 
 		if (display_xor_experiment_details) {
 			for (netkit::species& spec : neat.get_all_species()) {

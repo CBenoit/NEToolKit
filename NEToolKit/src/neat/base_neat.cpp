@@ -81,23 +81,8 @@ void netkit::base_neat::init(const genome& initial_genome) {
 }
 
 void netkit::base_neat::epoch() {
-	// FIXME: should probably be moved elsewhere? Probable performance issue for rtNEAT which run this method often.
-	// track the best genome ever produced.
-	if (m_best_genome_ever == nullptr) {
-		m_best_genome_ever = new genome{get_current_best_genome()};
-		m_age_of_best_genome_ever = 0;
-	} else {
-		const genome& current_best_genome = get_current_best_genome();
-		if (current_best_genome.get_fitness() > m_best_genome_ever->get_fitness()) {
-			delete m_best_genome_ever;
-			m_best_genome_ever = new genome{current_best_genome};
-			m_age_of_best_genome_ever = 0;
-		} else {
-			++m_age_of_best_genome_ever;
-		}
-	}
-
 	impl_epoch();
+	++m_age_of_best_genome_ever;
 }
 
 std::optional<netkit::species*> netkit::base_neat::find_appropriate_species_for(const genome& geno) {
@@ -137,6 +122,20 @@ std::optional<netkit::genome> netkit::base_neat::get_random_genome_from_best_gen
 
 	std::uniform_int_distribution<size_t> index_selector(0, m_best_genomes_library.size() - 1);
 	return { m_best_genomes_library[index_selector(rand_engine)] };
+}
+
+void netkit::base_neat::update_best_genome_ever() {
+	if (m_best_genome_ever == nullptr) {
+		m_best_genome_ever = new genome{ get_current_best_genome() };
+		m_age_of_best_genome_ever = 0;
+	} else {
+		const genome& current_best_genome = get_current_best_genome();
+		if (current_best_genome.get_fitness() > m_best_genome_ever->get_fitness()) {
+			delete m_best_genome_ever;
+			m_best_genome_ever = new genome{ current_best_genome };
+			m_age_of_best_genome_ever = 0;
+		}
+	}
 }
 
 void netkit::base_neat::helper_speciate_all_population() {
