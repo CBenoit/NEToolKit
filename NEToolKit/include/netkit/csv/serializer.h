@@ -6,7 +6,7 @@
 namespace netkit {
 class serializer {
   public:
-	explicit serializer(std::string filename, std::string separator = ";", bool append = false);
+	explicit serializer(std::string filename, std::string separator = ";", bool append_mode = false);
 
 	template<typename T>
 	void append(T o);

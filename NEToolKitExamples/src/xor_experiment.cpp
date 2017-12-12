@@ -13,15 +13,16 @@
 #include <netkit/neat/parameters.h>
 #include <netkit/neat/neat.h>
 #include <netkit/neat/rtneat.h>
+#include <netkit/neat/novelbank.h>
 
 #include "xor_experiment.h"
 #include "utils.h"
 
 void rate_xor_population(netkit::neat& neat);
-void rate_organism(netkit::organism& org);
+double evaluate_network(netkit::network &net);
 void print_xor_network_results(netkit::network& net);
 bool is_a_xor_solution(const netkit::genome& geno);
-exp_stats run_xor_experiment(bool display_xor_experiment_details);
+exp_stats run_xor_experiment(bool display_xor_experiment_details, bool with_novelty = false);
 
 std::vector<std::vector<netkit::neuron_value_t>> inputs_per_run = {
 	{0, 0},
@@ -96,9 +97,8 @@ void xor_network_test() {
 	std::cout << "It took " << elapsed_secs << " seconds of processor time to do so." << std::endl;
 }
 
-void run_100_xor_experiments() {
-	unsigned int number_of_experiments = 100;
-	std::cout << "Starting 100 xor evolution experiments..." << std::endl;
+void run_n_xor_experiments(unsigned int number_of_experiments, bool with_novelty, bool record_csv, std::string output_filename) {
+	std::cout << "Starting " << number_of_experiments << " xor evolution experiments..." << std::endl;
 
 	std::vector<exp_stats> all_results;
 	all_results.reserve(number_of_experiments);
@@ -109,7 +109,7 @@ void run_100_xor_experiments() {
 	double average_fitness = 0;
 	unsigned int number_of_success = 0;
 	for (unsigned int i = 0; i < number_of_experiments; ++i) {
-		exp_stats stats = run_xor_experiment(false);
+		exp_stats stats = run_xor_experiment(false, with_novelty);
 
 		std::cout << "\n======= experiment " << i;
 		if (stats.success) {
@@ -130,6 +130,19 @@ void run_100_xor_experiments() {
 			number_of_success += 1;
 
 		all_results.push_back(stats);
+
+		if (record_csv) {
+			netkit::serializer ser(output_filename, ";", true);
+
+			ser.append(stats.success);
+			ser.append(stats.number_of_generations);
+			ser.append(stats.number_of_neurons);
+			ser.append(stats.number_of_links);
+			ser.append(stats.best_fitness_ever);
+
+			ser.new_line();
+			ser.close();
+		}
 	}
 
 	double std_number_of_generations = compute_standard_deviation(number_of_experiments,
@@ -162,9 +175,9 @@ void run_100_xor_experiments() {
 			  << " (which means " << number_of_experiments - number_of_success << " failure(s))" << std::endl;
 }
 
-void run_one_xor_experiment() {
+void run_one_xor_experiment(bool with_novelty) {
 	std::cout << "Starting one detailed xor evolution experiment..." << std::endl;
-	exp_stats stats = run_xor_experiment(true);
+	exp_stats stats = run_xor_experiment(true, with_novelty);
 	std::cout << "\nSummary:" << std::endl;
 	print_exp_stats(stats);
 }
@@ -199,7 +212,7 @@ void run_one_real_time_xor_experiment(bool display_details) {
 			std::cout << "\n\n======== tick " << tick << " =========" << std::endl;
 
 		for (netkit::organism& org : organisms) {
-			rate_organism(org);
+			evaluate_network(org.get_network());
 			org.increase_time_alive(); // very important!!
 			if (display_details) {
 				std::cout << "org " << org.get_genome_id() << "'s fitness = " << org.get_fitness() << std::endl;
@@ -231,7 +244,76 @@ void run_one_real_time_xor_experiment(bool display_details) {
 
 // ===== local functions =====
 
-exp_stats run_xor_experiment(bool display_xor_experiment_details) {
+// --- for novelty only ---
+struct xor_position {
+	xor_position() {
+		values.reserve(inputs_per_run.size());
+	}
+
+	double novelty_distance(const xor_position& other) const {
+		std::vector<double> squared_diffs;
+		squared_diffs.reserve(values.size());
+		for (size_t i = 0; i < values.size(); ++i) {
+			double diff = values[i] - other.values[i];
+			squared_diffs.push_back(diff * diff);
+		}
+
+		double sum = 0.0;
+		for (double v : squared_diffs) {
+			sum += v;
+		}
+
+		return std::sqrt(sum);
+	}
+
+	std::vector<double> values;
+};
+
+std::optional<netkit::genome> novelty_rate_population(netkit::neat& neat, netkit::novelbank<xor_position>& novelbank) {
+	std::vector<netkit::novelgenome<xor_position>> all_ng;
+	all_ng.reserve(neat.pop()->size());
+
+	while (neat.has_more_organisms_to_process()) {
+		netkit::organism org = neat.generate_and_get_next_organism();
+		netkit::novelgenome<xor_position> ng{org.get_genome_id()};
+
+		std::vector<size_t> runs = {0, 1, 2, 3};
+		netkit::network &net = org.get_network();
+		for (auto run : runs) {
+			net.flush();
+			net.load_inputs(inputs_per_run[run]);
+			net.activate_until_relaxation();
+			ng.get_pos().values.push_back(net.get_outputs()[0]);
+		}
+
+		novelbank.pop_register(ng);
+		all_ng.push_back(std::move(ng));
+	}
+
+	std::optional<netkit::genome> valid_candidate;
+
+	// update fitness by evaluating novelty.
+	for (auto& ng : all_ng) {
+		neat.pop()->get_genome(ng.get_genome_id()).set_fitness(novelbank.evaluate(ng));
+
+		if (is_a_xor_solution(neat.pop()->get_genome(ng.get_genome_id()))) {
+			valid_candidate = {neat.pop()->get_genome(ng.get_genome_id())};
+		}
+	}
+
+	novelbank.bank_update(); // update the novelbank using all new element evaluated so far.
+
+	// clear the population (because no evaluation afterward)
+	novelbank.pop_clear();
+
+	return valid_candidate;
+}
+// ------------------------
+
+exp_stats run_xor_experiment(bool display_xor_experiment_details, bool with_novelty) {
+	// init novelty bank
+	netkit::novelbank<xor_position> novelbank(999, 0.25, 10);
+
 	// init NEAT
 	netkit::parameters params;
 	params.number_of_inputs = 2;
@@ -244,7 +326,11 @@ exp_stats run_xor_experiment(bool display_xor_experiment_details) {
 	stats.success = false; // will be set to true if a solution is found.
 	stats.number_of_generations = 150; // will be changed to the actual number of generations until a solution is found.
 
-	rate_xor_population(neat);
+	if (with_novelty) {
+		novelty_rate_population(neat, novelbank);
+	} else {
+		rate_xor_population(neat);
+	}
 
 	if (display_xor_experiment_details) {
 		std::cout << "\n\n======== Here's the initial generation's population. =========" << std::endl;
@@ -255,37 +341,61 @@ exp_stats run_xor_experiment(bool display_xor_experiment_details) {
 		wait_user();
 	}
 
-	// go for a maximum of 100 generations evolution.
+	std::optional<netkit::genome> opt_best_geno;
+
+	// go for a maximum of stats.number_of_generations generations evolution.
 	for (size_t gen = 1; gen <= stats.number_of_generations; ++gen) {
 		if (display_xor_experiment_details)
 			std::cout << "\n\n======== Here's the generation " << gen << "'s population. =========" << std::endl;
 
 		neat.epoch(); // go to next generation
-		rate_xor_population(neat);
-		neat.update_best_genome_ever();
 
-		if (display_xor_experiment_details) {
-			for (netkit::species& spec : neat.get_all_species()) {
-				spec.update_stats();
-				print_species_stats(spec);
+		if (with_novelty) {
+			opt_best_geno = novelty_rate_population(neat, novelbank);
+
+			if (display_xor_experiment_details) {
+				for (netkit::species& spec : neat.get_all_species()) {
+					spec.update_stats();
+					print_species_stats(spec);
+				}
 			}
-		}
 
-		if (is_a_xor_solution(*neat.get_best_genome_ever())) {
-			if (display_xor_experiment_details)
-				std::cout << "\n=====> Found a solution!" << std::endl;
-			stats.success = true;
-			stats.number_of_generations = gen;
-			break;
+			if (opt_best_geno.has_value()) {
+				if (display_xor_experiment_details)
+					std::cout << "\n=====> Found a solution!" << std::endl;
+				stats.success = true;
+				stats.number_of_generations = gen;
+				auto net = opt_best_geno->generate_network();
+				stats.best_fitness_ever = evaluate_network(net);
+				break;
+			}
+		} else {
+			rate_xor_population(neat);
+			neat.update_best_genome_ever();
+
+			if (display_xor_experiment_details) {
+				for (netkit::species& spec : neat.get_all_species()) {
+					spec.update_stats();
+					print_species_stats(spec);
+				}
+			}
+
+			if (is_a_xor_solution(*neat.get_best_genome_ever())) {
+				if (display_xor_experiment_details)
+					std::cout << "\n=====> Found a solution!" << std::endl;
+				stats.success = true;
+				stats.number_of_generations = gen;
+				opt_best_geno = neat.get_best_genome_ever();
+				stats.best_fitness_ever = opt_best_geno->get_fitness();
+				break;
+			}
 		}
 
 		if (display_xor_experiment_details)
 			wait_user();
 	}
 
-	auto opt_best_geno = neat.get_best_genome_ever();
 	netkit::network net = opt_best_geno->generate_network();
-	stats.best_fitness_ever = opt_best_geno->get_fitness();
 	stats.number_of_neurons = net.number_of_neurons();
 	stats.number_of_links = net.number_of_links();
 
@@ -302,28 +412,22 @@ exp_stats run_xor_experiment(bool display_xor_experiment_details) {
 void rate_xor_population(netkit::neat& neat) {
 	while (neat.has_more_organisms_to_process()) {
 		netkit::organism org = neat.generate_and_get_next_organism();
-		rate_organism(org);
+		org.set_fitness(evaluate_network(org.get_network()));
 	}
 }
 
-void rate_organism(netkit::organism& org) {
+double evaluate_network(netkit::network& net) {
 	std::vector<size_t> runs = {0, 1, 2, 3};
-	netkit::network& net = org.get_network();
 
 	double error_sum = 0;
 	for (auto run : runs) {
-		//std::cout << "-- ";
-		//std::cout << inputs_per_run[run][0] << " ~& " << inputs_per_run[run][1] << " ";
 		net.flush();
 		net.load_inputs(inputs_per_run[run]);
 		net.activate_until_relaxation();
 		error_sum += std::abs(net.get_outputs()[0] - expected_output_per_run[run]);
-		//std::cout << "res: " << net.get_outputs()[0] << " (" << std::abs(net.get_outputs()[0] - expected_output_per_run[run]) << ") ";
 	}
 
-	double fitness = std::pow(4.0 - error_sum, 2);
-	org.set_fitness(fitness);
-	//std::cout << "fitness: " << fitness << std::endl;
+	return std::pow(4.0 - error_sum, 2);
 }
 
 void print_xor_network_results(netkit::network& net) {

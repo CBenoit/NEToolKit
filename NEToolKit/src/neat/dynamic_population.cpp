@@ -13,7 +13,7 @@ netkit::dynamic_population::dynamic_population(dynamic_population&& other) noexc
 
 netkit::dynamic_population& netkit::dynamic_population::operator=(dynamic_population&& other) noexcept {
 	base_population::operator=(std::move(other));
-	m_marked_for_removal = std::move(other.m_marked_for_removal); // it's safe here
+	m_marked_for_removal = std::move(other.m_marked_for_removal); // the use after move is safe here
 	m_lookup_genome_id = other.m_lookup_genome_id;
 	return *this;
 }

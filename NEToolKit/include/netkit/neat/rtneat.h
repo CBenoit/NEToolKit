@@ -16,7 +16,7 @@ class rtneat : public base_neat {
 	rtneat(rtneat&& other) noexcept;
 
 	void generate_all_organisms();
-	// You should work on the vector to increase alive time and so on.
+	// You should work on the values within the returned vector to increase alive time and so on. Not copies.
 	// /!\ call generate_all_organisms before!
 	std::vector<organism>& get_all_organisms();
 	genome_id_t get_last_replaced_genome() { return m_replaced_genome_id; }
