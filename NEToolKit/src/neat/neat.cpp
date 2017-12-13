@@ -193,6 +193,10 @@ const netkit::base_population* netkit::neat::pop() const {
 netkit::serializer& netkit::operator<<(serializer& ser, const neat& n) {
 	n.helper_serialize_base_neat(ser);
 
+	// serialize next_genome_id
+	ser.append(n.m_next_genome_id);
+	ser.new_line();
+
 	// serialize population
 	ser << n.m_population;
 
@@ -201,6 +205,9 @@ netkit::serializer& netkit::operator<<(serializer& ser, const neat& n) {
 
 netkit::deserializer& netkit::operator>>(deserializer& des, neat& n) {
 	n.helper_deserialize_base_neat(des);
+
+	// serialize next_genome_id
+	des.get_next(n.m_next_genome_id);
 
 	// deserialize population
 	des >> n.m_population;
