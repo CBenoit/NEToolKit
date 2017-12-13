@@ -37,6 +37,9 @@
     <Filter Include="Source Files\csv">
       <UniqueIdentifier>{96b24c19-5dac-4448-87c5-af882adae8fb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\neat\impl">
+      <UniqueIdentifier>{47388e7a-1855-43e8-ac68-4512a233b92c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\netkit\network\activation_functions.h">
@@ -102,6 +105,12 @@
     <ClInclude Include="include\netkit\neat\dynamic_population.h">
       <Filter>Header Files\neat</Filter>
     </ClInclude>
+    <ClInclude Include="include\netkit\neat\novelgenome.h">
+      <Filter>Header Files\neat</Filter>
+    </ClInclude>
+    <ClInclude Include="include\netkit\neat\novelbank.h">
+      <Filter>Header Files\neat</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\neat\gene.cpp">
@@ -158,5 +167,13 @@
     <ClCompile Include="src\neat\dynamic_population.cpp">
       <Filter>Source Files\neat</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="include\netkit\neat\impl\novelbank.tpp">
+      <Filter>Header Files\neat\impl</Filter>
+    </None>
+    <None Include="include\netkit\neat\impl\novelgenome.tpp">
+      <Filter>Header Files\neat\impl</Filter>
+    </None>
   </ItemGroup>
 </Project>

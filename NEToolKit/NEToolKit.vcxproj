@@ -30,6 +30,8 @@
     <ClInclude Include="include\netkit\neat\innovation_pool.h" />
     <ClInclude Include="include\netkit\neat\neat.h" />
     <ClInclude Include="include\netkit\neat\neat_primitive_types.h" />
+    <ClInclude Include="include\netkit\neat\novelbank.h" />
+    <ClInclude Include="include\netkit\neat\novelgenome.h" />
     <ClInclude Include="include\netkit\neat\organism.h" />
     <ClInclude Include="include\netkit\neat\parameters.h" />
     <ClInclude Include="include\netkit\neat\population.h" />
@@ -60,6 +62,10 @@
     <ClCompile Include="src\network\link.cpp" />
     <ClCompile Include="src\network\network.cpp" />
     <ClCompile Include="src\network\neuron.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="include\netkit\neat\impl\novelbank.tpp" />
+    <None Include="include\netkit\neat\impl\novelgenome.tpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
