@@ -245,30 +245,6 @@ void run_one_real_time_xor_experiment(bool display_details) {
 // ===== local functions =====
 
 // --- for novelty only ---
-struct xor_position {
-	xor_position() {
-		values.reserve(inputs_per_run.size());
-	}
-
-	double novelty_distance(const xor_position& other) const {
-		std::vector<double> squared_diffs;
-		squared_diffs.reserve(values.size());
-		for (size_t i = 0; i < values.size(); ++i) {
-			double diff = values[i] - other.values[i];
-			squared_diffs.push_back(diff * diff);
-		}
-
-		double sum = 0.0;
-		for (double v : squared_diffs) {
-			sum += v;
-		}
-
-		return std::sqrt(sum);
-	}
-
-	std::vector<double> values;
-};
-
 std::optional<netkit::genome> novelty_rate_population(netkit::neat& neat, netkit::novelbank<xor_position>& novelbank) {
 	std::vector<netkit::novelgenome<xor_position>> all_ng;
 	all_ng.reserve(neat.pop()->size());

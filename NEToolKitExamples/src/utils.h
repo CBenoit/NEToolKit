@@ -10,6 +10,18 @@ struct exp_stats {
 	bool success;
 };
 
+// --- for novelty only ---
+struct xor_position {
+	double novelty_distance(const xor_position& other) const;
+
+	std::vector<double> values;
+};
+
+netkit::serializer& operator<<(netkit::serializer& ser, const xor_position& xp);
+
+netkit::deserializer& operator>>(netkit::deserializer& des, xor_position& xp);
+// ------------------------
+
 void wait_user();
 
 void print_species_stats(const netkit::species& spec);

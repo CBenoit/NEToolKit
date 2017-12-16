@@ -121,14 +121,65 @@ void netkit::novelbank<pos_t>::bank_clear() {
 
 template<typename pos_t>
 netkit::serializer& netkit::operator<<(serializer& ser, const novelbank<pos_t>& g) {
-	// TODO
+	ser.append(g.m_max_size);
+	ser.append(g.m_min_threshold);
+	ser.append(g.m_nb_neighbours);
+	ser.new_line();
+
+	ser.append(g.m_bank.size());
+	ser.new_line();
+	for (const pos_t& p : g.m_bank) {
+		ser << p;
+	}
+
+	ser.append(g.m_bank_buffer.size());
+	ser.new_line();
+	for (const pos_t& p : g.m_bank_buffer) {
+		ser << p;
+	}
+
+	ser.append(g.m_pop.size());
+	ser.new_line();
+	for (const auto& ng : g.m_pop) {
+		ser << ng;
+	}
 
 	return ser;
 }
 
 template<typename pos_t>
 netkit::deserializer& netkit::operator>>(netkit::deserializer& des, novelbank<pos_t>& g) {
-	// TODO
+	g.m_bank.clear();
+	g.m_bank_buffer.clear();
+	g.m_pop.clear();
+
+	des.get_next(g.m_max_size);
+	des.get_next(g.m_min_threshold);
+	des.get_next(g.m_nb_neighbours);
+
+	size_t bank_size;
+	des.get_next(bank_size);
+	for (size_t i = 0; i < bank_size; ++i) {
+		pos_t p;
+		des >> p;
+		g.m_bank.push_back(std::move(p));
+	}
+
+	size_t bank_buffer_size;
+	des.get_next(bank_buffer_size);
+	for (size_t i = 0; i < bank_buffer_size; ++i) {
+		pos_t p;
+		des >> p;
+		g.m_bank_buffer.push_back(std::move(p));
+	}
+
+	size_t pop_size;
+	des.get_next(pop_size);
+	for (size_t i = 0; i < pop_size; ++i) {
+		novelgenome<pos_t> ng(0);
+		des >> ng;
+		g.m_pop.push_back(std::move(ng));
+	}
 
 	return des;
 }
