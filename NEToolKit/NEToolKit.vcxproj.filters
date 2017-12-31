@@ -19,17 +19,11 @@
     <Filter Include="Source Files\network">
       <UniqueIdentifier>{530f2a9a-1687-4a3e-9f01-2cb63cd5caab}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\rtneat">
-      <UniqueIdentifier>{1272a5cb-fe5b-48e7-b979-25a5c14f842e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\neat">
       <UniqueIdentifier>{6d3311d5-617b-4cd9-b9de-56fea41b5500}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\neat">
       <UniqueIdentifier>{11193b6e-462b-4eb3-9127-574a28ec6673}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\rtneat">
-      <UniqueIdentifier>{5cbe71cd-8468-49ac-9a55-2ed64717f52e}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\csv">
       <UniqueIdentifier>{13575ecc-664b-4ebe-93e3-aca9bf8f2de1}</UniqueIdentifier>

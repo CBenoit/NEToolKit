@@ -72,8 +72,7 @@ double netkit::novelbank<pos_t>::evaluate(const novelgenome<pos_t>& ng) {
 	}
 
 	double sparseness = 0.0;
-	unsigned int i = m_nb_neighbours;
-	while (i-- && !pq.empty()) {
+	while (!pq.empty()) {
 		sparseness += ng.get_pos().novelty_distance(pq.top());
 		pq.pop();
 	}
